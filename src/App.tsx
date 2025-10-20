@@ -1,68 +1,31 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "@/pages/HomePage";
+import CatalogoEsercizi from "@/pages/CatalogoEsercizi";
+import AppuntamentiPage from "@/pages/Appuntamenti";
+import ChatPage from "@/pages/Chat";
+import SettingsPage from "@/pages/Settings";
+import DashboardPaziente from "@/pages/DashboardPaziente";
+import PazientiPage from "@/pages/Pazienti";
+import SchedaAllenamentoPage from "@/pages/SchedaAllenamento";
 
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ModeToggle } from "@/components/custom/theme-toggler";
+
+
+
 function App() {
   return (
-    <>
-    <ModeToggle></ModeToggle>
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
-        <CardAction>
-          <Button variant="link">Sign Up</Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
-        <Button variant="outline" className="w-full">
-          Login with Google
-        </Button>
-      </CardFooter>
-    </Card>
-    </>
+      <Router>
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/appuntamenti" element={<AppuntamentiPage />} />
+          <Route path="/catalogo-esercizi" element={<CatalogoEsercizi />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/dashboard-paziente" element={<DashboardPaziente />} />
+          <Route path="/pazienti" element={<PazientiPage />} />
+          <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
+        </Routes>
+      </Router>
   )
 }
 export default App
