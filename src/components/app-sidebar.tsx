@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
+import { ModeToggle } from "../components/custom/theme-toggler";
 
 import { NavUser } from "@/components/nav-user"
 import {
@@ -82,6 +83,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
+        <ModeToggle></ModeToggle>
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
