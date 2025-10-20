@@ -1,14 +1,6 @@
 import * as React from "react"
 import {
-  BookOpen,
-  Bot,
   Users,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Settings2,
   CalendarFold,
   MessageCircle,
   Dumbbell
@@ -60,27 +52,27 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ onPageChange, ...props }: React.ComponentProps<typeof Sidebar> & { onPageChange?: (name: string) => void }) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/">
+              <button onClick={() => onPageChange?.("homepage")}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-xl" >
                   <img src={logo} style={{borderRadius: '20em'}}></img>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">FlexiFisio</span>
                 </div>
-              </a>
+              </button>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} onPageChange={onPageChange}/>
       </SidebarContent>
       <SidebarFooter>
         <ModeToggle></ModeToggle>

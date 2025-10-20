@@ -2,7 +2,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
@@ -13,17 +12,18 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import PazientiPage from "./Pazienti";
 
 function HomePage() {
-    const navigate = useNavigate();
-    return (
-        <>
-            <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                    <header className="flex h-16 shrink-0 items-center gap-2">
+  const [page, setPage] = useState("homepage")
+
+
+  return (
+    <SidebarProvider>
+      <AppSidebar onPageChange={setPage} />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2">
                         <div className="flex items-center gap-2 px-4">
                             <SidebarTrigger className="-ml-1" />
                             <Separator
@@ -35,20 +35,25 @@ function HomePage() {
                                     <BreadcrumbSeparator className="hidden md:block" />
                                     <BreadcrumbItem>
                                         <BreadcrumbPage>
-                                            HOMEPAGE
+                                            {page}
                                         </BreadcrumbPage>
                                     </BreadcrumbItem>
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
                     </header>
-                    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                        
-                    </div>
-                </SidebarInset>
-            </SidebarProvider>
-        </>
-    );
+
+        <div className="p-4">
+          {page === "homepage" && <h3>Homepage</h3>}
+          {page === "pazienti" && <PazientiPage handler={setPage}/>}
+          {page === "esercizi" && <h3>Catalogo Esercizi</h3>}
+          {page === "chat" && <h3>Chat</h3>}
+          {page === "appuntamenti" && <h3>Appuntamenti</h3>}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
+
 
 export default HomePage;
