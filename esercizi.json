@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "nome": "Sollevamento della gamba dritta",
+    "descrizione": "Esercizio mirato al rinforzo del quadricipite e alla stabilizzazione del ginocchio.",
+    "descrizione_svolgimento": "Il paziente si sdraia supino, una gamba piegata e l’altra distesa. Solleva lentamente la gamba distesa fino a circa 45°, mantiene la posizione per 2-3 secondi e la riporta giù senza toccare il suolo. Ripetere per 10-15 volte per 3 serie.",
+    "consigli_svolgimento": "Evitare movimenti bruschi, mantenere il piede in posizione neutra e respirare in modo regolare durante l’esecuzione.",
+    "video": "https://www.youtube.com/watch?v=X51VkjyJtdM",
+    "immagine": "https://images.unsplash.com/photo-1599058917212-d750089bc07f",
+    "fisioterapista_id": 1
+  },
+  {
+    "id": 2,
+    "nome": "Estensione del ginocchio da seduto",
+    "descrizione": "Esercizio utile per recuperare forza e mobilità del ginocchio dopo un intervento o un infortunio.",
+    "descrizione_svolgimento": "Sedersi su una sedia con la schiena dritta. Estendere lentamente una gamba in avanti fino a raddrizzarla completamente, contrarre il quadricipite e mantenere la posizione per 2-3 secondi. Riportare lentamente la gamba nella posizione iniziale. Ripetere per 10-15 volte.",
+    "consigli_svolgimento": "Non spingere oltre il limite del dolore. Controllare il movimento in discesa per evitare sollecitazioni eccessive.",
+    "video": "https://www.youtube.com/watch?v=def456",
+    "immagine": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1",
+    "fisioterapista_id": 1
+  },
+  {
+    "id": 3,
+    "nome": "Rotazioni del tronco da seduto",
+    "descrizione": "Esercizio di mobilità articolare per la colonna dorsale e lombare.",
+    "descrizione_svolgimento": "Sedersi con i piedi ben appoggiati a terra e le mani sulle spalle. Ruotare lentamente il tronco verso destra, tornare al centro e poi ruotare verso sinistra. Mantenere i fianchi fermi durante il movimento.",
+    "consigli_svolgimento": "Mantenere una postura eretta e controllare la respirazione. Eseguire il movimento in modo fluido, senza forzare.",
+    "video": "https://www.youtube.com/watch?v=ghi789",
+    "immagine": "https://images.unsplash.com/photo-1594737625785-c418f9233b6c",
+    "fisioterapista_id": 2
+  },
+  {
+    "id": 4,
+    "nome": "Abduzione della spalla con elastico",
+    "descrizione": "Esercizio per rinforzare i muscoli della spalla e migliorare la stabilità scapolare.",
+    "descrizione_svolgimento": "In piedi, tenere un elastico con una mano mentre l’altra esegue una trazione laterale verso l’esterno, mantenendo il gomito leggermente flesso. Ritornare lentamente alla posizione iniziale.",
+    "consigli_svolgimento": "Eseguire l’esercizio davanti a uno specchio per controllare la postura. Evitare di alzare le spalle durante la trazione.",
+    "video": "https://www.youtube.com/watch?v=jkl012",
+    "immagine": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1",
+    "fisioterapista_id": 2
+  },
+  {
+    "id": 5,
+    "nome": "Ponte gluteo",
+    "descrizione": "Esercizio per rinforzare glutei e muscoli posteriori della coscia.",
+    "descrizione_svolgimento": "Sdraiarsi supini con le ginocchia piegate e i piedi a terra. Sollevare lentamente il bacino fino a formare una linea retta dalle spalle alle ginocchia. Mantenere la posizione per 5 secondi e poi tornare lentamente a terra.",
+    "consigli_svolgimento": "Evitare di inarcare la schiena. Concentrarsi sulla contrazione dei glutei e mantenere i piedi alla stessa distanza per tutto l’esercizio.",
+    "video": "https://www.youtube.com/watch?v=mno345",
+    "immagine": "https://images.unsplash.com/photo-1599058917212-d750089bc07f",
+    "fisioterapista_id": 3
+  }
+]
