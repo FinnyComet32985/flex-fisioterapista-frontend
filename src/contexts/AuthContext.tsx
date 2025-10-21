@@ -6,6 +6,7 @@ interface AuthContextType {
     token: string | null;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    register: (nome:string, cognome:string, email: string, password: string) => void;
 }
 
 // 1. Creazione del Context
@@ -69,12 +70,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("token");
     };
 
+    const register = async (nome:string, cognome:string, email: string, password: string) => {
+        return null
+    }
+
     // Il valore esposto dal Context
     const contextValue: AuthContextType = {
         isAuthenticated,
         token,
         login,
         logout,
+        register
     };
 
     return (

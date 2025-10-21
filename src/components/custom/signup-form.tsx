@@ -6,21 +6,24 @@ import {
     FieldDescription,
     FieldGroup,
     FieldLabel,
+    FieldSeparator,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.jpg";
+import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext.tsx";
 
-export default function LoginForm({
+export function SignupForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [nome, setNome] = useState("");
+    const [cognome, setCognome] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const { login, isAuthenticated } = useAuth();
+    const { register, isAuthenticated } = useAuth();
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -29,13 +32,14 @@ export default function LoginForm({
             navigate("/", { replace: true });
         }
     }, [isAuthenticated, navigate]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setIsLoading(true);
 
         try {
-            await login(email, password);
+            await register(nome, cognome, email, password);
             navigate("/");
         } catch (err) {
             setError("Credenziali non valide.");
@@ -53,32 +57,62 @@ export default function LoginForm({
                         <FieldGroup>
                             <div className="flex flex-col items-center gap-2 text-center">
                                 <h1 className="text-2xl font-bold">
-                                    Bentornato!
+                                    Crea il tuo account
                                 </h1>
-                                <p className="text-muted-foreground text-balance">
-                                    Accedi al tuo account FlexiFisio
+                                <p className="text-muted-foreground text-sm text-balance">
+                                    Inserisci la tua email per creare il tuo
+                                    account
                                 </p>
                             </div>
+                            <Field>
+                                <Field className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel htmlFor="nome">
+                                            Nome
+                                        </FieldLabel>
+                                        <Input
+                                            id="nome"
+                                            type="text"
+                                            onChange={(e) =>
+                                                setNome(e.target.value)
+                                            }
+                                            required
+                                        />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel htmlFor="confirm-password">
+                                            Cognome
+                                        </FieldLabel>
+                                        <Input
+                                            id="cognome"
+                                            type="text"
+                                            onChange={(e) =>
+                                                setCognome(e.target.value)
+                                            }
+                                            required
+                                        />
+                                    </Field>
+                                </Field>
+                            </Field>
+                            <FieldSeparator></FieldSeparator>
                             <Field>
                                 <FieldLabel htmlFor="email">Email</FieldLabel>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="email@example.com"
+                                    placeholder="m@example.com"
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                 />
                             </Field>
                             <Field>
-                                <div className="flex items-center">
-                                    <FieldLabel htmlFor="password">
-                                        Password
-                                    </FieldLabel>
-                                </div>
+                                <FieldLabel htmlFor="password">
+                                    Password
+                                </FieldLabel>
                                 <Input
                                     id="password"
-                                    placeholder="********"
                                     type="password"
+                                    placeholder="*********"
                                     onChange={(e) =>
                                         setPassword(e.target.value)
                                     }
@@ -91,13 +125,13 @@ export default function LoginForm({
                             <Field>
                                 <Button type="submit" disabled={isLoading}>
                                     {isLoading
-                                        ? "Accesso in corso..."
-                                        : "Accedi"}
+                                        ? "Registrazione in corso..."
+                                        : "Registrati"}
                                 </Button>
                             </Field>
                             <FieldDescription className="text-center">
-                                Non hai un account?{" "}
-                                <a href="/register">Registrati ora</a>
+                                Hai già unaccount?{" "}
+                                <a href="/login">Accedi ora</a>
                             </FieldDescription>
                         </FieldGroup>
                     </form>
@@ -105,7 +139,7 @@ export default function LoginForm({
                         <img
                             src={logo}
                             alt="Image"
-                            className="absolute inset-0 h-full w-full object-cover "
+                            className="absolute inset-0 h-full w-full object-cover"
                         />
                     </div>
                 </CardContent>

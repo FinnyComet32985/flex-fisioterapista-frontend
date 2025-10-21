@@ -7,10 +7,9 @@ import SettingsPage from "@/pages/logged/Settings";
 import DashboardPaziente from "@/pages/logged/DashboardPaziente";
 import PazientiPage from "@/pages/logged/Pazienti";
 import SchedaAllenamentoPage from "@/pages/logged/SchedaAllenamento";
-import MainLayout from "./layouts/mainLayout";
 import LoginPage from "./pages/unlogged/login";
 import ProtectedRoute from "@/components/utils/ProtectedRoutes";
-
+import RegisterPage from "./pages/unlogged/register";
 
 
 
@@ -30,6 +29,7 @@ function App() {
             <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
           </Route>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </Router>
   )
