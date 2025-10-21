@@ -1,6 +1,14 @@
 import * as React from "react"
 import {
+  BookOpen,
+  Bot,
   Users,
+  Frame,
+  LifeBuoy,
+  Map,
+  PieChart,
+  Send,
+  Settings2,
   CalendarFold,
   MessageCircle,
   Dumbbell
@@ -52,31 +60,31 @@ const data = {
   ],
 }
 
-export function AppSidebar({ onPageChange, ...props }: React.ComponentProps<typeof Sidebar> & { onPageChange?: (name: string) => void }) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <button onClick={() => onPageChange?.("flexifisio")}>
+              <a href="/">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-xl" >
                   <img src={logo} style={{borderRadius: '20em'}}></img>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">FlexiFisio</span>
                 </div>
-              </button>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} onPageChange={onPageChange}/>
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <ModeToggle></ModeToggle>
-        <NavUser user={data.user} onPageChange={onPageChange} />
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
   )
