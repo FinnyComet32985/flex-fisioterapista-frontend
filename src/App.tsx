@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "@/pages/HomePage";
-import CatalogoEsercizi from "@/pages/CatalogoEsercizi";
-import AppuntamentiPage from "@/pages/Appuntamenti";
-import ChatPage from "@/pages/Chat";
-import SettingsPage from "@/pages/Settings";
-import DashboardPaziente from "@/pages/DashboardPaziente";
-import PazientiPage from "@/pages/Pazienti";
-import SchedaAllenamentoPage from "@/pages/SchedaAllenamento";
+import HomePage from "@/pages/logged/HomePage";
+import CatalogoEsercizi from "@/pages/logged/CatalogoEsercizi";
+import AppuntamentiPage from "@/pages/logged/Appuntamenti";
+import ChatPage from "@/pages/logged/Chat";
+import SettingsPage from "@/pages/logged/Settings";
+import DashboardPaziente from "@/pages/logged/DashboardPaziente";
+import PazientiPage from "@/pages/logged/Pazienti";
+import SchedaAllenamentoPage from "@/pages/logged/SchedaAllenamento";
 import MainLayout from "./layouts/mainLayout";
+import LoginPage from "./pages/unlogged/login";
 
 
 
@@ -27,6 +28,7 @@ function App() {
             <Route path="/pazienti" element={<PazientiPage />} />
             <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
           </Route>
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </Router>
   )

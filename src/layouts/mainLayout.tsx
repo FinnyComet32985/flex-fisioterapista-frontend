@@ -2,10 +2,10 @@ import { AppSidebar } from "@/components/custom/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
+    // BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
-    BreadcrumbSeparator,
+    // BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -13,11 +13,27 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 function MainLayout() {
-return(<>
-<SidebarProvider>
+
+    const path = {
+        "": "HOMEPAGE",
+        "appuntamenti": "APPUNTAMENTI",
+        "catalogo-esercizi": "CATALOGO",
+        "chat": "CHAT",
+        "settings": "IMPOSTAZIONI",
+        "dashboard-paziente": "DASHBOARD",
+        "pazienti": "PAZIENTI",
+        "scheda-allenamento": "SCHEDA"
+    } as const;
+    const locator = useLocation();
+    const pathArray: string[] = locator.pathname.substring(1).split("/");
+    
+
+    return (
+        <>
+            <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
                     <header className="flex h-16 shrink-0 items-center gap-2">
@@ -29,12 +45,13 @@ return(<>
                             />
                             <Breadcrumb>
                                 <BreadcrumbList>
-                                    <BreadcrumbSeparator className="hidden md:block" />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbPage>
-                                            HOMEPAGE
-                                        </BreadcrumbPage>
-                                    </BreadcrumbItem>
+                                    {pathArray && (
+                                        <BreadcrumbItem>
+                                            <BreadcrumbPage>
+                                                {path[pathArray[0] as keyof typeof path]}
+                                            </BreadcrumbPage>
+                                        </BreadcrumbItem>
+                                    )}
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
@@ -43,8 +60,9 @@ return(<>
                         <Outlet></Outlet>
                     </div>
                 </SidebarInset>
-            </SidebarProvider></>);
+            </SidebarProvider>
+        </>
+    );
 }
-
 
 export default MainLayout;
