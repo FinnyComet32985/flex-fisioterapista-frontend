@@ -16,7 +16,7 @@ import {
 
 import { NavMain } from "@/components/custom/nav-main"
 import { ModeToggle } from "./theme-toggler";
-
+import {Link} from "react-router-dom";
 import { NavUser } from "@/components/custom/nav-user"
 import {
   Sidebar,
@@ -67,14 +67,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/">
+              <Link to="/">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-xl" >
                   <img src={logo} style={{borderRadius: '20em'}}></img>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">FlexiFisio</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
