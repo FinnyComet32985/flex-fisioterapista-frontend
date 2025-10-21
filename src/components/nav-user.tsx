@@ -14,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -24,18 +23,28 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useNavigate } from "react-router-dom";
+
+
+
+
+
 export function NavUser({
   user,
+  onPageChange
 }: {
   user: {
     name: string
     email: string
     avatar: string
-  }
+  },
+  onPageChange?: (name: string) => void
 }) {
+
+
   const { isMobile } = useSidebar()
-  const navigate = useNavigate();
+
+
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -62,8 +71,8 @@ export function NavUser({
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <DropdownMenuItem className="p-0 font-normal" onClick={() => onPageChange?.("profile")}>
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm" >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
@@ -73,19 +82,19 @@ export function NavUser({
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
               </div>
-            </DropdownMenuLabel>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
               
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => {navigate('/settings')}}>
+              <DropdownMenuItem onClick={() => onPageChange?.("settings")}>
                 <Settings />
                 Impostazioni
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem /* onClick={ logout function  }*/>
               <LogOut />
-              Log out
+              Esci
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

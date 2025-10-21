@@ -22,7 +22,7 @@ function PazientiPage({handler}: {handler: (name: string) => void}){
 
         {
             data && data.map((paziente) => (
-                <Button onClick={() => handler("pazienti/" + paziente.name)}>{paziente.name} {paziente.surname}</Button>))
+                <Button onClick={() => handler("pazienti/" + paziente.name+ " "+ paziente.surname)}>{paziente.name} {paziente.surname}</Button>))
         }
         </>
     );

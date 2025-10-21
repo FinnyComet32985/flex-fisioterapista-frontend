@@ -59,7 +59,7 @@ export function AppSidebar({ onPageChange, ...props }: React.ComponentProps<type
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <button onClick={() => onPageChange?.("homepage")}>
+              <button onClick={() => onPageChange?.("flexifisio")}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-xl" >
                   <img src={logo} style={{borderRadius: '20em'}}></img>
                 </div>
@@ -76,7 +76,7 @@ export function AppSidebar({ onPageChange, ...props }: React.ComponentProps<type
       </SidebarContent>
       <SidebarFooter>
         <ModeToggle></ModeToggle>
-        <NavUser user={data.user} />
+        <NavUser user={data.user} onPageChange={onPageChange} />
       </SidebarFooter>
     </Sidebar>
   )
