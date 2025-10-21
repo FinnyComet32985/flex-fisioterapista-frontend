@@ -9,6 +9,7 @@ import PazientiPage from "@/pages/logged/Pazienti";
 import SchedaAllenamentoPage from "@/pages/logged/SchedaAllenamento";
 import MainLayout from "./layouts/mainLayout";
 import LoginPage from "./pages/unlogged/login";
+import ProtectedRoute from "@/components/utils/ProtectedRoutes";
 
 
 
@@ -18,7 +19,7 @@ function App() {
       <Router>
 
         <Routes>
-          <Route element={<MainLayout />} >
+          <Route element={<ProtectedRoute/>} >
             <Route path="/" element={<HomePage />} />
             <Route path="/appuntamenti" element={<AppuntamentiPage />} />
             <Route path="/catalogo-esercizi" element={<CatalogoEsercizi />} />

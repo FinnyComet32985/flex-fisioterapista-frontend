@@ -1,14 +1,6 @@
 import * as React from "react"
 import {
-  BookOpen,
-  Bot,
   Users,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Settings2,
   CalendarFold,
   MessageCircle,
   Dumbbell
