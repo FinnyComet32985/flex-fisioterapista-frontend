@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
 interface Esercizio {
@@ -24,6 +25,7 @@ interface Esercizio {
 function CatalogoEsercizi() {
     const [esercizi, setEsercizi] = useState<Esercizio[]>([]);
     const [videoSelezionato, setVideoSelezionato] = useState<string | null>(null);
+    const [query, setQuery] = useState<string>("");
 
   useEffect(() => {
     fetch("/esercizi.json")
@@ -35,38 +37,49 @@ function CatalogoEsercizi() {
       .catch((error) => console.error(error));
     }, []);
 
+     const eserciziFiltrati = esercizi.filter((e) =>
+    e.nome.toLowerCase().includes(query.toLowerCase()) ||
+    e.descrizione.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
     <>
-    <div className="container grid grid-cols-3 mx-auto mt-4 p-2 gap-4">
-      {esercizi.map((esercizio) => (
-        <Card key={esercizio.id}>
+    {/* 🔍 Barra di ricerca */}
+      <div className="flex justify-center mt-6 mb-4">
+        <Input
+          type="text"
+          placeholder="Cerca un esercizio..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-1/2 bg-card text-gray-200 placeholder-gray-500 border-gray-700 focus-visible:ring-blue-500"
+        />
+      </div>
+    <div className="container grid mx-auto mt-4 p-2 gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {eserciziFiltrati.map((esercizio) => (
+        <Card key={esercizio.id} className="flex flex-col h-full">
           <CardHeader>
             <CardTitle className="text-center">{esercizio.nome.toUpperCase()}</CardTitle>
             <CardDescription>{esercizio.descrizione}</CardDescription>
             {/* <CardAction>{esercizio.consigli_svolgimento}</CardAction> */}
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="flex-1">
           <img src={esercizio.immagine} alt={esercizio.nome} className="w-full h-48 object-cover mb-3 rounded-lg" />
         </CardContent>
-        <CardFooter>
+
+        <CardFooter className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <p className="text-muted-foreground">{esercizio.descrizione_svolgimento}</p>
         </CardFooter>
+        <div className="flex gap-2 text-right justify-center mb-2">
          {esercizio.video && (
               <Button
                 onClick={() => setVideoSelezionato(esercizio.video!)}
-                style={{
-                  /* marginTop: "10px",
-                  padding: "10px 15px",
-                  backgroundColor: "#1976d2",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px", */
-                  cursor: "pointer"
-                }}
+                className="mr-2 ml-2 cursor-pointer"
               >
                 🎥 Guarda video
               </Button>
             )}
+            </div>
       </Card>
      ))}
      
