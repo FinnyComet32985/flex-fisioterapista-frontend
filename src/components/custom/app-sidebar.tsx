@@ -14,10 +14,10 @@ import {
   Dumbbell
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { ModeToggle } from "../components/custom/theme-toggler";
+import { NavMain } from "@/components/custom/nav-main"
+import { ModeToggle } from "./theme-toggler";
 
-import { NavUser } from "@/components/nav-user"
+import { NavUser } from "@/components/custom/nav-user"
 import {
   Sidebar,
   SidebarContent,
