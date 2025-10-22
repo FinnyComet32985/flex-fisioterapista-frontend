@@ -219,16 +219,16 @@ const ChatMessenger: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-[calc(100vh-8rem)] bg-gray-100">
       {/* Contacts List */}
       <div
         className={`${
           isMobileView ? (activeContact ? "hidden" : "w-full") : "w-1/3"
         } bg-white border-r border-gray-200`}
       >
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-2 border-b border-gray-200">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-3 text-gray-400" />
+            <FiSearch className="absolute left-3 top-2 text-gray-400" />
             <input
               type="text"
               placeholder="Search contacts"
@@ -238,7 +238,7 @@ const ChatMessenger: React.FC = () => {
             />
           </div>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-5rem)]">
+        <div className="overflow-y-auto h-[calc(100vh-12rem)]">
           {filteredContacts.map((contact) => (
             <div
               key={contact.id}
@@ -280,7 +280,7 @@ const ChatMessenger: React.FC = () => {
         } flex flex-col`}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 bg-white">
+        <div className=" border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between">
             {isMobileView && (
               <button
