@@ -20,7 +20,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { apiGet } from "@/lib/api"
-import logo from "@/assets/logo.jpg"
+import logo from "@/assets/logo.png"
 
 interface UserProfile {
   nome: string;

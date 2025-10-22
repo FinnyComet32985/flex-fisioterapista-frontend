@@ -8,7 +8,7 @@ import {
     FieldLabel,
     FieldSeparator,
 } from "@/components/ui/field";
-import logo from "@/assets/logo.jpg";
+import logo from "@/assets/logo.png";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";

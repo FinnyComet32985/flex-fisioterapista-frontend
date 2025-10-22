@@ -8,7 +8,7 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/logo.jpg";
+import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext.tsx";
