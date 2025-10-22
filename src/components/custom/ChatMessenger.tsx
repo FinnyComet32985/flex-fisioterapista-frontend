@@ -1,58 +1,58 @@
+// Importazione delle dipendenze React necessarie
 import { useState, useEffect, useRef } from "react";
 import type { ChangeEvent } from "react";
+// Importazione delle icone da react-icons/fi per l'interfaccia utente
 import {
-  FiSearch,
-  FiSend,
-  FiVideo,
-  FiEdit2,
-  FiTrash2,
-  FiImage,
-  FiPaperclip,
-  FiUsers,
-  FiMoreVertical,
-  FiArrowLeft,
+  FiSearch,      // Icona per la ricerca
+  FiSend,        // Icona per inviare messaggi
+  FiPaperclip,   // Icona per allegati
+  FiArrowLeft,   // Icona freccia indietro
 } from "react-icons/fi";
-import { BsEmojiSmile } from "react-icons/bs";
+// Importazione utility per la formattazione delle date
 import { format } from "date-fns";
 
-// ==== Tipi ====
+// ==== Definizione dei tipi TypeScript ====
 
+// Tipo per gli allegati nei messaggi
 type Attachment = {
-  type: "image" | "file";
-  url: string;
-  name: string;
-  fileType?: string;
+  type: "image" | "file";     // Tipo di allegato: immagine o file generico
+  url: string;                // URL dell'allegato
+  name: string;               // Nome del file
+  fileType?: string;          // Tipo MIME del file (opzionale)
 };
 
+// Tipo per i messaggi
 type Message = {
-  id: number;
-  senderId: number | "me";
-  text: string;
-  timestamp: Date;
-  status: "sent" | "delivered" | "read";
-  attachments: Attachment[];
+  id: number;                 // ID univoco del messaggio
+  senderId: number | "me";    // ID del mittente ("me" per l'utente corrente)
+  text: string;               // Contenuto testuale del messaggio
+  timestamp: Date;            // Data e ora del messaggio
+  status: "sent" | "delivered" | "read";  // Stato del messaggio
+  attachments: Attachment[];  // Array di allegati
 };
 
+// Tipo per i contatti
 type Contact = {
-  id: number;
-  name: string;
-  image: string;
-  lastMessage: string;
-  timestamp: Date;
-  unread: number;
+  id: number;                 // ID univoco del contatto
+  name: string;               // Nome del contatto
+  image: string;              // URL dell'immagine profilo
+  lastMessage: string;        // Ultimo messaggio nella chat
+  timestamp: Date;            // Data e ora dell'ultimo messaggio
+  unread: number;            // Numero di messaggi non letti
 };
 
+// Mappa che associa l'ID del contatto con l'array dei suoi messaggi
 type MessagesMap = Record<number, Message[]>;
 
 // ==== Componente principale ====
 
+// ==== Componente principale del Messenger ====
 const ChatMessenger: React.FC = () => {
-  const [isMobileView, setIsMobileView] = useState<boolean>(false);
-  const [showUserDetails, setShowUserDetails] = useState<boolean>(false);
-  const [messageSearch, setMessageSearch] = useState<string>("");
-  const [showMessageOptions, setShowMessageOptions] = useState<number | null>(null);
+  // Stati per la gestione dell'interfaccia
+  const [isMobileView, setIsMobileView] = useState<boolean>(false);          // Gestisce la vista mobile/desktop
+  const [messageSearch, setMessageSearch] = useState<string>("");            // Testo di ricerca messaggi
 
-  const [contacts, setContacts] = useState<Contact[]>([
+  const contacts = [
     {
       id: 1,
       name: "Sarah Wilson",
@@ -77,7 +77,7 @@ const ChatMessenger: React.FC = () => {
       timestamp: new Date(2024, 0, 15, 12, 15),
       unread: 1,
     },
-  ]);
+  ];
 
   const [messages, setMessages] = useState<MessagesMap>({
     1: [
@@ -127,70 +127,78 @@ const ChatMessenger: React.FC = () => {
     ],
   });
 
-  const [activeContact, setActiveContact] = useState<Contact | null>(contacts[0]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [newMessage, setNewMessage] = useState<string>("");
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-  const messageEndRef = useRef<HTMLDivElement | null>(null);
-  const [showAttachments, setShowAttachments] = useState<boolean>(false);
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Stati per la gestione della chat
+  const [activeContact, setActiveContact] = useState<Contact | null>(contacts[0]); // Contatto selezionato
+  const [searchQuery, setSearchQuery] = useState<string>("");                      // Ricerca contatti
+  const [newMessage, setNewMessage] = useState<string>("");                        // Testo nuovo messaggio
+  const messageEndRef = useRef<HTMLDivElement | null>(null);                      // Riferimento per lo scroll automatico
+  const fileInputRef = useRef<HTMLInputElement | null>(null);                     // Riferimento per input file
 
+  // Effetto per lo scroll automatico quando arrivano nuovi messaggi
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Filtra i contatti in base alla ricerca
   const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Filtra i messaggi del contatto attivo in base alla ricerca
   const filteredMessages = activeContact
     ? messages[activeContact.id]?.filter((message) =>
         message.text.toLowerCase().includes(messageSearch.toLowerCase())
       )
     : [];
 
+  // Gestisce l'invio di un nuovo messaggio
   const handleSendMessage = () => {
-    if (!activeContact) return;
-    if (newMessage.trim()) {
+    if (!activeContact) return;  // Verifica che ci sia un contatto attivo
+    if (newMessage.trim()) {     // Verifica che il messaggio non sia vuoto
+      // Crea un nuovo oggetto messaggio
       const newMsg: Message = {
-        id: messages[activeContact.id]?.length + 1 || 1,
-        senderId: "me",
-        text: newMessage,
-        timestamp: new Date(),
-        status: "sent",
-        attachments: [],
+        id: messages[activeContact.id]?.length + 1 || 1,  // Genera un nuovo ID
+        senderId: "me",                                   // Imposta il mittente come utente corrente
+        text: newMessage,                                 // Testo del messaggio
+        timestamp: new Date(),                            // Data e ora correnti
+        status: "sent",                                   // Stato iniziale
+        attachments: [],                                  // Nessun allegato
       };
 
+      // Aggiorna lo stato dei messaggi aggiungendo il nuovo messaggio
       setMessages((prev) => ({
         ...prev,
         [activeContact.id]: [...(prev[activeContact.id] || []), newMsg],
       }));
 
-      setNewMessage("");
+      setNewMessage("");  // Pulisce il campo di input
     }
   };
 
+  // Gestisce il caricamento di file come allegati
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    if (!activeContact) return;
-    const file = event.target.files?.[0];
+    if (!activeContact) return;  // Verifica che ci sia un contatto attivo
+    const file = event.target.files?.[0];  // Prende il primo file selezionato
     if (file) {
+      // Crea un nuovo messaggio con l'allegato
       const newMsg: Message = {
         id: messages[activeContact.id]?.length + 1 || 1,
         senderId: "me",
-        text: "",
+        text: "",  // Messaggio vuoto perché contiene solo l'allegato
         timestamp: new Date(),
         status: "sent",
         attachments: [
           {
+            // Determina se è un'immagine o un altro tipo di file
             type: file.type.startsWith("image/") ? "image" : "file",
-            url: URL.createObjectURL(file),
+            url: URL.createObjectURL(file),  // Crea un URL locale per il file
             name: file.name,
             fileType: file.type,
           },
         ],
       };
 
+      // Aggiunge il messaggio con l'allegato alla chat
       setMessages((prev) => ({
         ...prev,
         [activeContact.id]: [...(prev[activeContact.id] || []), newMsg],
@@ -198,38 +206,16 @@ const ChatMessenger: React.FC = () => {
     }
   };
 
-  const handleDeleteMessage = (messageId: number) => {
-    if (!activeContact) return;
-    setMessages((prev) => ({
-      ...prev,
-      [activeContact.id]: prev[activeContact.id].filter((msg) => msg.id !== messageId),
-    }));
-  };
 
-  const handleEditMessage = (messageId: number, newText?: string) => {
-    if (!activeContact) return;
-    setMessages((prev) => ({
-      ...prev,
-      [activeContact.id]: prev[activeContact.id].map((msg) =>
-        msg.id === messageId ? { ...msg, text: newText ?? msg.text } : msg
-      ),
-    }));
-  };
 
-  const handleDeleteChat = (contactId: number) => {
-    setMessages((prev) => ({
-      ...prev,
-      [contactId]: [],
-    }));
-  };
-
+  // Gestisce il ridimensionamento della finestra e imposta la vista mobile/desktop
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
+      setIsMobileView(window.innerWidth < 768);  // Imposta vista mobile se larghezza < 768px
     };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    handleResize();  // Esegue al mount
+    window.addEventListener("resize", handleResize);  // Aggiunge listener
+    return () => window.removeEventListener("resize", handleResize);  // Cleanup al unmount
   }, []);
 
   return (
@@ -259,10 +245,7 @@ const ChatMessenger: React.FC = () => {
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
                 activeContact?.id === contact.id ? "bg-blue-50" : ""
               }`}
-              onClick={() => {
-                setActiveContact(contact);
-                setShowUserDetails(false);
-              }}
+              onClick={() => setActiveContact(contact)}
             >
               <img
                 src={contact.image}
@@ -307,14 +290,7 @@ const ChatMessenger: React.FC = () => {
                 <FiArrowLeft className="text-xl" />
               </button>
             )}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowUserDetails(!showUserDetails)}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <FiMoreVertical className="text-xl text-gray-600" />
-              </button>
-            </div>
+
           </div>
         </div>
 
@@ -348,26 +324,8 @@ const ChatMessenger: React.FC = () => {
                         ? "bg-blue-500 text-white"
                         : "bg-white"
                     }`}
-                    onMouseEnter={() => setShowMessageOptions(message.id)}
-                    onMouseLeave={() => setShowMessageOptions(null)}
                   >
                     {message.text}
-                    {showMessageOptions === message.id && (
-                      <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-white shadow-lg rounded-lg p-2">
-                        <button
-                          onClick={() => handleEditMessage(message.id)}
-                          className="block p-2 hover:bg-gray-100 w-full text-left"
-                        >
-                          <FiEdit2 className="inline mr-2" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className="block p-2 hover:bg-gray-100 w-full text-left text-red-500"
-                        >
-                          <FiTrash2 className="inline mr-2" /> Delete
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
@@ -375,48 +333,15 @@ const ChatMessenger: React.FC = () => {
             </div>
           </div>
 
-          {/* User details sidebar */}
-          {showUserDetails && activeContact && (
-            <div className="w-80 border-l border-gray-200 bg-white p-4 overflow-y-auto">
-              <h3 className="font-semibold mb-4">Shared Files</h3>
-              <div className="space-y-2">
-                {messages[activeContact.id]
-                  ?.filter((msg) => msg.attachments.length > 0)
-                  .flatMap((msg) =>
-                    msg.attachments.map((attachment, idx) => (
-                      <div
-                        key={`${msg.id}-${idx}`}
-                        className="flex items-center p-2 hover:bg-gray-50 rounded"
-                      >
-                        <FiPaperclip className="mr-2" />
-                        <span className="text-sm">{attachment.name}</span>
-                      </div>
-                    ))
-                  )}
-              </div>
-              <button
-                onClick={() => handleDeleteChat(activeContact.id)}
-                className="mt-4 w-full p-2 text-red-500 hover:bg-red-50 rounded"
-              >
-                Delete Chat
-              </button>
-            </div>
-          )}
+
         </div>
 
         {/* Footer */}
         <div className="p-4 bg-white border-t border-gray-200">
           <div className="flex items-center">
             <div className="flex space-x-2">
-              <BsEmojiSmile className="text-gray-400 text-xl cursor-pointer hover:text-gray-600" />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <FiImage className="text-xl" />
-              </button>
-              <button
-                onClick={() => setShowAttachments(!showAttachments)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <FiPaperclip className="text-xl" />
