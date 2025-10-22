@@ -5,6 +5,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "./custom/calendar-appointment";
 import { apiGet } from "@/lib/api";
+import { ComboboxDemo } from "./custom/combobox";
+import { Button } from "./ui/button";
 
 export default function Calendar20() {
     const [data, setData] = React.useState<Date | undefined>(new Date());
@@ -206,9 +208,17 @@ export default function Calendar20() {
                 <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
                     <div className="text-sm">
                         {orariAttuali[orarioSelezionato].paziente_id ? (
-                            <>modifica appuntamento</>
+                            <>
+                            <p>modifica appuntamento</p>
+                            </>
                         ) : (
-                            <>prenota ora</>
+                            <div className="flex justify-between gap-2">
+                            <div className="flex flex-row gap-2">
+                            <p>Seleziona il paziente che vuoi prenotare: </p>
+                            <ComboboxDemo></ComboboxDemo>
+                            </div>
+                            <Button>Prenota</Button>
+                            </div>
                         )}
                     </div>
                 </CardFooter>
