@@ -1,12 +1,13 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { type ReactNode } from "react";
+import { initApi } from "@/lib/api";
 // Definiamo la "forma" del nostro context
 interface AuthContextType {
     isAuthenticated: boolean;
     token: string | null;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
-    register: (nome:string, cognome:string, email: string, password: string) => void;
+    register: (nome: string, cognome: string, email: string, password: string) => Promise<void>;
 }
 
 // 1. Creazione del Context
@@ -39,7 +40,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 body: JSON.stringify({ email, password }),
             }
         );
-        console.log(response);
 
 
         if (response.status !== 200) {
@@ -71,8 +71,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const register = async (nome:string, cognome:string, email: string, password: string) => {
-        return null
+        const response = await fetch("http://localhost:1337/fisioterapista/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, cognome, email, password }),
+        });
+
+        if (!response.ok) {
+            // Lancia un errore che verrà catturato nel form di registrazione
+            throw new Error("Registrazione fallita");
+        }
+
+        // Dopo la registrazione, esegui il login automatico
+        await login(email, password);
+    };
+
+    const refreshToken = async () => {
+        const response = await fetch(
+            "http://localhost:1337/fisioterapista/refreshToken",
+            {
+                method: "POST"
+            }
+        );
+        if (!response.ok) {
+            throw new Error("Refresh token fallito");
+        }
+        const data = await response.json();
+        const newToken = data.accessToken;
+        setToken(newToken);
+        localStorage.setItem("token", newToken);
+        console.log("Token rinfrescato con successo dal context.");
     }
+
+    // Inizializza il modulo API con le funzioni di refresh e logout
+    // Usiamo useEffect per assicurarci che venga eseguito una sola volta
+    useEffect(() => {
+        initApi({ refreshToken, logout });
+    }, [refreshToken, logout]); // Le funzioni sono stabili, quindi l'effetto non si ripeterà
 
     // Il valore esposto dal Context
     const contextValue: AuthContextType = {
@@ -80,7 +115,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         login,
         logout,
-        register
+        register,
     };
 
     return (

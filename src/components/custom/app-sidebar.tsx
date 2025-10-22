@@ -1,4 +1,4 @@
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import {
   Users,
   CalendarFold,
@@ -19,14 +19,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { apiGet } from "@/lib/api"
 import logo from "@/assets/logo.jpg"
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+interface UserProfile {
+  nome: string;
+  cognome: string;
+  email: string;
+}
+
+const navMainData = {
   navMain: [
     {
       title: "Pazienti",
@@ -53,6 +55,31 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        // Usiamo la nostra funzione helper per la chiamata API
+        const response = await apiGet("/profile");
+
+        if (!response.ok) {
+          // La logica di refresh/logout è già gestita in api.ts
+          // Qui gestiamo solo il caso in cui la chiamata fallisca per altri motivi
+          throw new Error("Impossibile caricare il profilo utente.");
+        }
+
+        const data: UserProfile = await response.json();
+        setUserProfile(data);
+      } catch (error) {
+        console.error("Errore nel caricamento del profilo:", error);
+        // Potresti voler impostare uno stato di errore qui
+      }
+    };
+
+    fetchProfile();
+  }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -72,11 +99,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMainData.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <ModeToggle></ModeToggle>
-        <NavUser user={data.user} />
+        {userProfile ? (
+          <NavUser user={{
+            name: `${userProfile.nome} ${userProfile.cognome}`,
+            email: userProfile.email,
+            avatar: "/avatars/shadcn.jpg" // Avatar ancora statico per ora
+          }} />
+        ) : (
+          // Mostra uno stato di caricamento o un fallback
+          <NavUser user={{ name: "Caricamento...", email: "...", avatar: "" }} />
+        )}
       </SidebarFooter>
     </Sidebar>
   )
