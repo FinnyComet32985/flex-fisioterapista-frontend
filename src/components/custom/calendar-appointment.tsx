@@ -8,13 +8,13 @@ import {
 
 
 
-function CalendarAppointment({ id, img, paziente, orario, selected, setSelected }: { id:number, img?: string; paziente?: string; orario: string, selected: boolean, setSelected: (index: number) => void}) {
+function CalendarAppointment({ key_id, id, img, paziente, orario, selected, setSelected }: { key_id:number, id?: number, img?: string; paziente?: string; orario: string, selected: boolean, setSelected: (index: number) => void}) {
     const borderColor = paziente ? "border-red-500 hover:bg-red-500" : "border-green-500 hover:bg-green-500"
     const colorSelected = selected ? "bg-accent" : "bg-card" 
 
 
     return (
-        <Item variant="outline" className={`bg-primary-bg w-full h-full ${borderColor} ${colorSelected}`} onClick={() => setSelected(id)}>
+        <Item variant="outline" className={`bg-primary-bg w-full h-full ${borderColor} ${colorSelected}`} onClick={() => setSelected(key_id)}>
                 {img && <ItemMedia variant="image">
                     <img
                         src={img}
