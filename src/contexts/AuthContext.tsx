@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({ email, password }),
             }
         );
@@ -74,6 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch("http://localhost:1337/fisioterapista/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include",
             body: JSON.stringify({ nome, cognome, email, password }),
         });
 
@@ -90,7 +92,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch(
             "http://localhost:1337/fisioterapista/refreshToken",
             {
-                method: "POST"
+                method: "POST",
+                credentials: "include",
             }
         );
         if (!response.ok) {
