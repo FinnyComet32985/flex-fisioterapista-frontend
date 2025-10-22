@@ -1,6 +1,7 @@
 // Importazione delle dipendenze React necessarie
 import { useState, useEffect, useRef } from "react";
 import type { ChangeEvent } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 // Importazione delle icone da react-icons/fi per l'interfaccia utente
 import {
   FiSearch,      // Icona per la ricerca
@@ -219,20 +220,22 @@ const ChatMessenger: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-gray-100">
-      {/* Contacts List */}
+    <div className="flex h-[calc(100vh-8rem)] bg-background">
+      {/* Contacts List - Mostra su desktop o su mobile se non c'è una chat attiva */}
       <div
         className={`${
-          isMobileView ? (activeContact ? "hidden" : "w-full") : "w-1/3"
-        } bg-white border-r border-gray-200`}
+          isMobileView && activeContact
+            ? "hidden"
+            : "w-full md:w-1/3"
+        } bg-card border-r border-border`}
       >
-        <div className="p-2 border-b border-gray-200">
+        <div className="p-2 border-b border-border">
           <div className="relative">
-            <FiSearch className="absolute left-3 top-2 text-gray-400" />
+            <FiSearch className="absolute left-3 top-2 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search contacts"
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:border-primary"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -242,8 +245,8 @@ const ChatMessenger: React.FC = () => {
           {filteredContacts.map((contact) => (
             <div
               key={contact.id}
-              className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
-                activeContact?.id === contact.id ? "bg-blue-50" : ""
+                className={`flex items-center p-4 cursor-pointer hover:bg-accent ${
+                activeContact?.id === contact.id ? "bg-accent" : ""
               }`}
               onClick={() => setActiveContact(contact)}
             >
@@ -254,38 +257,41 @@ const ChatMessenger: React.FC = () => {
               />
               <div className="ml-4 flex-1">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900">{contact.name}</h3>
-                  <span className="text-sm text-gray-500">
+                  <h3 className="font-semibold text-foreground">{contact.name}</h3>
+                  <span className="text-sm text-muted-foreground">
                     {format(contact.timestamp, "HH:mm")}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 truncate">
+                <p className="text-sm text-muted-foreground truncate">
                   {contact.lastMessage}
                 </p>
               </div>
               {contact.unread > 0 && (
-                <span className="ml-2 bg-blue-500 text-white rounded-full px-2 py-1 text-xs">
+                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
                   {contact.unread}
                 </span>
               )}
             </div>
           ))}
         </div>
+    
       </div>
 
-      {/* Chat Window */}
+      {/* Chat Window - Mostra su desktop o su mobile se c'è una chat attiva */}
       <div
         className={`${
-          isMobileView ? (activeContact ? "w-full" : "hidden") : "flex-1"
+          !activeContact && isMobileView
+            ? "hidden"
+            : "flex-1"
         } flex flex-col`}
       >
         {/* Header */}
-        <div className=" border-b border-gray-200 bg-white">
+        <div className="border-b border-border bg-card">
           <div className="flex items-center justify-between">
             {isMobileView && (
               <button
                 onClick={() => setActiveContact(null)}
-                className="mr-2 p-2 hover:bg-gray-100 rounded-full"
+                className="mr-2 p-2 hover:bg-accent rounded-full"
               >
                 <FiArrowLeft className="text-xl" />
               </button>
@@ -294,23 +300,26 @@ const ChatMessenger: React.FC = () => {
           </div>
         </div>
 
+        
         {/* Messages + Sidebar */}
-        <div className="flex flex-1 relative">
-          <div className="flex-1 flex flex-col">
-            <div className="p-2 bg-white border-b">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search in messages"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none"
-                  value={messageSearch}
-                  onChange={(e) => setMessageSearch(e.target.value)}
-                />
-              </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search in messages */}
+          <div className="p-2 bg-card border-b border-border">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Cerca nei messaggi"
+                className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:border-primary"
+                value={messageSearch}
+                onChange={(e) => setMessageSearch(e.target.value)}
+              />
             </div>
+          </div>
 
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          {/* Messages Area */}
+        <ScrollArea className="flex-1 w-full h-full rounded-md border p-4 overflow-y-auto">
+            <div className="p-4">
               {filteredMessages?.map((message) => (
                 <div
                   key={message.id}
@@ -321,8 +330,8 @@ const ChatMessenger: React.FC = () => {
                   <div
                     className={`max-w-[70%] rounded-lg p-3 ${
                       message.senderId === "me"
-                        ? "bg-blue-500 text-white"
-                        : "bg-white"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card text-card-foreground"
                     }`}
                   >
                     {message.text}
@@ -331,18 +340,16 @@ const ChatMessenger: React.FC = () => {
               ))}
               <div ref={messageEndRef} />
             </div>
-          </div>
-
-
+          </ScrollArea>
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-white border-t border-gray-200">
+        <div className="p-4 bg-card border-t border-border">
           <div className="flex items-center">
             <div className="flex space-x-2">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <FiPaperclip className="text-xl" />
               </button>
@@ -354,10 +361,10 @@ const ChatMessenger: React.FC = () => {
               onChange={handleFileUpload}
               accept="image/*,.pdf,.doc,.docx"
             />
-            <input
+              <input
               type="text"
               placeholder="Type a message"
-              className="flex-1 ml-4 p-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 ml-4 p-2 border border-input rounded-lg focus:outline-none focus:border-primary bg-background text-foreground"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
@@ -365,7 +372,7 @@ const ChatMessenger: React.FC = () => {
             />
             <button
               onClick={handleSendMessage}
-              className="ml-4 bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 focus:outline-none"
+              className="ml-4 bg-primary text-primary-foreground p-2 rounded-lg hover:bg-primary/90 focus:outline-none"
             >
               <FiSend className="text-xl" />
             </button>
