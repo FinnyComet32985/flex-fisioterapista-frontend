@@ -5,12 +5,13 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "./custom/calendar-appointment";
 import { apiGet } from "@/lib/api";
-import { set } from "date-fns";
 
 export default function Calendar20() {
     const [data, setData] = React.useState<Date | undefined>(new Date());
     const [mese, setMese] = React.useState<Date>(data || new Date());
-    const [orarioSelezionato, setOrarioSelezionato] = useState(0);
+    const [orarioSelezionato, setOrarioSelezionato] = React.useState<
+        number | undefined
+    >(undefined);
 
     type Appointment = {
         id: number;
@@ -55,26 +56,30 @@ export default function Calendar20() {
         fetchAppointments();
     }, []);
 
-    /* 
-    {
-		"id": 1,
-		"data_appuntamento": "2025-02-25T23:00:00.000Z",
-		"ora_appuntamento": "15:00:00",
-		"stato_conferma": "Confermato",
-		"paziente_id": 4,
-		"nome": "Carlo",
-		"cognome": "Bianchi"
-	},
-    */
-
     const [orariAttuali, setOrariAttuali] = useState<
         Array<AppointmentCalendar>
     >([]);
 
     useEffect(() => {
-        if (!data || !dati) return;
+        if (!data || !dati) {
+            if (data) {
+                const baseOrari = [9, 10, 11, 12, 15, 16, 17, 18, 19].map(
+                    (ora) => ({
+                        data_appuntamento: new Date(
+                            data.getFullYear(),
+                            data.getMonth(),
+                            data.getDate(),
+                            ora,
+                            0,
+                            0
+                        ),
+                    })
+                );
+                setOrariAttuali(baseOrari);
+            }
+            return;
+        }
 
-        // 1️⃣ Filtra appuntamenti del giorno selezionato
         const appuntamentiGiornalieri = dati.filter((appuntamento) => {
             const dataApp = new Date(appuntamento.data_appuntamento);
             return (
@@ -134,6 +139,7 @@ export default function Calendar20() {
                         selected={data}
                         onSelect={(nuovaData) => {
                             setData(nuovaData);
+                            setOrarioSelezionato(undefined);
                             if (nuovaData) {
                                 setMese(nuovaData); // calendario al mese della nuova data
                             }
@@ -173,9 +179,21 @@ export default function Calendar20() {
                                     key={index}
                                     key_id={index}
                                     id={orario.id}
-                                    img={orario.paziente_id ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687": undefined}
-                                    paziente={orario.paziente_id? orario.nome + " " + orario.cognome: undefined}
-                                    orario={orario.data_appuntamento.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}
+                                    img={
+                                        orario.paziente_id
+                                            ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
+                                            : undefined
+                                    }
+                                    paziente={
+                                        orario.paziente_id
+                                            ? orario.nome + " " + orario.cognome
+                                            : undefined
+                                    }
+                                    orario={orario.data_appuntamento.toLocaleTimeString(
+                                        "it-IT",
+                                        { hour: "2-digit", minute: "2-digit" }
+                                    )}
+                                    confermato={orario.stato_conferma}
                                     selected={orarioSelezionato === index}
                                     setSelected={setOrarioSelezionato}
                                 ></CalendarAppointment>
@@ -183,8 +201,19 @@ export default function Calendar20() {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
-                {/* <div className="text-sm">
+
+            {orarioSelezionato !== undefined && (
+                <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
+                    <div className="text-sm">
+                        {orariAttuali[orarioSelezionato].paziente_id ? (
+                            <>modifica appuntamento</>
+                        ) : (
+                            <>prenota ora</>
+                        )}
+                    </div>
+                </CardFooter>
+            )}
+            {/* <div className="text-sm">
                     {oraGiaPrenotata ? (
                         <span className="text-destructive">
                             Questa data e ora non è disponibile.
@@ -218,7 +247,6 @@ export default function Calendar20() {
                 >
                     Continua
                 </Button> */}
-            </CardFooter>
         </Card>
     );
 }

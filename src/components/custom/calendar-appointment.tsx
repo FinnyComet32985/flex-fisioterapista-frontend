@@ -8,8 +8,15 @@ import {
 
 
 
-function CalendarAppointment({ key_id, id, img, paziente, orario, selected, setSelected }: { key_id:number, id?: number, img?: string; paziente?: string; orario: string, selected: boolean, setSelected: (index: number) => void}) {
-    const borderColor = paziente ? "border-red-500 hover:bg-red-500" : "border-green-500 hover:bg-green-500"
+function CalendarAppointment({ key_id, id, img, paziente, orario, confermato, selected, setSelected }: { key_id:number, id?: number, img?: string; paziente?: string; orario: string, confermato?:string, selected: boolean, setSelected: (index: number) => void}) {
+    let borderColor
+    if (paziente && confermato === "Confermato") {
+        borderColor = "border-red-500 hover:bg-red-500"
+    } else if (paziente && confermato === "Non confermato") {
+        borderColor = "border-green-500 hover:bg-yellow-500"
+    } else {
+        borderColor = "border-green-500 hover:bg-green-500"
+    }
     const colorSelected = selected ? "bg-accent" : "bg-card" 
 
 
