@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 interface Esercizio {
@@ -45,15 +46,21 @@ function CatalogoEsercizi() {
   return (
     <>
     {/* 🔍 Barra di ricerca */}
-      <div className="flex justify-center mt-6 mb-4">
+      <div className="flex items-center justify-between mt-6 mb-4 gap-4">
         <Input
           type="text"
           placeholder="Cerca un esercizio..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-1/2 bg-card text-gray-200 placeholder-gray-500 border-gray-700 focus-visible:ring-blue-500"
+          className="flex-1 max-w-xl bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border-[color:var(--color-border)] focus-visible:ring-[color:var(--color-ring)]"
         />
+        <div>
+          <Button>
+            <Link to={"/nuovo-esercizio"}>Aggiungi Esercizio</Link>
+          </Button>
+        </div>
       </div>
+      
     <div className="container grid mx-auto mt-4 p-2 gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {eserciziFiltrati.map((esercizio) => (
         <Card key={esercizio.id} className="flex flex-col h-full">

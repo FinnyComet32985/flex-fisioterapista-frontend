@@ -10,6 +10,7 @@ import SchedaAllenamentoPage from "@/pages/logged/SchedaAllenamento";
 import LoginPage from "./pages/unlogged/login";
 import ProtectedRoute from "@/components/utils/ProtectedRoutes";
 import RegisterPage from "./pages/unlogged/register";
+import NuovoEsercizio from "./components/custom/NuovoEsercizio";
 
 
 
@@ -27,6 +28,7 @@ function App() {
             <Route path="/dashboard-paziente" element={<DashboardPaziente />} />
             <Route path="/pazienti" element={<PazientiPage />} />
             <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
+            <Route path="/nuovo-esercizio" element={<NuovoEsercizio />} />
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
