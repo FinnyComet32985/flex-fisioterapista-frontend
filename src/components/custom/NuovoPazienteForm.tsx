@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { FaUser, FaSpinner } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa";
 import { apiPost } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
+import {
+  Calendar1,
+  Mail,
+  Ruler,
+  User,
+  VenusAndMars,
+  Weight,
+} from "lucide-react";
 
 interface FormData {
   nome: string;
@@ -36,11 +44,18 @@ const NuovoPazienteForm: React.FC = () => {
   const navigate = useNavigate();
 
   const diagnoses = [
-    "Ipertensione",
-    "Diabete",
-    "Asma",
-    "Artrite",
-    "Depressione",
+    "Ipotrofia",
+    "Ipertonia",
+    "Ipomobilità",
+    "Instabilità",
+    "Limitazione articolare",
+    "Rigidità",
+    "Alterazione del passo",
+    "Dolore lombare",
+    "Squilibrio posturale",
+    "Retrazione muscolare",
+    "Ipotonia",
+    "Rallentamento motorio",
   ];
 
   const validateField = (
@@ -154,12 +169,12 @@ const NuovoPazienteForm: React.FC = () => {
         }
         if (result.status === 200) {
           setStatus("success");
-            setTimeout(() => {
+          setTimeout(() => {
             setIsLoading(false);
             setFormData(inizialeFormData);
             setErrors({});
             setStatus("");
-            navigate('/pazienti');
+            navigate("/pazienti");
           }, 3000);
         }
       } catch (error) {
@@ -172,7 +187,7 @@ const NuovoPazienteForm: React.FC = () => {
     <div className="min-h-screen bg-[color:var(--color-background)] flex items-center justify-center p-4">
       <div className="bg-[color:var(--color-card)] rounded-lg shadow-xl p-8 w-full max-w-4xl border border-[color:var(--color-border)]">
         <h1 className="text-2xl font-bold text-center mb-6 text-[color:var(--color-foreground)]">
-          Gestione Pazienti
+          Aggiungi Paziente
         </h1>
         {status === "success" && (
           <div className="mb-4 p-4 text-green-800 bg-green-200 rounded">
@@ -196,7 +211,7 @@ const NuovoPazienteForm: React.FC = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <User className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
                 </div>
                 <input
                   type="text"
@@ -229,7 +244,7 @@ const NuovoPazienteForm: React.FC = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <User className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
                 </div>
                 <input
                   type="text"
@@ -260,19 +275,24 @@ const NuovoPazienteForm: React.FC = () => {
               >
                 Email
               </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
-                  errors.email
-                    ? "border-[color:var(--color-destructive)]"
-                    : "border-[color:var(--color-border)]"
-                } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
-                placeholder="mario@example.com"
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
+                    errors.email
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
+                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                  placeholder="mario@example.com"
+                />
+              </div>
               {errors.email && (
                 <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
                   {errors.email}
@@ -287,24 +307,31 @@ const NuovoPazienteForm: React.FC = () => {
               >
                 Data di nascita
               </label>
-              <input
-                type="date"
-                name="data_nascita"
-                id="data_nascita"
-                value={
-                  typeof formData.data_nascita === "string"
-                    ? formData.data_nascita
-                    : formData.data_nascita
-                    ? new Date(formData.data_nascita).toISOString().slice(0, 10)
-                    : ""
-                }
-                onChange={handleChange}
-                className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.data_nascita
-                    ? "border-[color:var(--color-destructive)]"
-                    : "border-[color:var(--color-border)]"
-                } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar1 className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                </div>
+                <input
+                  type="date"
+                  name="data_nascita"
+                  id="data_nascita"
+                  value={
+                    typeof formData.data_nascita === "string"
+                      ? formData.data_nascita
+                      : formData.data_nascita
+                      ? new Date(formData.data_nascita)
+                          .toISOString()
+                          .slice(0, 10)
+                      : ""
+                  }
+                  onChange={handleChange}
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                    errors.data_nascita
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
+                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                />
+              </div>
               {errors.data_nascita && (
                 <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
                   {errors.data_nascita}
@@ -319,42 +346,47 @@ const NuovoPazienteForm: React.FC = () => {
               >
                 Genere
               </label>
-              <select
-                name="genere"
-                id="genere"
-                value={formData.genere}
-                onChange={handleChange}
-                className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.genere
-                    ? "border-[color:var(--color-destructive)]"
-                    : "border-[color:var(--color-border)]"
-                } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
-              >
-                <option
-                  className="bg-secondary text-[color:var(--color-muted-foreground)]"
-                  value=""
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <VenusAndMars className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                </div>
+                <select
+                  name="genere"
+                  id="genere"
+                  value={formData.genere}
+                  onChange={handleChange}
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                    errors.genere
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
+                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                 >
-                  Seleziona
-                </option>
-                <option
-                  className="bg-secondary text-[color:var(--color-foreground)]"
-                  value="M"
-                >
-                  Maschile
-                </option>
-                <option
-                  className="bg-secondary text-[color:var(--color-foreground)]"
-                  value="F"
-                >
-                  Femminile
-                </option>
-                <option
-                  className="bg-secondary text-[color:var(--color-foreground)]"
-                  value="O"
-                >
-                  Altro
-                </option>
-              </select>
+                  <option
+                    className="bg-secondary text-[color:var(--color-muted-foreground)]"
+                    value=""
+                  >
+                    Seleziona
+                  </option>
+                  <option
+                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    value="M"
+                  >
+                    Maschile
+                  </option>
+                  <option
+                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    value="F"
+                  >
+                    Femminile
+                  </option>
+                  <option
+                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    value="O"
+                  >
+                    Altro
+                  </option>
+                </select>
+              </div>
               {errors.genere && (
                 <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
                   {errors.genere}
@@ -369,21 +401,26 @@ const NuovoPazienteForm: React.FC = () => {
               >
                 Altezza (cm)
               </label>
-              <input
-                type="number"
-                name="altezza"
-                id="altezza"
-                value={formData.altezza || ""}
-                onChange={handleChange}
-                min={0}
-                step="0.1"
-                className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.altezza
-                    ? "border-[color:var(--color-destructive)]"
-                    : "border-[color:var(--color-border)]"
-                } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
-                placeholder="170"
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Ruler className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                </div>
+                <input
+                  type="number"
+                  name="altezza"
+                  id="altezza"
+                  value={formData.altezza || ""}
+                  onChange={handleChange}
+                  min={0}
+                  step="0.1"
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                    errors.altezza
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
+                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                  placeholder="170"
+                />
+              </div>
               {errors.altezza && (
                 <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
                   {errors.altezza}
@@ -398,21 +435,26 @@ const NuovoPazienteForm: React.FC = () => {
               >
                 Peso (kg)
               </label>
-              <input
-                type="number"
-                name="peso"
-                id="peso"
-                value={formData.peso || ""}
-                onChange={handleChange}
-                min={0}
-                step="0.1"
-                className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.peso
-                    ? "border-[color:var(--color-destructive)]"
-                    : "border-[color:var(--color-border)]"
-                } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
-                placeholder="70"
-              />
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Weight className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                </div>
+                <input
+                  type="number"
+                  name="peso"
+                  id="peso"
+                  value={formData.peso || ""}
+                  onChange={handleChange}
+                  min={0}
+                  step="0.1"
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                    errors.peso
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
+                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                  placeholder="70"
+                />
+              </div>
               {errors.peso && (
                 <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
                   {errors.peso}
