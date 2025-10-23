@@ -31,6 +31,7 @@ const NuovoPazienteForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>(inizialeFormData);
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -42,15 +43,20 @@ const NuovoPazienteForm: React.FC = () => {
     "Depressione",
   ];
 
-  const validateField = (name: keyof FormData, value: string | number | Date | undefined): string | undefined => {
+  const validateField = (
+    name: keyof FormData,
+    value: string | number | Date | undefined
+  ): string | undefined => {
     switch (name) {
       case "nome":
       case "cognome":
-        if (typeof value !== "string" || !value.trim()) return "Questo campo è obbligatorio";
+        if (typeof value !== "string" || !value.trim())
+          return "Questo campo è obbligatorio";
         return undefined;
 
       case "email":
-        if (typeof value !== "string" || !value.trim()) return "Inserisci un'email";
+        if (typeof value !== "string" || !value.trim())
+          return "Inserisci un'email";
         // semplice regex per email
         if (!/^\S+@\S+\.\S+$/.test(value)) return "Inserisci un'email valida";
         return undefined;
@@ -65,15 +71,18 @@ const NuovoPazienteForm: React.FC = () => {
         return undefined;
 
       case "genere":
-        if (typeof value !== "string" || !value.trim()) return "Seleziona un genere";
+        if (typeof value !== "string" || !value.trim())
+          return "Seleziona un genere";
         return undefined;
 
       case "altezza":
-        if (typeof value !== "number" || value <= 0) return "Inserisci un'altezza valida (> 0)";
+        if (typeof value !== "number" || value <= 0)
+          return "Inserisci un'altezza valida (> 0)";
         return undefined;
 
       case "peso":
-        if (typeof value !== "number" || value <= 0) return "Inserisci un peso valido (> 0)";
+        if (typeof value !== "number" || value <= 0)
+          return "Inserisci un peso valido (> 0)";
         return undefined;
 
       case "diagnosi":
@@ -96,7 +105,11 @@ const NuovoPazienteForm: React.FC = () => {
     return newErrors;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const key = name as keyof FormData;
     let parsedValue: string | number = value;
@@ -109,10 +122,10 @@ const NuovoPazienteForm: React.FC = () => {
       parsedValue = value;
     }
 
-    setFormData(prev => ({ ...prev, [key]: parsedValue as any }));
+    setFormData((prev) => ({ ...prev, [key]: parsedValue as any }));
 
     // validazione inline
-    setErrors(prev => {
+    setErrors((prev) => {
       const next = { ...prev };
       const err = validateField(key, parsedValue as any);
       if (err) next[key] = err;
@@ -130,20 +143,28 @@ const NuovoPazienteForm: React.FC = () => {
       try {
         const result = await apiPost("/patient", formData);
         if (!result.ok) {
+          setStatus("error");
+          setTimeout(() => {
+            setIsLoading(false);
+            setFormData(inizialeFormData);
+            setErrors({});
+            setStatus("");
+          }, 2000);
           throw new Error("Errore durante l'invio dei dati");
         }
         if (result.status === 200) {
+          setStatus("success");
+            setTimeout(() => {
+            setIsLoading(false);
+            setFormData(inizialeFormData);
+            setErrors({});
+            setStatus("");
             navigate('/pazienti');
+          }, 3000);
         }
       } catch (error) {
         console.error("Errore durante l'invio dei dati:", error);
       }
-      setTimeout(() => {
-        setIsLoading(false);
-        alert("Dati paziente inviati con successo!");
-        setFormData(inizialeFormData);
-        setErrors({});
-      }, 1400);
     }
   };
 
@@ -153,11 +174,24 @@ const NuovoPazienteForm: React.FC = () => {
         <h1 className="text-2xl font-bold text-center mb-6 text-[color:var(--color-foreground)]">
           Gestione Pazienti
         </h1>
+        {status === "success" && (
+          <div className="mb-4 p-4 text-green-800 bg-green-200 rounded">
+            Paziente aggiunto con successo!
+          </div>
+        )}
+        {status === "error" && (
+          <div className="mb-4 p-4 text-red-800 bg-red-200 rounded">
+            Errore durante l'aggiunta del paziente.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="nome" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="nome"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Nome
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
@@ -171,17 +205,26 @@ const NuovoPazienteForm: React.FC = () => {
                   value={formData.nome}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
-                    errors.nome ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                    errors.nome
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
                   } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                   placeholder="Mario"
                   aria-label="Nome"
                 />
               </div>
-              {errors.nome && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.nome}</p>}
+              {errors.nome && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.nome}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="cognome" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="cognome"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Cognome
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
@@ -195,17 +238,26 @@ const NuovoPazienteForm: React.FC = () => {
                   value={formData.cognome}
                   onChange={handleChange}
                   className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
-                    errors.cognome ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                    errors.cognome
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
                   } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                   placeholder="Rossi"
                   aria-label="Cognome"
                 />
               </div>
-              {errors.cognome && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.cognome}</p>}
+              {errors.cognome && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.cognome}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Email
               </label>
               <input
@@ -215,32 +267,56 @@ const NuovoPazienteForm: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
-                  errors.email ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.email
+                    ? "border-[color:var(--color-destructive)]"
+                    : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                 placeholder="mario@example.com"
               />
-              {errors.email && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.email}</p>}
+              {errors.email && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="data_nascita" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="data_nascita"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Data di nascita
               </label>
               <input
                 type="date"
                 name="data_nascita"
                 id="data_nascita"
-                value={typeof formData.data_nascita === "string" ? formData.data_nascita : (formData.data_nascita ? new Date(formData.data_nascita).toISOString().slice(0,10) : "")}
+                value={
+                  typeof formData.data_nascita === "string"
+                    ? formData.data_nascita
+                    : formData.data_nascita
+                    ? new Date(formData.data_nascita).toISOString().slice(0, 10)
+                    : ""
+                }
                 onChange={handleChange}
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.data_nascita ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.data_nascita
+                    ? "border-[color:var(--color-destructive)]"
+                    : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
               />
-              {errors.data_nascita && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.data_nascita}</p>}
+              {errors.data_nascita && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.data_nascita}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="genere" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="genere"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Genere
               </label>
               <select
@@ -249,19 +325,48 @@ const NuovoPazienteForm: React.FC = () => {
                 value={formData.genere}
                 onChange={handleChange}
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.genere ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.genere
+                    ? "border-[color:var(--color-destructive)]"
+                    : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
               >
-                <option className="bg-secondary text-[color:var(--color-muted-foreground)]" value="">Seleziona</option>
-                <option className="bg-secondary text-[color:var(--color-foreground)]" value="M">Maschile</option>
-                <option className="bg-secondary text-[color:var(--color-foreground)]" value="F">Femminile</option>
-                <option className="bg-secondary text-[color:var(--color-foreground)]" value="O">Altro</option>
+                <option
+                  className="bg-secondary text-[color:var(--color-muted-foreground)]"
+                  value=""
+                >
+                  Seleziona
+                </option>
+                <option
+                  className="bg-secondary text-[color:var(--color-foreground)]"
+                  value="M"
+                >
+                  Maschile
+                </option>
+                <option
+                  className="bg-secondary text-[color:var(--color-foreground)]"
+                  value="F"
+                >
+                  Femminile
+                </option>
+                <option
+                  className="bg-secondary text-[color:var(--color-foreground)]"
+                  value="O"
+                >
+                  Altro
+                </option>
               </select>
-              {errors.genere && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.genere}</p>}
+              {errors.genere && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.genere}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="altezza" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="altezza"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Altezza (cm)
               </label>
               <input
@@ -273,15 +378,24 @@ const NuovoPazienteForm: React.FC = () => {
                 min={0}
                 step="0.1"
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.altezza ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.altezza
+                    ? "border-[color:var(--color-destructive)]"
+                    : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                 placeholder="170"
               />
-              {errors.altezza && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.altezza}</p>}
+              {errors.altezza && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.altezza}
+                </p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="peso" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="peso"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Peso (kg)
               </label>
               <input
@@ -293,15 +407,24 @@ const NuovoPazienteForm: React.FC = () => {
                 min={0}
                 step="0.1"
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.peso ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.peso
+                    ? "border-[color:var(--color-destructive)]"
+                    : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                 placeholder="70"
               />
-              {errors.peso && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.peso}</p>}
+              {errors.peso && (
+                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                  {errors.peso}
+                </p>
+              )}
             </div>
 
             <div className="md:col-span-2">
-              <label htmlFor="diagnosi" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label
+                htmlFor="diagnosi"
+                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+              >
                 Diagnosi (opzionale)
               </label>
               <div className="mt-1">
@@ -313,12 +436,16 @@ const NuovoPazienteForm: React.FC = () => {
                   onChange={handleChange}
                   list="diagnosesList"
                   className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
-                    errors.diagnosi ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                    errors.diagnosi
+                      ? "border-[color:var(--color-destructive)]"
+                      : "border-[color:var(--color-border)]"
                   } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
                   placeholder="Seleziona o scrivi una diagnosi"
                 />
                 <datalist id="diagnosesList">
-                  {diagnoses.map((d, i) => <option key={i} value={d} />)}
+                  {diagnoses.map((d, i) => (
+                    <option key={i} value={d} />
+                  ))}
                 </datalist>
               </div>
             </div>
