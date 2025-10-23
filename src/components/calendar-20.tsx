@@ -1,13 +1,25 @@
 import * as React from "react";
 import { it } from "date-fns/locale";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "./custom/calendar-appointment";
-import { apiGet, apiPost } from "@/lib/api";
-import { PazientiCombobox } from "./custom/combobox";
+import { apiDelete, apiGet, apiPost } from "@/lib/api";
+import { PazientiCombobox } from "./custom/comboboxPazienti";
 import { Button } from "./ui/button";
-import { set } from "date-fns";
+import DialogModifyAppointment from "./custom/DialogModifyAppointment";
+import { Trash2 } from "lucide-react";
 
 export default function Calendar20() {
     const [data, setData] = React.useState<Date | undefined>(new Date());
@@ -182,7 +194,6 @@ export default function Calendar20() {
             setTimeout(() => {
                 setStatus(["", ""]);
             }, 3000);
-            
 
             fetchAppointments();
 
@@ -192,6 +203,39 @@ export default function Calendar20() {
         } catch (error) {
             console.error("Errore nel prenotare l'appuntamento:", error);
         }
+    };
+
+    const handleClickElimina = async () => {
+        if (orarioSelezionato === undefined || !data) {
+            return;
+        }
+        const response = await apiDelete(
+            `/appointment/${orariAttuali[orarioSelezionato].id}`
+        );
+
+        if (!response.ok) {
+            const result = await response.json();
+            setStatus(["error", result.message]);
+            setTimeout(() => {
+                setStatus(["", ""]);
+            }, 5000);
+            throw new Error("Impossibile eliminare l'appuntamento");
+        }
+
+        setStatus(["success", ""]);
+        setTimeout(() => {
+            setStatus(["", ""]);
+        }, 3000);
+
+        fetchAppointments();
+
+        setOrarioSelezionato(undefined);
+        setPazienteSelezionato(undefined);
+    };
+
+    const handleAppointmentUpdate = () => {
+        fetchAppointments();
+        setOrarioSelezionato(undefined);
     };
 
     return (
@@ -289,7 +333,55 @@ export default function Calendar20() {
                         <div className="text-sm w-full">
                             {orariAttuali[orarioSelezionato].paziente_id ? (
                                 <>
-                                    <p>modifica appuntamento</p>
+                                    <div className="flex items-center justify-between w-full">
+                                        <span className="whitespace-nowrap">
+                                            Modifica o elimina l'appuntamento
+                                        </span>
+                                        <div className="flex items-center gap-4">
+                                            {/* MODIFICA APPUNTAMENTO */}
+                                            <DialogModifyAppointment id_appuntamento={orariAttuali[orarioSelezionato].id} paziente={orariAttuali[orarioSelezionato].nome + " " + orariAttuali[orarioSelezionato].cognome} data={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleDateString("it-IT")} ora={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleTimeString("it-IT")} onAppointmentUpdate={handleAppointmentUpdate}></DialogModifyAppointment>
+
+                                            {/* ELIMINA APPUNTAMENTO */}
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive">
+                                                        <Trash2 />
+                                                        Elimina
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>
+                                                            Ne sei assolutamente
+                                                            sicuro?
+                                                        </AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Questa azione non
+                                                            può essere
+                                                            annullata.
+                                                            <br></br>
+                                                            L'appuntamento verrà
+                                                            eliminato
+                                                            definitivamente.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>
+                                                            Annulla
+                                                        </AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            variant="destructive"
+                                                            onClick={() =>
+                                                                handleClickElimina()
+                                                            }
+                                                        >
+                                                            Conferma
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </div>
                                 </>
                             ) : (
                                 <div className="flex items-center justify-between w-full">
