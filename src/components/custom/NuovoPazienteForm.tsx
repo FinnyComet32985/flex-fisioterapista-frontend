@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { FaUser, FaIdCard, FaStethoscope, FaSpinner } from "react-icons/fa";
+import { FaUser, FaSpinner } from "react-icons/fa";
+import { apiPost } from "@/lib/api";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   nome: string;
   cognome: string;
   email: string;
-  dataDiNascita: Date | string;
+  data_nascita: Date | string;
   diagnosi: string;
   genere: string;
   altezza: number;
@@ -18,7 +20,7 @@ const inizialeFormData: FormData = {
   nome: "",
   cognome: "",
   email: "",
-  dataDiNascita: "",
+  data_nascita: "",
   diagnosi: "",
   genere: "",
   altezza: 0,
@@ -29,6 +31,8 @@ const NuovoPazienteForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>(inizialeFormData);
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   const diagnoses = [
     "Ipertensione",
@@ -51,7 +55,7 @@ const NuovoPazienteForm: React.FC = () => {
         if (!/^\S+@\S+\.\S+$/.test(value)) return "Inserisci un'email valida";
         return undefined;
 
-      case "dataDiNascita":
+      case "data_nascita":
         if (!value) return "Inserisci una data di nascita valida";
         // accetta stringa ISO 'YYYY-MM-DD' o Date
         if (typeof value === "string") {
@@ -100,7 +104,7 @@ const NuovoPazienteForm: React.FC = () => {
     if (key === "altezza" || key === "peso") {
       parsedValue = value === "" ? 0 : Number(value);
       if (isNaN(parsedValue)) parsedValue = 0;
-    } else if (key === "dataDiNascita") {
+    } else if (key === "data_nascita") {
       // keep date as string from input[type=date]
       parsedValue = value;
     }
@@ -117,12 +121,23 @@ const NuovoPazienteForm: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateAll(formData);
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
+      try {
+        const result = await apiPost("/patient", formData);
+        if (!result.ok) {
+          throw new Error("Errore durante l'invio dei dati");
+        }
+        if (result.status === 200) {
+            navigate('/pazienti');
+        }
+      } catch (error) {
+        console.error("Errore durante l'invio dei dati:", error);
+      }
       setTimeout(() => {
         setIsLoading(false);
         alert("Dati paziente inviati con successo!");
@@ -208,20 +223,20 @@ const NuovoPazienteForm: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="dataDiNascita" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
+              <label htmlFor="data_nascita" className="block text-sm font-medium text-[color:var(--color-muted-foreground)]">
                 Data di nascita
               </label>
               <input
                 type="date"
-                name="dataDiNascita"
-                id="dataDiNascita"
-                value={typeof formData.dataDiNascita === "string" ? formData.dataDiNascita : (formData.dataDiNascita ? new Date(formData.dataDiNascita).toISOString().slice(0,10) : "")}
+                name="data_nascita"
+                id="data_nascita"
+                value={typeof formData.data_nascita === "string" ? formData.data_nascita : (formData.data_nascita ? new Date(formData.data_nascita).toISOString().slice(0,10) : "")}
                 onChange={handleChange}
                 className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
-                  errors.dataDiNascita ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
+                  errors.data_nascita ? "border-[color:var(--color-destructive)]" : "border-[color:var(--color-border)]"
                 } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
               />
-              {errors.dataDiNascita && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.dataDiNascita}</p>}
+              {errors.data_nascita && <p className="mt-2 text-sm text-[color:var(--color-destructive)]">{errors.data_nascita}</p>}
             </div>
 
             <div>
