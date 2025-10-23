@@ -233,6 +233,11 @@ export default function Calendar20() {
         setPazienteSelezionato(undefined);
     };
 
+    const handleAppointmentUpdate = () => {
+        fetchAppointments();
+        setOrarioSelezionato(undefined);
+    };
+
     return (
         <div>
             {status[0] === "success" && (
@@ -334,7 +339,7 @@ export default function Calendar20() {
                                         </span>
                                         <div className="flex items-center gap-4">
                                             {/* MODIFICA APPUNTAMENTO */}
-                                            <DialogModifyAppointment id_appuntamento={orariAttuali[orarioSelezionato].id} paziente={orariAttuali[orarioSelezionato].nome + " " + orariAttuali[orarioSelezionato].cognome} data={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleDateString("it-IT")} ora={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleTimeString("it-IT")} onAppointmentUpdate={fetchAppointments}></DialogModifyAppointment>
+                                            <DialogModifyAppointment id_appuntamento={orariAttuali[orarioSelezionato].id} paziente={orariAttuali[orarioSelezionato].nome + " " + orariAttuali[orarioSelezionato].cognome} data={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleDateString("it-IT")} ora={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleTimeString("it-IT")} onAppointmentUpdate={handleAppointmentUpdate}></DialogModifyAppointment>
 
                                             {/* ELIMINA APPUNTAMENTO */}
                                             <AlertDialog>

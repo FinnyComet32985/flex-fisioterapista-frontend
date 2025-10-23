@@ -20,13 +20,14 @@ import { apiPatch } from "@/lib/api";
 export function DialogModifyAppointment({id_appuntamento, paziente, data, ora, onAppointmentUpdate}: {id_appuntamento: number | undefined, paziente: string, data: string, ora: string, onAppointmentUpdate: () => void}) {
     const [nuovaData, setNuovaData] = React.useState<Date | undefined>();
     const [nuovoOrario, setNuovoOrario] = React.useState<string | undefined>();
+    const [status, setStatus] = React.useState<[string, string]>(["", ""]);
     const [open, setOpen] = React.useState(false);
 
     const handleSaveChanges = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("eseguito")
         if (!id_appuntamento || (!nuovaData && !nuovoOrario)) {
-            console.log("Nessuna modifica da salvare.");
+            setStatus(["error", "Nessuna modifica da salvare."]);
+            setTimeout(() => setStatus(["", ""]), 3000);
             return;
         }
 
@@ -46,14 +47,21 @@ export function DialogModifyAppointment({id_appuntamento, paziente, data, ora, o
         try {
             const response = await apiPatch(`/appointment/${id_appuntamento}`, body);
             if (response.ok) {
-                console.log("Appuntamento modificato con successo!");
-                onAppointmentUpdate(); // Esegue la funzione di callback per aggiornare la lista
-                setOpen(false); // Chiude il dialog
+                setStatus(["success", "Appuntamento modificato con successo!"]);
+                setTimeout(() => {
+                    onAppointmentUpdate(); // Esegue la callback per aggiornare la lista e deselezionare
+                    setOpen(false);      // Chiude il dialog
+                    setStatus(["", ""]);  // Resetta lo stato per la prossima apertura
+                }, 2000);
             } else {
-                console.error("Errore durante la modifica dell'appuntamento");
+                const errorData = await response.json();
+                setStatus(["error", errorData.message || "Errore durante la modifica."]);
+                setTimeout(() => setStatus(["", ""]), 5000);
             }
         } catch (error) {
             console.error("Errore API:", error);
+            setStatus(["error", "Errore di connessione."]);
+            setTimeout(() => setStatus(["", ""]), 5000);
         }
     };
 
@@ -68,6 +76,16 @@ export function DialogModifyAppointment({id_appuntamento, paziente, data, ora, o
                         <DialogDescription>
                             Decidi il giorno e l'orario a cui vuoi spostare l'appuntamento.
                         </DialogDescription>
+                        {status[0] === "success" && (
+                            <div className="mt-4 p-3 text-sm text-green-800 bg-green-100 rounded dark:bg-green-900 dark:text-green-200">
+                                {status[1]}
+                            </div>
+                        )}
+                        {status[0] === "error" && (
+                            <div className="mt-4 p-3 text-sm text-red-800 bg-red-100 rounded dark:bg-red-900 dark:text-red-200">
+                                {status[1]}
+                            </div>
+                        )}
                     </DialogHeader>
                     <div className="grid gap-4">
                         <h5>Paziente dell'appuntamento:</h5>
