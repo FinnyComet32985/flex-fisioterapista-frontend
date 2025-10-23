@@ -13,35 +13,8 @@ let authHelpers = {
 export const initApi = (helpers: typeof authHelpers) => {
     authHelpers = helpers;
 };
-/**
- * Tenta di aggiornare il token di autenticazione.
- * @throws {Error} Se il refresh del token fallisce.
- */
-const refreshToken = async () => {
-    const response = await fetch(`${BASE_URL}/refreshToken`, {
-        method: "POST",
-    });
 
-    if (!response.ok) {
-        console.error("Refresh token fallito.");
-        throw new Error("Refresh token fallito");
-    }
 
-    const data = await response.json();
-    const newToken = data.accessToken;
-    if (!newToken) {
-        throw new Error("Nessun nuovo token ricevuto.");
-    }
-
-    localStorage.setItem("token", newToken);
-    console.log("Token rinfrescato con successo.");
-    return newToken;
-};
-
-/**
- * Funzione base per tutte le chiamate API autenticate.
- * Gestisce automaticamente il refresh del token e il reindirizzamento.
- */
 const authedFetch = async (path: string, options: RequestInit = {}): Promise<Response> => {
     const url = `${BASE_URL}${path}`;
     const currentToken = localStorage.getItem("token");
@@ -58,7 +31,9 @@ const authedFetch = async (path: string, options: RequestInit = {}): Promise<Res
     if (response.status === 401) {
         console.log("Token scaduto o non valido. Tento il refresh...");
         try {
-            const newToken = await refreshToken();
+            // Usa la funzione di refresh fornita dal context
+            await authHelpers.refreshToken();
+            const newToken = localStorage.getItem("token"); // Prendi il nuovo token aggiornato
 
             // Ripeti la richiesta originale con il nuovo token
             console.log("Token aggiornato. Ripeto la richiesta originale...");

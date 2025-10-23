@@ -19,6 +19,11 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 
+
+
+
+
+
 const frameworks = [
     {
         value: "next.js",
@@ -42,7 +47,7 @@ const frameworks = [
     },
 ];
 
-export function ComboboxDemo() {
+export function PazientiCombobox() {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState("");
 

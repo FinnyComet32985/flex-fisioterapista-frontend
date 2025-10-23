@@ -5,7 +5,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "./custom/calendar-appointment";
 import { apiGet } from "@/lib/api";
-import { ComboboxDemo } from "./custom/combobox";
+import { PazientiCombobox } from "./custom/combobox";
 import { Button } from "./ui/button";
 
 export default function Calendar20() {
@@ -206,57 +206,26 @@ export default function Calendar20() {
 
             {orarioSelezionato !== undefined && (
                 <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
-                    <div className="text-sm">
+                    <div className="text-sm w-full">
                         {orariAttuali[orarioSelezionato].paziente_id ? (
                             <>
-                            <p>modifica appuntamento</p>
+                                <p>modifica appuntamento</p>
                             </>
                         ) : (
-                            <div className="flex justify-between gap-2">
-                            <div className="flex flex-row gap-2">
-                            <p>Seleziona il paziente che vuoi prenotare: </p>
-                            <ComboboxDemo></ComboboxDemo>
-                            </div>
-                            <Button>Prenota</Button>
+                            <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-4">
+                                    <span className="whitespace-nowrap">
+                                        Seleziona il paziente che vuoi
+                                        prenotare:{" "}
+                                    </span>
+                                    <PazientiCombobox></PazientiCombobox>
+                                </div>
+                                <Button>Prenota</Button>
                             </div>
                         )}
                     </div>
                 </CardFooter>
             )}
-            {/* <div className="text-sm">
-                    {oraGiaPrenotata ? (
-                        <span className="text-destructive">
-                            Questa data e ora non è disponibile.
-                        </span>
-                    ) : data && orarioSelezionato ? (
-                        <span>
-                            Il tuo appuntamento è per il{" "}
-                            <span className="font-medium">
-                                {data.toLocaleDateString("it-IT", {
-                                    weekday: "long",
-                                    day: "numeric",
-                                    month: "long",
-                                })}
-                            </span>{" "}
-                            alle{" "}
-                            <span className="font-medium">
-                                {orarioSelezionato}
-                            </span>
-                            .
-                        </span>
-                    ) : (
-                        <>
-                            Seleziona una data e un orario per il tuo
-                            appuntamento.
-                        </>
-                    )}
-                </div>
-                <Button
-                    disabled={!data || !orarioSelezionato || oraGiaPrenotata}
-                    className="w-full md:ml-auto md:w-auto"
-                >
-                    Continua
-                </Button> */}
         </Card>
     );
 }
