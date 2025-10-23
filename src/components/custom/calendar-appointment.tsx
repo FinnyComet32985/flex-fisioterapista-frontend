@@ -8,7 +8,7 @@ import {
 
 
 
-function CalendarAppointment({ key_id, id, img, paziente, orario, confermato, selected, setSelected }: { key_id:number, id?: number, img?: string; paziente?: string; orario: string, confermato?:string, selected: boolean, setSelected: (index: number) => void}) {
+function CalendarAppointment({ key_id, id_appuntamento, img, id_paziente, paziente, orario, confermato, selected, setSelected }: { key_id:number, id_appuntamento?: number, img?: string; id_paziente?:number, paziente?: string; orario: string, confermato?:string, selected: boolean, setSelected: (index: number) => void}) {
     let borderColor
     if (paziente && confermato === "Confermato") {
         borderColor = "border-red-500 hover:bg-red-500"

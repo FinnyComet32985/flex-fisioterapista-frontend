@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "./custom/calendar-appointment";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { PazientiCombobox } from "./custom/combobox";
 import { Button } from "./ui/button";
 
@@ -125,11 +125,67 @@ export default function Calendar20() {
             return slot;
         });
         setOrariAttuali(mergedOrari);
-
-        console.log("Orari attuali:", mergedOrari);
     }, [data, dati]);
 
     const giorniDisabilitati = [{ before: new Date() }];
+
+    const [pazienteSelezionato, setPazienteSelezionato] = React.useState<
+        number | undefined
+    >(undefined);
+
+    const handleClickPrenota = async () => {
+        if (!pazienteSelezionato || orarioSelezionato=== undefined || !data) {
+            console.log(pazienteSelezionato, orarioSelezionato)
+            return;
+        }
+
+        try {
+            const slotSelezionato = orariAttuali[orarioSelezionato];
+
+            // Correzione: Formatta la data senza conversione di fuso orario
+            // per evitare il problema del "giorno indietro".
+            const anno = data.getFullYear();
+            // getMonth() è 0-indexed, quindi aggiungiamo 1. padStart assicura il formato a due cifre (es. 07 per Luglio).
+            const meseFormattato = (data.getMonth() + 1).toString().padStart(2, '0');
+            const giornoFormattato = data.getDate().toString().padStart(2, '0');
+            const dataFormattata = `${anno}-${meseFormattato}-${giornoFormattato}`;
+
+            const oraFormattata = slotSelezionato.data_appuntamento.toLocaleTimeString(
+                "it-IT",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                }
+            );
+
+            const response = await apiPost(
+                `/appointment/${pazienteSelezionato}`,
+                {
+                    data_appuntamento: dataFormattata,
+                    "ora_appuntamento": oraFormattata,
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Impossibile prenotare l'appuntamento");
+            }
+
+            // --- AGGIORNAMENTO UI ---
+            alert("Appuntamento prenotato con successo!");
+
+            // 1. Ottieni il nuovo appuntamento dalla risposta dell'API
+            const nuovoAppuntamento = await response.json();
+
+            // 2. Aggiorna lo stato 'dati' aggiungendo il nuovo appuntamento
+            setDati(dati ? [...dati, nuovoAppuntamento] : [nuovoAppuntamento]);
+
+            // 3. Resetta la selezione per pulire l'interfaccia
+            setOrarioSelezionato(undefined);
+            setPazienteSelezionato(undefined);
+        } catch (error) {
+            console.error("Errore nel prenotare l'appuntamento:", error);
+        }
+    };
 
     return (
         <Card className="gap-0 p-0">
@@ -180,12 +236,13 @@ export default function Calendar20() {
                                 <CalendarAppointment
                                     key={index}
                                     key_id={index}
-                                    id={orario.id}
+                                    id_appuntamento={orario.id}
                                     img={
                                         orario.paziente_id
                                             ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
                                             : undefined
                                     }
+                                    id_paziente={orario.paziente_id}
                                     paziente={
                                         orario.paziente_id
                                             ? orario.nome + " " + orario.cognome
@@ -218,9 +275,13 @@ export default function Calendar20() {
                                         Seleziona il paziente che vuoi
                                         prenotare:{" "}
                                     </span>
-                                    <PazientiCombobox></PazientiCombobox>
+                                    <PazientiCombobox
+                                        setPaziente={setPazienteSelezionato}
+                                    ></PazientiCombobox>
                                 </div>
-                                <Button>Prenota</Button>
+                                <Button onClick={() => handleClickPrenota()}>
+                                    Prenota
+                                </Button>
                             </div>
                         )}
                     </div>
