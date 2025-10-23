@@ -1,7 +1,7 @@
 import { TrashIcon} from "lucide-react";
 import React, { useState, type ReactNode } from "react";
 import { FiEdit2 } from "react-icons/fi";
-import { GraficoPazienti } from "./graficoPazienti";
+import { GraficoPazienti } from "./GraficoPazienti";
 import SchedaAllenamento from "./SchedaAllenamento";
 
 interface PazienteData {
