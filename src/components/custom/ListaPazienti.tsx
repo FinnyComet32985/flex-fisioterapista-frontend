@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { PlusIcon } from "lucide-react"
+import { EyeIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import {
   Avatar,
@@ -77,8 +78,8 @@ export default function ListaPazienti() {
               </ItemContent>
               <ItemActions>
                 <Button variant="outline" size="lg">
-                  <PlusIcon className=" size-5" />
-                  Prenota un appuntamento
+                  <EyeIcon className=" size-5" />
+                  <Link to={"/profilo-paziente"}>Visualizza profilo</Link>
                 </Button>
               </ItemActions>
             </Item>

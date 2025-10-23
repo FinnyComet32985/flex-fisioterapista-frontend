@@ -12,6 +12,7 @@ import ProtectedRoute from "@/components/utils/ProtectedRoutes";
 import RegisterPage from "./pages/unlogged/register";
 import NuovoEsercizio from "./components/custom/NuovoEsercizio";
 import NuovoPazienteForm from "./components/custom/NuovoPazienteForm";
+import ProfiloPazientePage from "./pages/logged/ProfiloPaziente";
 
 
 
@@ -31,6 +32,8 @@ function App() {
             <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
             <Route path="/nuovo-esercizio" element={<NuovoEsercizio />} />
             <Route path="/nuovo-paziente" element={<NuovoPazienteForm />} />
+            <Route path="/profilo-paziente" element={<ProfiloPazientePage />} />
+
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
