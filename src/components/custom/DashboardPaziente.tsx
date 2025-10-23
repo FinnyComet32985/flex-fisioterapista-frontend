@@ -36,6 +36,7 @@ interface ProfileSectionProps {
 const DashboardPaziente: React.FC = () => {
 
   const mockPazienteData: PazienteData = {
+    
     nomeCompleto: "Mario Rossi",
     email: "mario.rossi@example.com",
     telefono: "+39 333 1234567",
@@ -48,6 +49,7 @@ const DashboardPaziente: React.FC = () => {
       { id: 1, action: "Ultima visita", item: "Controllo posturale", date: "19-01-2024" },
       { id: 2, action: "Nuovo esercizio assegnato", item: "Stretching schiena", date: "18-01-2024" },
     ],
+    assignedEquipment: [],
   };
 
   const ProfileSection: React.FC<ProfileSectionProps> = ({ title, children }) => (
