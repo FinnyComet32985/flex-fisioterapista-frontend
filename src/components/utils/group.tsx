@@ -1,4 +1,5 @@
-import * as React from "react"
+import * as React from "react";
+import { useEffect, useState } from "react";
 import { PlusIcon } from "lucide-react"
 
 import {
@@ -11,58 +12,68 @@ import {
   Item,
   ItemActions,
   ItemContent,
-  ItemDescription,
   ItemGroup,
   ItemMedia,
   ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item"
+import { apiGet } from "@/lib/api";
 
-const people = [
-  {
-    username: "shadcn",
-    avatar: "https://github.com/shadcn.png",
-    email: "shadcn@vercel.com",
-  },
-  {
-    username: "maxleiter",
-    avatar: "https://github.com/maxleiter.png",
-    email: "maxleiter@vercel.com",
-  },
-  {
-    username: "evilrabbit",
-    avatar: "https://github.com/evilrabbit.png",
-    email: "evilrabbit@vercel.com",
-  },
-  {
-    username: "evilrabbit",
-    avatar: "https://github.com/evilrabbit.png",
-    email: "evilrabbit@vercel.com",
-  },
-  {
-    username: "evilrabbit",
-    avatar: "https://github.com/evilrabbit.png",
-    email: "evilrabbit@vercel.com",
-  },
-  
-]
+interface Paziente {
+  id: number;
+  nome: string;
+  cognome: string;
+}
 
-export function ItemGroupExample() {
+export default function ListaPazienti() {
+  const [pazienti, setPazienti] = useState<Paziente[]>([]);
+ 
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPazienti = async () => {
+      try {
+        
+        const response = await apiGet("/patient"); // Assumendo che l'endpoint sia /patient
+
+        if (!response.ok) {
+          throw new Error("Impossibile caricare la lista dei pazienti");
+        }
+
+        const data: Paziente[] = await response.json();
+        setPazienti(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
+        console.error("Errore nel caricamento dei pazienti:", err);
+      } finally {
+      }
+    };
+
+    fetchPazienti();
+  }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta
+
+ 
+
+  if (error) {
+    return <div className="text-red-500">Errore: {error}</div>;
+  }
+
   return (
     <div className="flex w-full flex-col gap-6">
       <ItemGroup>
-        {people.map((person, index) => (
-          <React.Fragment key={person.username}>
+        {pazienti.map((paziente, index) => (
+          <React.Fragment key={paziente.id}>
             <Item>
               <ItemMedia>
                 <Avatar className="w-15 h-15">
-                  <AvatarImage src={person.avatar} />
-                  <AvatarFallback>{person.username.charAt(0)}</AvatarFallback>
+                  {/* <AvatarImage src={paziente.avatar} /> */}
+                  <AvatarFallback>{paziente.nome.charAt(0)}{paziente.cognome.charAt(0)}</AvatarFallback>
                 </Avatar>
               </ItemMedia>
               <ItemContent className="gap-1">
-                <ItemTitle>{person.username}</ItemTitle>
-                <ItemDescription>{person.email}</ItemDescription>
+                <ItemTitle>{paziente.nome} {paziente.cognome}</ItemTitle>
+                {/* <ItemDescription>{paziente.email}</ItemDescription> */}
               </ItemContent>
               <ItemActions>
                 <Button variant="outline" size="lg">
@@ -71,7 +82,7 @@ export function ItemGroupExample() {
                 </Button>
               </ItemActions>
             </Item>
-            {index !== people.length - 1 && <ItemSeparator />}
+            {index !== pazienti.length - 1 && <ItemSeparator />}
           </React.Fragment>
         ))}
       </ItemGroup>

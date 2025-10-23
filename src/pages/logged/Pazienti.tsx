@@ -1,4 +1,4 @@
-import { ItemGroupExample } from "@/components/utils/group";
+import  ListaPazienti  from "@/components/utils/group";
 import { Link } from "react-router-dom";
 
 function PazientiPage() {
@@ -10,7 +10,7 @@ function PazientiPage() {
           <Link to={"/nuovo-paziente"}>Aggiungi Paziente</Link>
         </button>
       </div>
-      <ItemGroupExample />
+      <ListaPazienti />
     </div>
   );
 }
