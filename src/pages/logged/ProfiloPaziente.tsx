@@ -4,7 +4,7 @@ function ProfiloPazientePage() {
     return(
        <>
         <DashboardPaziente />
-        <h1>Profilo Paziente Page</h1>
+        
        
        
        </>
