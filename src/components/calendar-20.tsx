@@ -7,6 +7,7 @@ import CalendarAppointment from "./custom/calendar-appointment";
 import { apiGet, apiPost } from "@/lib/api";
 import { PazientiCombobox } from "./custom/combobox";
 import { Button } from "./ui/button";
+import { set } from "date-fns";
 
 export default function Calendar20() {
     const [data, setData] = React.useState<Date | undefined>(new Date());
@@ -14,6 +15,8 @@ export default function Calendar20() {
     const [orarioSelezionato, setOrarioSelezionato] = React.useState<
         number | undefined
     >(undefined);
+
+    const [status, setStatus] = React.useState<[string, string]>(["", ""]);
 
     type Appointment = {
         id: number;
@@ -37,24 +40,21 @@ export default function Calendar20() {
         undefined
     );
 
-    useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await apiGet("/appointment");
+    const fetchAppointments = async () => {
+        try {
+            const response = await apiGet("/appointment");
 
-                if (!response.ok) {
-                    throw new Error("Impossibile caricare gli appuntamenti");
-                }
-
-                setDati(await response.json());
-            } catch (error) {
-                console.error(
-                    "Errore nel caricamento degli appuntamenti:",
-                    error
-                );
+            if (!response.ok) {
+                throw new Error("Impossibile caricare gli appuntamenti");
             }
-        };
 
+            setDati(await response.json());
+        } catch (error) {
+            console.error("Errore nel caricamento degli appuntamenti:", error);
+        }
+    };
+
+    useEffect(() => {
         fetchAppointments();
     }, []);
 
@@ -81,7 +81,6 @@ export default function Calendar20() {
             }
             return;
         }
-
         const appuntamentiGiornalieri = dati.filter((appuntamento) => {
             const dataApp = new Date(appuntamento.data_appuntamento);
             return (
@@ -134,50 +133,58 @@ export default function Calendar20() {
     >(undefined);
 
     const handleClickPrenota = async () => {
-        if (!pazienteSelezionato || orarioSelezionato=== undefined || !data) {
-            console.log(pazienteSelezionato, orarioSelezionato)
+        if (!pazienteSelezionato) {
+            setStatus(["error", "Seleziona un paziente"]);
+            setTimeout(() => {
+                setStatus(["", ""]);
+            }, 5000);
+            return;
+        }
+        if (orarioSelezionato === undefined || !data) {
             return;
         }
 
         try {
             const slotSelezionato = orariAttuali[orarioSelezionato];
 
-            // Correzione: Formatta la data senza conversione di fuso orario
-            // per evitare il problema del "giorno indietro".
             const anno = data.getFullYear();
-            // getMonth() è 0-indexed, quindi aggiungiamo 1. padStart assicura il formato a due cifre (es. 07 per Luglio).
-            const meseFormattato = (data.getMonth() + 1).toString().padStart(2, '0');
-            const giornoFormattato = data.getDate().toString().padStart(2, '0');
+
+            const meseFormattato = (data.getMonth() + 1)
+                .toString()
+                .padStart(2, "0");
+            const giornoFormattato = data.getDate().toString().padStart(2, "0");
             const dataFormattata = `${anno}-${meseFormattato}-${giornoFormattato}`;
 
-            const oraFormattata = slotSelezionato.data_appuntamento.toLocaleTimeString(
-                "it-IT",
-                {
+            const oraFormattata =
+                slotSelezionato.data_appuntamento.toLocaleTimeString("it-IT", {
                     hour: "2-digit",
                     minute: "2-digit",
-                }
-            );
+                });
 
             const response = await apiPost(
                 `/appointment/${pazienteSelezionato}`,
                 {
                     data_appuntamento: dataFormattata,
-                    "ora_appuntamento": oraFormattata,
+                    ora_appuntamento: oraFormattata,
                 }
             );
 
             if (!response.ok) {
+                const result = await response.json();
+                setStatus(["error", result.message]);
+                setTimeout(() => {
+                    setStatus(["", ""]);
+                }, 5000);
                 throw new Error("Impossibile prenotare l'appuntamento");
             }
 
-            // --- AGGIORNAMENTO UI ---
-            alert("Appuntamento prenotato con successo!");
+            setStatus(["success", ""]);
+            setTimeout(() => {
+                setStatus(["", ""]);
+            }, 3000);
+            
 
-            // 1. Ottieni il nuovo appuntamento dalla risposta dell'API
-            const nuovoAppuntamento = await response.json();
-
-            // 2. Aggiorna lo stato 'dati' aggiungendo il nuovo appuntamento
-            setDati(dati ? [...dati, nuovoAppuntamento] : [nuovoAppuntamento]);
+            fetchAppointments();
 
             // 3. Resetta la selezione per pulire l'interfaccia
             setOrarioSelezionato(undefined);
@@ -188,105 +195,124 @@ export default function Calendar20() {
     };
 
     return (
-        <Card className="gap-0 p-0">
-            <CardContent className="relative p-0 md:pr-48">
-                <div className="p-6">
-                    <Calendar
-                        locale={it}
-                        mode="single"
-                        selected={data}
-                        onSelect={(nuovaData) => {
-                            setData(nuovaData);
-                            setOrarioSelezionato(undefined);
-                            if (nuovaData) {
-                                setMese(nuovaData); // calendario al mese della nuova data
-                            }
-                        }}
-                        month={mese}
-                        onMonthChange={setMese} // navigazione tra i mesi
-                        disabled={giorniDisabilitati}
-                        showOutsideDays={false}
-                        modifiers={{
-                            booked: giorniDisabilitati,
-                        }}
-                        modifiersClassNames={{
-                            booked: "[&>button]:line-through opacity-100",
-                        }}
-                        className="bg-transparent p-0 [--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
-                        formatters={{
-                            formatWeekdayName: (date) =>
-                                date
-                                    .toLocaleString("it-IT", {
-                                        weekday: "short",
-                                    })
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                date
-                                    .toLocaleString("it-IT", {
-                                        weekday: "short",
-                                    })
-                                    .slice(1),
-                        }}
-                    />
+        <div>
+            {status[0] === "success" && (
+                <div className="mb-4 p-4 text-green-800 bg-green-200 rounded mt-6">
+                    Paziente aggiunto con successo!
                 </div>
-                <div className="no-scrollbar inset-y-0 right-0 flex max-h-72 w-full scroll-pb-6 flex-col gap-4 overflow-y-auto border-t p-6 md:absolute md:max-h-none md:w-110 md:border-t-0 md:border-l">
-                    <div className="grid gap-2">
-                        {orariAttuali &&
-                            orariAttuali.map((orario, index) => (
-                                <CalendarAppointment
-                                    key={index}
-                                    key_id={index}
-                                    id_appuntamento={orario.id}
-                                    img={
-                                        orario.paziente_id
-                                            ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
-                                            : undefined
-                                    }
-                                    id_paziente={orario.paziente_id}
-                                    paziente={
-                                        orario.paziente_id
-                                            ? orario.nome + " " + orario.cognome
-                                            : undefined
-                                    }
-                                    orario={orario.data_appuntamento.toLocaleTimeString(
-                                        "it-IT",
-                                        { hour: "2-digit", minute: "2-digit" }
-                                    )}
-                                    confermato={orario.stato_conferma}
-                                    selected={orarioSelezionato === index}
-                                    setSelected={setOrarioSelezionato}
-                                ></CalendarAppointment>
-                            ))}
-                    </div>
-                </div>
-            </CardContent>
-
-            {orarioSelezionato !== undefined && (
-                <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
-                    <div className="text-sm w-full">
-                        {orariAttuali[orarioSelezionato].paziente_id ? (
-                            <>
-                                <p>modifica appuntamento</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center justify-between w-full">
-                                <div className="flex items-center gap-4">
-                                    <span className="whitespace-nowrap">
-                                        Seleziona il paziente che vuoi
-                                        prenotare:{" "}
-                                    </span>
-                                    <PazientiCombobox
-                                        setPaziente={setPazienteSelezionato}
-                                    ></PazientiCombobox>
-                                </div>
-                                <Button onClick={() => handleClickPrenota()}>
-                                    Prenota
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </CardFooter>
             )}
-        </Card>
+            {status[0] === "error" && (
+                <div className="mb-4 p-4 text-red-800 bg-red-200 rounded mt-6">
+                    {status[1]}
+                </div>
+            )}
+            <Card className="gap-0 p-0">
+                <CardContent className="relative p-0 md:pr-48">
+                    <div className="p-6">
+                        <Calendar
+                            locale={it}
+                            mode="single"
+                            selected={data}
+                            onSelect={(nuovaData) => {
+                                setData(nuovaData);
+                                setOrarioSelezionato(undefined);
+                                if (nuovaData) {
+                                    setMese(nuovaData); // calendario al mese della nuova data
+                                }
+                            }}
+                            month={mese}
+                            onMonthChange={setMese} // navigazione tra i mesi
+                            disabled={giorniDisabilitati}
+                            showOutsideDays={false}
+                            modifiers={{
+                                booked: giorniDisabilitati,
+                            }}
+                            modifiersClassNames={{
+                                booked: "[&>button]:line-through opacity-100",
+                            }}
+                            className="bg-transparent p-0 [--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
+                            formatters={{
+                                formatWeekdayName: (date) =>
+                                    date
+                                        .toLocaleString("it-IT", {
+                                            weekday: "short",
+                                        })
+                                        .charAt(0)
+                                        .toUpperCase() +
+                                    date
+                                        .toLocaleString("it-IT", {
+                                            weekday: "short",
+                                        })
+                                        .slice(1),
+                            }}
+                        />
+                    </div>
+                    <div className="no-scrollbar inset-y-0 right-0 flex max-h-72 w-full scroll-pb-6 flex-col gap-4 overflow-y-auto border-t p-6 md:absolute md:max-h-none md:w-110 md:border-t-0 md:border-l">
+                        <div className="grid gap-2">
+                            {orariAttuali &&
+                                orariAttuali.map((orario, index) => (
+                                    <CalendarAppointment
+                                        key={index}
+                                        key_id={index}
+                                        id_appuntamento={orario.id}
+                                        img={
+                                            orario.paziente_id
+                                                ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
+                                                : undefined
+                                        }
+                                        id_paziente={orario.paziente_id}
+                                        paziente={
+                                            orario.paziente_id
+                                                ? orario.nome +
+                                                  " " +
+                                                  orario.cognome
+                                                : undefined
+                                        }
+                                        orario={orario.data_appuntamento.toLocaleTimeString(
+                                            "it-IT",
+                                            {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            }
+                                        )}
+                                        confermato={orario.stato_conferma}
+                                        selected={orarioSelezionato === index}
+                                        setSelected={setOrarioSelezionato}
+                                    ></CalendarAppointment>
+                                ))}
+                        </div>
+                    </div>
+                </CardContent>
+
+                {orarioSelezionato !== undefined && (
+                    <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
+                        <div className="text-sm w-full">
+                            {orariAttuali[orarioSelezionato].paziente_id ? (
+                                <>
+                                    <p>modifica appuntamento</p>
+                                </>
+                            ) : (
+                                <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center gap-4">
+                                        <span className="whitespace-nowrap">
+                                            Seleziona il paziente che vuoi
+                                            prenotare:{" "}
+                                        </span>
+                                        <PazientiCombobox
+                                            setPaziente={setPazienteSelezionato}
+                                        ></PazientiCombobox>
+                                    </div>
+                                    <Button
+                                        onClick={() => handleClickPrenota()}
+                                    >
+                                        Prenota
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </CardFooter>
+                )}
+            </Card>
+        </div>
     );
 }
