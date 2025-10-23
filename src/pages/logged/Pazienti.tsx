@@ -1,4 +1,4 @@
-import  ListaPazienti  from "@/components/utils/group";
+import  ListaPazienti  from "@/components/custom/ListaPazienti";
 import { Link } from "react-router-dom";
 
 function PazientiPage() {
