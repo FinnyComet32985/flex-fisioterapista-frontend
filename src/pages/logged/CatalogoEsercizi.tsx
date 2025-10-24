@@ -22,6 +22,20 @@ const CatalogoEsercizi: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const getImageSrc = (path?: string) => {
+    const fallback = "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b";
+    if (!path) return fallback;
+    const trimmed = path.trim();
+    if (!trimmed) return fallback;
+    // se è già un URL assoluto
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    // altrimenti prefissa la base API (impostala in .env come VITE_API_URL)
+    const base = (import.meta.env.VITE_API_URL as string) || "";
+    if (base) return `${base.replace(/\/$/, "")}/${trimmed.replace(/^\/+/, "")}`;
+    // fallback se non hai base
+    return fallback;
+  };
+
 
    const fetchEsercizi = async () => {
         try {
@@ -32,6 +46,7 @@ const CatalogoEsercizi: React.FC = () => {
           }
 
           const data: Exercise[] = await response.json();
+          console.log("Esercizi caricati:", data);
           setExercises(data);
           setError(null);
         } catch (err) {
@@ -81,7 +96,7 @@ const CatalogoEsercizi: React.FC = () => {
       <div className="flex items-start space-x-4">
         <div className="flex flex-col items-start gap-3">
           <img
-            src={exercise.immagine ?? "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b"}
+            src={getImageSrc(exercise.immagine)}
             alt={exercise.nome}
             className="w-36 h-36 object-cover rounded-lg flex-shrink-0"
             onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) =>
