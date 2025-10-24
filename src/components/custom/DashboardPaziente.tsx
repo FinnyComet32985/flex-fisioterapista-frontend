@@ -1,13 +1,11 @@
 import { TrashIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FiEdit2 } from "react-icons/fi";
-
-import { apiGet } from "@/lib/api";
-
+import { apiDelete, apiGet } from "@/lib/api";
 import { GraficoPazienti } from "@/components/custom/GraficoPazienti";
-import {Avatar,AvatarFallback} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ListaSchede from "@/components/custom/ListaSchede";
 
 interface Paziente {
@@ -40,20 +38,21 @@ export default function DashboardPaziente() {
   const { id } = useParams<{ id: string }>(); // Estrae l'ID del paziente dall'URL
   const [paziente, setPaziente] = useState<Paziente | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPaziente = async () => {
       if (!id) return;
       try {
-        const response = await apiGet(`/patient/${id}`); // Carica il singolo paziente
+        const response = await apiGet(`/patient/${id}`);
 
         if (!response.ok) {
           throw new Error("Impossibile caricare il profilo del paziente");
         }
-        const data: Paziente[] = await response.json();
-        console.log(data);
-        setPaziente(data[0]); // ✅ prende il primo elemento dell’array
 
+        const data: Paziente[] = await response.json();
+        console.log("Dati paziente:", data);
+        setPaziente(data[0]); // ✅ assegna il primo elemento (se API restituisce array)
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
@@ -64,8 +63,32 @@ export default function DashboardPaziente() {
     fetchPaziente();
   }, [id]);
 
+  const handleDeletePaziente = async (id: number) => {
+  if (!window.confirm("Confermi la cancellazione del paziente?")) return;
+
+  const prev = paziente;
+
+  try {
+    const response = await apiDelete(`/patient/${id}`);
+    console.log("Response delete paziente:", response);
+    console.log("id:", id);
+    if (!response.ok) {
+      setPaziente(prev);
+      throw new Error("Impossibile eliminare il paziente");
+    }
+
+    // ✅ Eliminazione riuscita
+    setPaziente(null);
+    navigate("/pazienti");
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
+    console.error("Errore nella cancellazione del paziente:", err);
+  }
+};
+
+
   return (
-    <div  className={`min-h-screen`}>
+    <div className="min-h-screen">
       <div className="bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">Profilo Paziente</h1>
@@ -79,9 +102,12 @@ export default function DashboardPaziente() {
                 <ProfileSection title="Informazioni Personali">
                   <div className="flex flex-col items-center">
                     <div className="relative">
-                    <Avatar className="w-32 h-32 border-4 border-card shadow-lg text-4xl">
-                      <AvatarFallback>{paziente.nome.charAt(0)}{paziente.cognome.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                      <Avatar className="w-32 h-32 border-4 border-card shadow-lg text-4xl">
+                        <AvatarFallback>
+                          {paziente.nome.charAt(0)}
+                          {paziente.cognome.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
                     <h3 className="mt-4 text-xl font-semibold text-foreground">
                       {paziente.nome} {paziente.cognome}
@@ -95,8 +121,6 @@ export default function DashboardPaziente() {
                     </div>
                   </div>
                 </ProfileSection>
-
-            
               </div>
 
               <div className="lg:col-span-2">
@@ -104,7 +128,9 @@ export default function DashboardPaziente() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
                     <div>
                       <label className="text-sm text-muted-foreground">Inizio Trattamento:</label>
-                      <p className="text-foreground">{new Date(paziente.data_inizio).toLocaleDateString("it-IT")}</p>
+                      <p className="text-foreground">
+                        {new Date(paziente.data_inizio).toLocaleDateString("it-IT")}
+                      </p>
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Sedute Effettuate:</label>
@@ -116,7 +142,9 @@ export default function DashboardPaziente() {
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Data di Nascita</label>
-                      <p className="text-foreground">{new Date(paziente.data_nascita).toLocaleDateString("it-IT")}</p>
+                      <p className="text-foreground">
+                        {new Date(paziente.data_nascita).toLocaleDateString("it-IT")}
+                      </p>
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Altezza (cm)</label>
@@ -129,32 +157,34 @@ export default function DashboardPaziente() {
                     <div className="md:col-span-2">
                       <label className="text-sm text-muted-foreground">Diagnosi</label>
                       <p className="text-foreground">{paziente.diagnosi}</p>
-                      
                     </div>
-                    
                   </div>
                 </ProfileSection>
-                 
               </div>
             </div>
           )}
         </div>
+
         <div className="max-w-7xl mx-auto mt-8 space-y-8">
-            <GraficoPazienti />
-            <ListaSchede />
+          <GraficoPazienti />
+          <ListaSchede />
         </div>
       </div>
-      
-      {/* Bottoni Flottanti */}
-      <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
-        <button className="w-14 h-14 p-4 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors flex items-center justify-center shadow-lg">
-            <FiEdit2 className="w-6 h-6" /> 
-        </button>
-        <button className="w-14 h-14 p-4 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg">
-            <TrashIcon className="w-6 h-6" /> 
-        </button>
-      </div>
-      
+
+      {/* Bottoni fluttuanti */}
+      {paziente && (
+        <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
+          <button className="w-14 h-14 p-4 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors flex items-center justify-center shadow-lg">
+            <FiEdit2 className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => handleDeletePaziente(paziente.id)}
+            className="w-14 h-14 p-4 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
+          >
+            <TrashIcon className="w-6 h-6" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
