@@ -78,7 +78,7 @@ export default function ListaPazienti() {
               <ItemActions>
                 <Button variant="outline" size="lg">
                   <EyeIcon className=" size-5" />
-                  <Link to={"/profilo-paziente"}>Visualizza profilo</Link>
+                  <Link to={`/profilo-paziente/${paziente.id}`}>Visualizza profilo</Link>
                 </Button>
               </ItemActions>
             </Item>

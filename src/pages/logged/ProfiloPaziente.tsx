@@ -4,9 +4,6 @@ function ProfiloPazientePage() {
     return(
        <>
         <DashboardPaziente />
-        
-       
-       
        </>
 
     );

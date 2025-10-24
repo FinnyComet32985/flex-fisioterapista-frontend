@@ -12,6 +12,7 @@ import RegisterPage from "./pages/unlogged/register";
 import NuovoEsercizio from "./components/custom/NuovoEsercizio";
 import NuovoPazienteForm from "./components/custom/NuovoPazienteForm";
 import ProfiloPazientePage from "./pages/logged/ProfiloPaziente";
+import DashboardPaziente from "@/components/custom/DashboardPaziente";
 
 
 
@@ -21,6 +22,7 @@ function App() {
 
         <Routes>
           <Route element={<ProtectedRoute/>} >
+          <Route path="/profilo-paziente/:id" element={<DashboardPaziente />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/appuntamenti" element={<AppuntamentiPage />} />
             <Route path="/catalogo-esercizi" element={<CatalogoEsercizi />} />
