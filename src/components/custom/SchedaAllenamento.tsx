@@ -70,7 +70,7 @@ const SchedaAllenamento: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6">
+    <div className="bg-background text-foreground">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto">
         {/* Table Section */}

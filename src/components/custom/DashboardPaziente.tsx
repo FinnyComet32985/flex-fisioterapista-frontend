@@ -5,9 +5,9 @@ import { useParams } from "react-router-dom";
 import { FiEdit2 } from "react-icons/fi";
 
 import { apiGet } from "@/lib/api";
-import { GraficoPazienti } from "./GraficoPazienti";
-import SchedaAllenamento from "./SchedaAllenamento";
 
+import { GraficoPazienti } from "@/components/custom/GraficoPazienti";
+import SchedaAllenamento from "@/components/custom/SchedaAllenamento";
 import {Avatar,AvatarFallback} from "@/components/ui/avatar"
 
 interface Paziente {
@@ -138,10 +138,11 @@ export default function DashboardPaziente() {
             </div>
           )}
         </div>
-          <GraficoPazienti />
-          <SchedaAllenamento />
+        <div className="max-w-7xl mx-auto mt-8 space-y-8">
+            <GraficoPazienti />
+            <SchedaAllenamento />
+        </div>
       </div>
-      
       
       {/* Bottoni Flottanti */}
       <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
