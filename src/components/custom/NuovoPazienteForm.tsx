@@ -125,7 +125,7 @@ const NuovoPazienteForm: React.FC = () => {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value, type } = e.target as HTMLInputElement;
+    const { name, value } = e.target as HTMLInputElement;
     const key = name as keyof FormData;
     let parsedValue: string | number = value;
 
