@@ -25,7 +25,10 @@ function MainLayout() {
         "settings": "IMPOSTAZIONI",
         "dashboard-paziente": "DASHBOARD",
         "pazienti": "PAZIENTI",
-        "scheda-allenamento": "SCHEDA"
+        "scheda-allenamento": "SCHEDA",
+        "nuovo-esercizio": "NUOVO ESERCIZIO",
+        "nuovo-paziente": "NUOVO PAZIENTE",
+        "profilo-paziente": "PROFILO PAZIENTE"
     } as const;
     const locator = useLocation();
     const pathArray: string[] = locator.pathname.substring(1).split("/");
