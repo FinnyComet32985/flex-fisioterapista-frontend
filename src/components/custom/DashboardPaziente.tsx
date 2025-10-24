@@ -15,8 +15,8 @@ interface Paziente {
   nome: string;
   cognome: string;
   email: string;
-  dataInizioTrattamento: string;
-  numero_sedute_effettuate: number;
+  data_inizio: string;
+  sedute_effettuate: number;
   genere: string;
   peso: number;
   altezza: number;
@@ -51,6 +51,7 @@ export default function DashboardPaziente() {
           throw new Error("Impossibile caricare il profilo del paziente");
         }
         const data: Paziente[] = await response.json();
+        console.log(data);
         setPaziente(data[0]); // ✅ prende il primo elemento dell’array
 
         setError(null);
@@ -89,7 +90,7 @@ export default function DashboardPaziente() {
 
                   <div className="mt-6 space-y-4">
                     <div>
-                      <label className="text-sm text-muted-foreground">Email:INSERIRE</label>
+                      <label className="text-sm text-muted-foreground">Email:</label>
                       <p className="text-foreground">{paziente.email}</p>
                     </div>
                   </div>
@@ -102,12 +103,12 @@ export default function DashboardPaziente() {
                 <ProfileSection title="Dettagli Account">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
                     <div>
-                      <label className="text-sm text-muted-foreground">Inizio Trattamento:INSERIRE</label>
-                      <p className="text-foreground">{new Date(paziente.dataInizioTrattamento).toLocaleDateString("it-IT")}</p>
+                      <label className="text-sm text-muted-foreground">Inizio Trattamento:</label>
+                      <p className="text-foreground">{new Date(paziente.data_inizio).toLocaleDateString("it-IT")}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Sedute Effettuate:INSERIRE</label>
-                      <p className="text-foreground">{paziente.numero_sedute_effettuate}</p>
+                      <label className="text-sm text-muted-foreground">Sedute Effettuate:</label>
+                      <p className="text-foreground">{paziente.sedute_effettuate}</p>
                     </div>
                     <div>
                       <label className="text-sm text-muted-foreground">Genere</label>
