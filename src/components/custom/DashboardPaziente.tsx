@@ -9,6 +9,7 @@ import { apiGet } from "@/lib/api";
 import { GraficoPazienti } from "@/components/custom/GraficoPazienti";
 import SchedaAllenamento from "@/components/custom/SchedaAllenamento";
 import {Avatar,AvatarFallback} from "@/components/ui/avatar"
+import ListaSchede from "@/components/custom/ListaSchede";
 
 interface Paziente {
   id: number;
@@ -140,6 +141,7 @@ export default function DashboardPaziente() {
         </div>
         <div className="max-w-7xl mx-auto mt-8 space-y-8">
             <GraficoPazienti />
+            <ListaSchede />
             <SchedaAllenamento />
         </div>
       </div>
