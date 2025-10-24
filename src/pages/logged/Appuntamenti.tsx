@@ -1,5 +1,5 @@
 
-import Calendar20 from "@/components/calendar-20"
+import Calendar20 from "@/components/custom/calendar-20"
 
 function AppuntamentiPage() {
     return(

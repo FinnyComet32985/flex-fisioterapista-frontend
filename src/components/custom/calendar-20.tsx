@@ -14,11 +14,11 @@ import {
 import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import CalendarAppointment from "./custom/calendar-appointment";
+import CalendarAppointment from "@/components/custom/calendar-appointment";
 import { apiDelete, apiGet, apiPost } from "@/lib/api";
-import { PazientiCombobox } from "./custom/comboboxPazienti";
-import { Button } from "./ui/button";
-import DialogModifyAppointment from "./custom/DialogModifyAppointment";
+import { PazientiCombobox } from "@/components/custom/comboboxPazienti";
+import { Button } from "@/components/ui/button";
+import DialogModifyAppointment from "@/components/custom/DialogModifyAppointment";
 import { Trash2 } from "lucide-react";
 
 export default function Calendar20() {

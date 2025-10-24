@@ -1,30 +1,37 @@
 // Importazione delle dipendenze React necessarie
 import { useState, useEffect, useRef } from "react";
-import type { ChangeEvent } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // Importazione delle icone da react-icons/fi per l'interfaccia utente
 import {
     FiSearch, // Icona per la ricerca
     FiSend, // Icona per inviare messaggi
-    FiPaperclip, // Icona per allegati
-    FiArrowLeft, // Icona freccia indietro
+    FiArrowLeft, // Icona freccia indietro,
+    FiPlus, // Icona per aggiungere
 } from "react-icons/fi";
 // Importazione utility per la formattazione delle date
-import { format } from "date-fns";
 import { apiGet, apiPost } from "@/lib/api";
 import {
   Avatar,
   AvatarFallback,
-} from "@/components/ui/avatar"
+} from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+
 // ==== Definizione dei tipi TypeScript ====
 
 // Tipo per gli allegati nei messaggi
-type Attachment = {
-    type: "image" | "file"; // Tipo di allegato: immagine o file generico
-    url: string; // URL dell'allegato
-    name: string; // Nome del file
-    fileType?: string; // Tipo MIME del file (opzionale)
-};
+// type Attachment = {
+//     type: "image" | "file"; // Tipo di allegato: immagine o file generico
+//     url: string; // URL dell'allegato
+//     name: string; // Nome del file
+//     fileType?: string; // Tipo MIME del file (opzionale)
+// };
 
 type Chat = {
     id: number;
@@ -40,6 +47,12 @@ type Messaggio = {
     mittente: string;
 };
 
+type Paziente = {
+    id: number;
+    nome: string;
+    cognome: string;
+};
+
 // ==== Componente principale del Messenger ====
 const ChatMessenger: React.FC = () => {
     // Stati per la gestione dell'interfaccia
@@ -47,6 +60,9 @@ const ChatMessenger: React.FC = () => {
     const [messageSearch, setMessageSearch] = useState<string>(""); // Testo di ricerca messaggi
 
     /* CHAT */
+    const [allPatients, setAllPatients] = useState<Paziente[]>([]);
+    const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
+
     const [chat, setChat] = useState<Chat[]>([]);
 
     const fetchChat = async () => {
@@ -63,6 +79,20 @@ const ChatMessenger: React.FC = () => {
         }
     };
 
+    const fetchAllPatients = async () => {
+        try {
+            const response = await apiGet("/patient");
+            if (!response.ok) {
+                throw new Error("Impossibile caricare la lista di tutti i pazienti");
+            }
+            const data: Paziente[] = await response.json();
+            setAllPatients(data);
+        } catch (err) {
+            console.error("Errore nel caricamento dei pazienti:", err);
+        }
+    };
+
+
     /* MESSAGGI */
     const [messaggi, setMessaggi] = useState<Messaggio[]>([]);
 
@@ -72,8 +102,12 @@ const ChatMessenger: React.FC = () => {
             if (!response.ok) {
                 throw new Error("Impossibile caricare la lista dei messaggi");
             } else {
-                const data: Messaggio[] = await response.json();
-                setMessaggi(data);
+                const data = await response.json();
+                const messaggiConDate = data.map((m: Messaggio) => ({
+                    ...m,
+                    data_invio: new Date(m.data_invio),
+                }));
+                setMessaggi(messaggiConDate);
             }
         } catch (err) {
             console.error("Errore nel caricamento dei messaggi:", err);
@@ -101,10 +135,44 @@ const ChatMessenger: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement | null>(null); // Riferimento per input file
 
     const handleSetActiveChat = (chat: Chat) => {
+        // Controlla se la chat precedente era fittizia e non utilizzata
+        if (activeChat && !messaggi.length) {
+            // Verifica se la chat precedente esiste realmente sul server (chiamando fetchChat)
+            apiGet("/chat").then(response => response.json()).then((realChats: Chat[]) => {
+                const isPreviousChatFictitious = !realChats.some(c => c.id === activeChat.id);
+                if (isPreviousChatFictitious) {
+                    // Rimuovi la chat fittizia se l'utente cambia conversazione senza aver scritto
+                    setChat(prev => prev.filter(c => c.id !== activeChat.id));
+                }
+            });
+        }
+
         setActiveChat(chat);
-        fetchMessaggi(chat.id);
+        fetchMessaggi(chat.id); // Carica i messaggi per la chat selezionata
     };
 
+    // Gestisce la selezione di un paziente per avviare una nuova chat
+    const handleStartNewChat = (paziente: Paziente) => {
+        // Controlla se una chat con questo paziente esiste già
+        const existingChat = chat.find((c) => c.id === paziente.id);
+
+        if (existingChat) {
+            // Se esiste, la imposta come attiva
+            handleSetActiveChat(existingChat);
+        } else {
+            // Altrimenti, crea una chat "fittizia" e la aggiunge allo stato
+            const newChat: Chat = {
+                id: paziente.id,
+                nome: paziente.nome,
+                cognome: paziente.cognome,
+                immagine: "", // Placeholder per l'immagine
+            };
+            setChat((prev) => [newChat, ...prev]); // Aggiunge la nuova chat in cima alla lista
+            setActiveChat(newChat); // Imposta la nuova chat come attiva
+            setMessaggi([]); // Svuota i messaggi precedenti
+        }
+        setIsNewChatDialogOpen(false); // Chiude il dialog
+    };
 
     // Effetto per lo scroll automatico quando arrivano nuovi messaggi
     useEffect(() => {
@@ -207,18 +275,49 @@ const ChatMessenger: React.FC = () => {
                 className={`${
                     isMobileView && activeChat ? "hidden" : "w-full md:w-1/3"
                 } bg-card border-r border-border`}
-            >
-                <div className="p-2 border-b border-border">
-                    <div className="relative">
+            >   
+                <div className="p-4 border-b border-border flex items-center gap-4">
+                    <div className="relative flex-1">
                         <FiSearch className="absolute left-3 top-2 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Cerca paziente"
-                            className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:border-primary"
+                            className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:border-primary bg-background"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
+                    <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={fetchAllPatients}>
+                                <FiPlus className="h-5 w-5" />
+                                <span className="sr-only">Nuova Chat</span>
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Avvia una nuova chat</DialogTitle>
+                            </DialogHeader>
+                            <div className="max-h-[60vh] overflow-y-auto">
+                                {allPatients
+                                    .filter(p => !chat.some(c => c.id === p.id)) // Mostra solo pazienti non ancora in chat
+                                    .map((paziente) => (
+                                    <div
+                                        key={paziente.id}
+                                        className="flex items-center p-3 cursor-pointer hover:bg-accent rounded-lg"
+                                        onClick={() => handleStartNewChat(paziente)}
+                                    >
+                                        <Avatar className="w-10 h-10">
+                                            <AvatarFallback>{paziente.nome.charAt(0)}{paziente.cognome.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="ml-3">
+                                            <p className="font-semibold">{paziente.nome} {paziente.cognome}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
                 <div className="overflow-y-auto h-[calc(100vh-12rem)]">
                     {filteredChat.map((c) => (
