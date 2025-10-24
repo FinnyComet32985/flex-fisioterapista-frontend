@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { apiPatch } from "@/lib/api";
+import { useState, useEffect, useMemo } from "react";
 import { FiUser, FiLock, FiEdit2, FiSave } from "react-icons/fi";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type ProfileData = {
   nome: string;
@@ -16,7 +17,65 @@ type PasswordData = {
 
 const SettingsPage: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const routeUser = (location.state as { name?: string; email?: string } | null) ?? null;
+  // stato UI minimale (rimuovi errors se non usato)
+  const [status, setStatus] = useState<string>("");
+
+  // UI state per submit
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+
+  // handleChange semplice per aggiornare nome/cognome/email
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // handleSubmit: invia profileData con apiPatch("/profile")
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitError(null);
+    setSubmitSuccess(null);
+
+    // semplice validazione client
+    if (!profileData.nome.trim() || !profileData.cognome.trim()) {
+      setSubmitError("Nome e cognome sono obbligatori");
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(profileData.email)) {
+      setSubmitError("Email non valida");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await apiPatch("/profile", profileData);
+
+      // apiPatch dovrebbe restituire un Response-like (ok, status)
+      if (!result.ok) {
+        // prova a leggere il corpo per un messaggio d'errore
+        const body = await result.json().catch(() => null);
+        const msg = body?.message ?? body?.error ?? "Aggiornamento profilo fallito";
+        setSubmitError(msg);
+      } else {
+        setSubmitSuccess("Profilo aggiornato con successo");
+        // opzionale: aggiorna UI / context qui se necessario
+        // redirect dopo breve pausa
+        setTimeout(() => {
+          setSubmitSuccess(null);
+          navigate("/");
+          window.location.reload();
+        }, 1200);
+      }
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Errore di rete");
+      console.error("handleSubmit error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   // split nome completo in nome + cognome (se disponibile)
   const [nomeInit, cognomeInit] = routeUser?.name ? routeUser.name.split(" ", 2) : ["John", "Doe"];
@@ -39,21 +98,16 @@ const SettingsPage: React.FC = () => {
     security: "Sicurezza",
   };
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Profilo aggiornato", profileData);
-  };
-
   const handlePasswordUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Password aggiornata", passwordData);
   };
 
-  const TabContent: React.FC = () => {
+  const tabContent = useMemo(() => {
     switch (activeTab) {
       case "profile":
         return (
-          <form onSubmit={handleProfileUpdate} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-6">
               <div className="relative">
                 <img
@@ -71,40 +125,39 @@ const SettingsPage: React.FC = () => {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
+                  name="nome"
                   value={profileData.nome}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setProfileData({ ...profileData, nome: e.target.value })
-                  }
+                  onChange={handleChange}
                   placeholder="Nome"
                   className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
                 />
                 <input
                   type="text"
+                  name="cognome"
                   value={profileData.cognome}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setProfileData({ ...profileData, cognome: e.target.value })
-                  }
+                  onChange={handleChange}
                   placeholder="Cognome"
                   className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
                 />
                 <input
                   type="email"
+                  name="email"
                   value={profileData.email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setProfileData({ ...profileData, email: e.target.value })
-                  }
+                  onChange={handleChange}
                   placeholder="Email"
                   className="w-full md:col-span-2 px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
                 />
               </div>
             </div>
-
+            {submitError && <p className="text-sm text-[color:var(--color-destructive)]">{submitError}</p>}
+            {submitSuccess && <p className="text-sm text-[color:var(--color-success)]">{submitSuccess}</p>}
             <button
               type="submit"
-              className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center space-x-2"
+              disabled={isSubmitting}
+              className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center space-x-2 disabled:opacity-60"
             >
               <FiSave size={18} />
-              <span>Salva modifiche</span>
+              <span>{isSubmitting ? "Salvataggio..." : "Salva modifiche"}</span>
             </button>
           </form>
         );
@@ -158,7 +211,7 @@ const SettingsPage: React.FC = () => {
       default:
         return null;
     }
-  };
+  }, [activeTab, profileData, passwordData, handleChange, handleSubmit, handlePasswordUpdate, isSubmitting, submitError, submitSuccess]);
 
   return (
     <div className="min-h-screen bg-[color:var(--color-background)] text-[color:var(--color-foreground)] py-12 px-4 sm:px-6 lg:px-8">
@@ -184,7 +237,7 @@ const SettingsPage: React.FC = () => {
           </div>
           <div className="flex-1 p-8">
             <h2 className="text-2xl font-bold mb-6 capitalize text-[color:var(--color-foreground)]">{tabLabels[activeTab]} impostazioni</h2>
-            <TabContent />
+            {tabContent}
           </div>
         </div>
       </div>
