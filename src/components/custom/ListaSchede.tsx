@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon } from "lucide-react";
+import {EyeIcon} from "lucide-react";
+import { apiGet } from "@/lib/api";
+import { useParams } from "react-router-dom";
+
 
 import {
   Dialog,
@@ -10,92 +13,111 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-// ✅ Tipi per i dati
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+
+interface Scheda {
+  id: number;
+  nome: string;
+  tipo: string;
+  note: string;
+  exercises: Exercise[]; 
+}
+
 interface Exercise {
-  name: string;
+  nome: string;
   descrizione: string;
   serie: number;
   ripetizioni: number;
   video: string; // URL del video
 }
 
-interface Workout {
-  id: number;
-  name: string;
-  tipo: string;
-  note: string;
-  exercises: Exercise[];
-}
+export default  function ListaSchede() {
+  const [schede, setSchede] = useState<Scheda[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [schedaSelezionata, setSchedaSelezionata] = useState<Scheda | null>(null);
+  const [mostraDettagli, setMostraDettagli] = useState<boolean>(false);
 
-const ListaSchede: React.FC = () => {
-  const initialWorkouts: Workout[] = [
-    {
-      id: 1,
-      name: "Full Body Workout",
-      tipo: "Forza Generale",
-      note: "Mantenere una buona forma durante gli squat, schiena dritta.",
-      exercises: [
-        { name: "Push-ups", descrizione: "Esercizio a corpo libero per pettorali, spalle e tricipiti.", serie: 3, ripetizioni: 12, video: "https://www.youtube.com/embed/IODxDxX7oi4" },
-        { name: "Squats", descrizione: "Esercizio fondamentale per gambe e glutei.", serie: 3, ripetizioni: 15, video: "https://www.youtube.com/embed/xqvCmoLULNY" },
-        { name: "Plank", descrizione: "Esercizio isometrico per il core.", serie: 3, ripetizioni: 60, video: "https://www.youtube.com/embed/ASdvN_XEl_c" }, // 60 secondi
-      ],
-    },
-    {
-      id: 2,
-      name: "Cardio Session",
-      tipo: "Cardiovascolare",
-      note: "Mantenere un ritmo costante durante la corsa.",
-      exercises: [
-        { name: "Corsa sul posto", descrizione: "Corsa a ginocchia alte per aumentare la frequenza cardiaca.", serie: 1, ripetizioni: 20, video: "https://www.youtube.com/embed/8lvXMLP0d6Q" }, // 20 minuti
-        { name: "Salto con la corda", descrizione: "Esercizio ad alta intensità per tutto il corpo.", serie: 5, ripetizioni: 1, video: "https://www.youtube.com/embed/u3zgHI8QnqE" }, // 5 serie da 1 minuto
-      ],
-    },
-    {
-      id: 3,
-      name: "Strength Training",
-      tipo: "Forza Specifica",
-      note: "Focus sulla tecnica per gli stacchi, non caricare troppo peso all'inizio.",
-      exercises: [
-        { name: "Stacchi da terra", descrizione: "Esercizio multiarticolare per schiena, gambe e glutei.", serie: 4, ripetizioni: 8, video: "https://www.youtube.com/embed/op9kVnSso6Q" },
-        { name: "Panca piana", descrizione: "Esercizio fondamentale per lo sviluppo dei pettorali.", serie: 4, ripetizioni: 10, video: "https://www.youtube.com/embed/rT7DgCr-3pg" },
-        { name: "Trazioni alla sbarra", descrizione: "Esercizio a corpo libero per la schiena e i bicipiti.", serie: 3, ripetizioni: 8, video: "https://www.youtube.com/embed/eGo4IYlbE5g" },
-      ],
-    },
-  ];
+  const params = useParams();
+  const pazienteId = params.id;
 
-  // ✅ Stati tipizzati
-  const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
-  const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  useEffect(() => {
+    const fetchSchede = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiGet("/trainingCard/"+pazienteId);
+        if (!response.ok) {
+          throw new Error("Impossibile caricare le schede di allenamento");
+        }
+        const data: Scheda[] = await response.json();
+        setSchede(data);
+      } catch (err) { 
+        setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
+        console.error("Errore nel caricamento delle schede:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleWorkoutClick = (workout: Workout) => {
-    setSelectedWorkout(workout);
-    setShowModal(true);
+    fetchSchede();
+  }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta
+
+  const handleVisualizzaClick = async (scheda: Scheda) => {
+    // Se gli esercizi non sono già stati caricati, li carichiamo ora
+    if (!scheda.exercises) {
+      try {
+        const response = await apiGet("/trainingCard/" + scheda.id + "/exercise");
+        if (!response.ok) {
+          throw new Error("Impossibile caricare gli esercizi della scheda");
+        }
+        const esercizi: Exercise[] = await response.json();
+        console.log("Esercizi caricati:", esercizi);
+        // Aggiorniamo la scheda specifica nello stato con i nuovi esercizi
+        const schedaAggiornata = { ...scheda, exercises: esercizi };
+        setSchede(prevSchede => prevSchede.map(s => s.id === scheda.id ? schedaAggiornata : s));
+        setSchedaSelezionata(schedaAggiornata);
+
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Errore caricamento esercizi");
+        console.error("Errore nel caricamento degli esercizi:", err);
+        // Mostra comunque i dettagli con le info base anche se gli esercizi falliscono
+        setSchedaSelezionata(scheda);
+      }
+    } else {
+      // Se gli esercizi sono già presenti, apriamo subito il modale
+      setSchedaSelezionata(scheda);
+    }
+    setMostraDettagli(true);
   };
 
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Schede Allenamento</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Schede di Allenamento</h1>
         <div className="bg-card p-6 rounded-lg shadow-md border border-border">
 
-          {/* 🔥 LISTA ALLENAMENTI */}
+          {isLoading && <div>Caricamento schede...</div>}
+          {error && <div className="text-red-500">{error}</div>}
+
+          {/* Lista delle schede */}
           <div className="space-y-4">
-            {workouts.map((workout) => (
+            {schede.map((scheda) => (
               <div
-                key={workout.id}
+                key={scheda.id}
                 className="bg-card border border-border rounded-lg p-4 transition-colors"
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-lg font-semibold text-card-foreground">{workout.name}</h3>
+                    <h3 className="text-lg font-semibold text-card-foreground">{scheda.nome}</h3>
                     <div className="flex items-center gap-x-4 text-sm text-muted-foreground mt-1">
-                      <span className="font-medium">Tipo: <span className="font-normal">{workout.tipo}</span></span>
-                      <p className="truncate"><span className="font-medium">Note:</span> {workout.note}</p>
+                      <span className="font-medium">Tipo: <span className="font-normal">{scheda.tipo}</span></span>
+                      <p className="truncate"><span className="font-medium">Note:</span> {scheda.note}</p>
                     </div>
                   </div>
                   <div>
-                    <Button variant="outline" onClick={() => handleWorkoutClick(workout)}><EyeIcon />Visualizza</Button>
+                    <Button variant="outline" onClick={() => handleVisualizzaClick(scheda)}> <EyeIcon /> Visualizza</Button>
+
                   </div>
                 </div>
               </div>
@@ -104,45 +126,43 @@ const ListaSchede: React.FC = () => {
         </div>
       </div>
 
-      {/* 💪 MODALE DETTAGLIO - Integrato direttamente */}
-      {selectedWorkout && (
-        <Dialog open={showModal} onOpenChange={setShowModal}>
+      {/* Finestra di dialogo con i dettagli della scheda */}
+      {schedaSelezionata && (
+        <Dialog open={mostraDettagli} onOpenChange={setMostraDettagli}>
             <DialogContent className="sm:max-w-4xl">
                 <DialogHeader>
-                    <DialogTitle>{selectedWorkout.name}</DialogTitle>
+                    <DialogTitle>{schedaSelezionata.nome}</DialogTitle>
                     <DialogDescription>
                         Esegui gli esercizi seguendo le indicazioni.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-[70vh] overflow-y-auto pr-4">
-                    <div className="space-y-6">
-                        {selectedWorkout.exercises.map((exercise, index) => (
-                            <div key={index} className="rounded-lg border p-4">
-                                <h4 className="font-semibold text-lg text-foreground">{exercise.name}</h4>
-                                <p className="text-sm text-muted-foreground mt-1">{exercise.descrizione}</p>
-                                <div className="flex items-center gap-6 mt-3 text-sm">
-                                    <span className="font-medium">Serie: <span className="font-normal">{exercise.serie}</span></span>
-                                    <span className="font-medium">Ripetizioni: <span className="font-normal">{exercise.ripetizioni}</span></span>
-                                </div>
-                                {exercise.video && (
-                                <div className="mt-4">
-                                    <div className="aspect-video rounded-md overflow-hidden">
-                                    <iframe className="w-full h-full" src={exercise.video} title={exercise.name} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                <ScrollArea className="max-h-[70vh]">
+                    <div className="space-y-6 pr-6">
+                            {schedaSelezionata.exercises?.map((exercise, index) => (
+                                <div key={index} className="rounded-lg border p-4">
+                                    <h4 className="font-semibold text-lg text-foreground">{exercise.nome}</h4>
+                                    <p className="text-sm text-muted-foreground mt-1">{exercise.descrizione}</p>
+                                    <div className="flex items-center gap-6 mt-3 text-sm">
+                                        <span className="font-medium">Serie: <span className="font-normal">{exercise.serie}</span></span>
+                                        <span className="font-medium">Ripetizioni: <span className="font-normal">{exercise.ripetizioni}</span></span>
                                     </div>
+                                    {exercise.video && (
+                                    <div className="mt-4">
+                                        <div className="aspect-video rounded-md overflow-hidden">
+                                        <iframe className="w-full h-full" src={exercise.video} title={exercise.nome} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                                        </div>
+                                    </div>
+                                    )}
                                 </div>
-                                )}
-                            </div>
-                        ))}
+                            ))}
                     </div>
-                </div>
+                </ScrollArea>
                 <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setShowModal(false)}>Chiudi</Button>
+                    <Button type="button" variant="outline" onClick={() => setMostraDettagli(false)}>Chiudi</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
       )}
     </div>
   );
-};
-
-export default ListaSchede;
+}

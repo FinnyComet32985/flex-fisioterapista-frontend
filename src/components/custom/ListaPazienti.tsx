@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { EyeIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { apiGet } from "@/lib/api";
 
 import {
   Avatar,
@@ -17,7 +18,7 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@/components/ui/item"
-import { apiGet } from "@/lib/api";
+
 
 interface Paziente {
   id: number;

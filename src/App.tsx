@@ -22,7 +22,7 @@ function App() {
 
         <Routes>
           <Route element={<ProtectedRoute/>} >
-          <Route path="/profilo-paziente/:id" element={<DashboardPaziente />} />
+            <Route path="/profilo-paziente/:id" element={<DashboardPaziente />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/appuntamenti" element={<AppuntamentiPage />} />
             <Route path="/catalogo-esercizi" element={<CatalogoEsercizi />} />
