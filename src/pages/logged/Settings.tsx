@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { FiUser, FiLock, FiBell, FiEdit2, FiSave } from "react-icons/fi";
+import { FiUser, FiLock, FiEdit2, FiSave } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
 
 type ProfileData = {
-  name: string;
+  nome: string;
+  cognome: string;
   email: string;
-  avatar: string;
-  bio: string;
 };
 
 type PasswordData = {
@@ -15,23 +14,18 @@ type PasswordData = {
   confirmPassword: string;
 };
 
-type Notifications = {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  marketingEmails: boolean;
-  securityAlerts: boolean;
-};
-
 const SettingsPage: React.FC = () => {
   const location = useLocation();
-  const routeUser = (location.state as { name?: string; email?: string; avatar?: string } | null) ?? null;
+  const routeUser = (location.state as { name?: string; email?: string } | null) ?? null;
 
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications">("profile");
+  // split nome completo in nome + cognome (se disponibile)
+  const [nomeInit, cognomeInit] = routeUser?.name ? routeUser.name.split(" ", 2) : ["John", "Doe"];
+
+  const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
   const [profileData, setProfileData] = useState<ProfileData>({
-    name: routeUser?.name ?? "John Doe",
+    nome: nomeInit ?? "John",
+    cognome: cognomeInit ?? "Doe",
     email: routeUser?.email ?? "john.doe@example.com",
-    avatar: routeUser?.avatar ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-    bio: "Software Developer | Tech Enthusiast",
   });
 
   const [passwordData, setPasswordData] = useState<PasswordData>({
@@ -40,24 +34,9 @@ const SettingsPage: React.FC = () => {
     confirmPassword: "",
   });
 
-  const [notifications, setNotifications] = useState<Notifications>({
-    emailNotifications: true,
-    pushNotifications: false,
-    marketingEmails: true,
-    securityAlerts: true,
-  });
-
-  const tabLabels: Record<"profile" | "security" | "notifications", string> = {
+  const tabLabels: Record<"profile" | "security", string> = {
     profile: "Profilo",
     security: "Sicurezza",
-    notifications: "Notifiche",
-  };
-
-  const notificationLabels: Record<keyof Notifications, string> = {
-    emailNotifications: "Notifiche email",
-    pushNotifications: "Notifiche push",
-    marketingEmails: "Email commerciali",
-    securityAlerts: "Avvisi di sicurezza",
   };
 
   const handleProfileUpdate = (e: React.FormEvent) => {
@@ -70,13 +49,6 @@ const SettingsPage: React.FC = () => {
     console.log("Password aggiornata", passwordData);
   };
 
-  const handleNotificationChange = (setting: keyof Notifications) => {
-    setNotifications((prev) => ({
-      ...prev,
-      [setting]: !prev[setting],
-    }));
-  };
-
   const TabContent: React.FC = () => {
     switch (activeTab) {
       case "profile":
@@ -85,7 +57,7 @@ const SettingsPage: React.FC = () => {
             <div className="flex items-center space-x-6">
               <div className="relative">
                 <img
-                  src={profileData.avatar}
+                  src={"https://via.placeholder.com/150"}
                   alt="Profile"
                   className="w-24 h-24 rounded-full object-cover"
                 />
@@ -96,14 +68,24 @@ const SettingsPage: React.FC = () => {
                   <FiEdit2 size={16} />
                 </button>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
-                  value={profileData.name}
+                  value={profileData.nome}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setProfileData({ ...profileData, name: e.target.value })
+                    setProfileData({ ...profileData, nome: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                  placeholder="Nome"
+                  className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                />
+                <input
+                  type="text"
+                  value={profileData.cognome}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setProfileData({ ...profileData, cognome: e.target.value })
+                  }
+                  placeholder="Cognome"
+                  className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
                 />
                 <input
                   type="email"
@@ -111,18 +93,12 @@ const SettingsPage: React.FC = () => {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setProfileData({ ...profileData, email: e.target.value })
                   }
-                  className="w-full mt-4 px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                  placeholder="Email"
+                  className="w-full md:col-span-2 px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
                 />
               </div>
             </div>
-            <textarea
-              value={profileData.bio}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setProfileData({ ...profileData, bio: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
-              rows={4}
-            />
+
             <button
               type="submit"
               className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center space-x-2"
@@ -144,7 +120,7 @@ const SettingsPage: React.FC = () => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPasswordData({ ...passwordData, currentPassword: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
               />
             </div>
             <div>
@@ -155,7 +131,7 @@ const SettingsPage: React.FC = () => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPasswordData({ ...passwordData, newPassword: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
               />
             </div>
             <div>
@@ -166,7 +142,7 @@ const SettingsPage: React.FC = () => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPasswordData({ ...passwordData, confirmPassword: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] focus:border-transparent bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
+                className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
               />
             </div>
             <button
@@ -177,29 +153,6 @@ const SettingsPage: React.FC = () => {
               <span>Aggiorna password</span>
             </button>
           </form>
-        );
-
-      case "notifications":
-        return (
-          <div className="space-y-6">
-            {(Object.keys(notifications) as (keyof Notifications)[]).map((key) => {
-              const value = notifications[key];
-              return (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="font-medium capitalize text-[color:var(--color-foreground)]">{notificationLabels[key]}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={() => handleNotificationChange(key)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-[color:var(--color-muted)] peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[color:var(--color-ring)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[color:var(--color-border)] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[color:var(--color-card)] after:border-[color:var(--color-border)] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[color:var(--color-primary)]"></div>
-                  </label>
-                </div>
-              );
-            })}
-          </div>
         );
 
       default:
@@ -226,13 +179,6 @@ const SettingsPage: React.FC = () => {
               >
                 <FiLock size={20} />
                 <span>{tabLabels.security}</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("notifications")}
-                className={`flex items-center space-x-3 w-full px-4 py-2 rounded-lg ${activeTab === "notifications" ? "bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)]" : "text-[color:var(--color-muted-foreground)] hover:bg-[color:var(--color-muted)]"}`}
-              >
-                <FiBell size={20} />
-                <span>{tabLabels.notifications}</span>
               </button>
             </nav>
           </div>
