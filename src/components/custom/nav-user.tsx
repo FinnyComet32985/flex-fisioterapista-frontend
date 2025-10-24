@@ -82,7 +82,7 @@ export function NavUser({
             <DropdownMenuSeparator />
               
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => {navigate('/settings')}}>
+              <DropdownMenuItem onClick={() => { navigate('/settings', { state: user }); }}>
                 <Settings />
                 Impostazioni
               </DropdownMenuItem>
