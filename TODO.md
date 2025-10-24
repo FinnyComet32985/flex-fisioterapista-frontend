@@ -3,7 +3,6 @@
 * utenti recenti
 
 ## PROFILO PAZIENTE
-* rimuovi
 * modifica
 
 ## APPUNTAMENTI 
@@ -14,5 +13,7 @@
 
 ## IMPOSTAZIONI
 * implementazione funzionamento 
+* modifica password
+* modifica profilo fisioterapista
 
 
