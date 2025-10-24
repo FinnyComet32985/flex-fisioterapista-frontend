@@ -132,7 +132,7 @@ const ChatMessenger: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>(""); // Ricerca contatti
     const [newMessage, setNewMessage] = useState<string>(""); // Testo nuovo messaggio
     const messageEndRef = useRef<HTMLDivElement | null>(null); // Riferimento per lo scroll automatico
-    const fileInputRef = useRef<HTMLInputElement | null>(null); // Riferimento per input file
+    // const fileInputRef = useRef<HTMLInputElement | null>(null); // Riferimento per input file
 
     const handleSetActiveChat = (chat: Chat) => {
         // Controlla se la chat precedente era fittizia e non utilizzata
@@ -274,11 +274,11 @@ const ChatMessenger: React.FC = () => {
             <div
                 className={`${
                     isMobileView && activeChat ? "hidden" : "w-full md:w-1/3"
-                } bg-card border-r border-border`}
+                } bg-backgrownd border-r border-border`}
             >   
                 <div className="p-4 border-b border-border flex items-center gap-4">
                     <div className="relative flex-1">
-                        <FiSearch className="absolute left-3 top-2 text-muted-foreground" />
+                        <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Cerca paziente"
@@ -323,8 +323,8 @@ const ChatMessenger: React.FC = () => {
                     {filteredChat.map((c) => (
                         <div
                             key={c.id}
-                            className={`flex items-center p-4 cursor-pointer hover:bg-accent ${
-                                activeChat?.id === c.id ? "bg-accent" : ""
+                            className={`mt-1 mr-2 flex rounded-4xl items-center p-4 cursor-pointer hover:bg-primary ${
+                                activeChat?.id === c.id ? "border-2 border-primary" : ""
                             }`}
                             onClick={() => handleSetActiveChat(c)}
                         >
@@ -337,7 +337,7 @@ const ChatMessenger: React.FC = () => {
                             </Avatar>
                             <div className="ml-4 flex-1">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="font-semibold text-foreground">
+                                    <h3 className="font-semibold text-foreground hover:color-primary-foreground">
                                         {c.nome + " " + c.cognome}
                                     </h3>
                                     {/* <span className="text-sm text-muted-foreground">
@@ -425,7 +425,7 @@ const ChatMessenger: React.FC = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 bg-card border-t border-border">
+                <div className="p-4 bg-primary-background border-t border-border">
                     <div className="flex items-center">
                         <div className="flex space-x-2">
                             {/* <button
