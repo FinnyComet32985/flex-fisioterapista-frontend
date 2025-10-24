@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FiUser, FiLock, FiBell, FiEdit2, FiSave } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 
 type ProfileData = {
   name: string;
@@ -22,12 +23,14 @@ type Notifications = {
 };
 
 const SettingsPage: React.FC = () => {
+  const location = useLocation();
+  const routeUser = (location.state as { name?: string; email?: string; avatar?: string } | null) ?? null;
+
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications">("profile");
   const [profileData, setProfileData] = useState<ProfileData>({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9",
+    name: routeUser?.name ?? "John Doe",
+    email: routeUser?.email ?? "john.doe@example.com",
+    avatar: routeUser?.avatar ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
     bio: "Software Developer | Tech Enthusiast",
   });
 
