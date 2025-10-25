@@ -1,9 +1,7 @@
-## HOMEPAGE
-* prossimi appuntamenti
-* utenti recenti
-
 ## PROFILO PAZIENTE
-* modifica
+* grafico
+* modifica scheda
+* modifica serie, ripetizioni, note esercizi
 
 ## APPUNTAMENTI 
 * conferma appuntamenti inseriti dai pazienti
@@ -11,9 +9,5 @@
 ## CATALOGO ESERCIZI
 * modifica esercizi
 
-## IMPOSTAZIONI
-* implementazione funzionamento 
-* modifica password
-* modifica profilo fisioterapista
 
 

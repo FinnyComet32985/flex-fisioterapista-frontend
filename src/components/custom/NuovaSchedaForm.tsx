@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Search, Trash2, XCircle } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
-import { id } from "date-fns/locale";
+import { ComboboxTipoScheda } from "./ComboboxTipoScheda";
 
 interface FormData {
   nome: string;
@@ -64,14 +64,6 @@ const NuovaSchedaForm: React.FC = () => {
     };
     fetchEsercizi();
   }, []);
-
-  const tipiScheda = [
-    "Rinforzo Muscolare",
-    "Miglioramento Mobilità",
-    "Correzione Posturale",
-    "Riabilitazione Funzionale",
-    "Propriocezione ed Equilibrio",
-  ];
 
   const handleAddEsercizio = (esercizio: EsercizioCatalogo) => {
     if (!formData.esercizi.some(e => e.exercise_id === esercizio.id)) {
@@ -170,10 +162,7 @@ const NuovaSchedaForm: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="tipo">Tipo Scheda</Label>
-                  <Input id="tipo" list="tipiScheda" value={formData.tipo} onChange={e => setFormData(prev => ({ ...prev, tipo: e.target.value }))} placeholder="Seleziona o scrivi un tipo" required />
-                  <datalist id="tipiScheda">
-                    {tipiScheda.map((t, i) => <option key={i} value={t} />)}
-                  </datalist>
+                  <ComboboxTipoScheda value={formData.tipo} onChange={value => setFormData(prev => ({ ...prev, tipo: value }))} />
                 </div>
                 <div>
                   <Label htmlFor="note">Note Aggiuntive</Label>

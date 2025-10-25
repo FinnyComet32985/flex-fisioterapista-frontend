@@ -19,7 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface Scheda {
   id: number;
   nome: string;
-  tipo: string;
+  tipo_scheda: string;
   note: string;
   exercises: Exercise[]; 
 }
@@ -121,13 +121,12 @@ export default  function ListaSchede() {
                   <div>
                     <h3 className="text-lg font-semibold text-card-foreground">{scheda.nome}</h3>
                     <div className="flex items-center gap-x-4 text-sm text-muted-foreground mt-1">
-                      <span className="font-medium">Tipo: <span className="font-normal">{scheda.tipo}</span></span>
+                      <span className="font-medium">Tipo: <span className="font-normal">{scheda.tipo_scheda}</span></span>
                       <p className="truncate"><span className="font-medium">Note:</span> {scheda.note}</p>
                     </div>
                   </div>
                   <div>
                     <Button variant="outline" onClick={() => handleVisualizzaClick(scheda)}> <EyeIcon /> Visualizza</Button>
-
                   </div>
                 </div>
               </div>
@@ -143,7 +142,10 @@ export default  function ListaSchede() {
                 <DialogHeader>
                     <DialogTitle>{schedaSelezionata.nome}</DialogTitle>
                     <DialogDescription>
-                        Esegui gli esercizi seguendo le indicazioni.
+                        Note del fisioterapista: {schedaSelezionata.note}
+                    </DialogDescription>
+                    <DialogDescription>
+                        Tipologia della scheda: {schedaSelezionata.tipo_scheda}
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className="max-h-[70vh]">
