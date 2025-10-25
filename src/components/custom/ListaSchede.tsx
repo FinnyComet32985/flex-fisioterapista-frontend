@@ -26,7 +26,7 @@ interface Scheda {
 
 interface Exercise {
   nome: string;
-  descrizione: string;
+  descrizione: string | null;
   serie: number;
   ripetizioni: number;
   video: string; // URL del video
@@ -44,24 +44,27 @@ export default  function ListaSchede() {
 
   useEffect(() => {
     const fetchSchede = async () => {
+      if (!pazienteId) return; // Non fare nulla se non c'è un ID paziente
       try {
         setIsLoading(true);
         const response = await apiGet("/trainingCard/"+pazienteId);
         if (!response.ok) {
           throw new Error("Impossibile caricare le schede di allenamento");
         }
-        const data: Scheda[] = await response.json();
-        setSchede(data);
+        const data = await response.json();
+        // Assicurati che data sia un array prima di impostarlo
+        setSchede(Array.isArray(data) ? data : []);
       } catch (err) { 
         setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
         console.error("Errore nel caricamento delle schede:", err);
+        setSchede([]); // In caso di errore, imposta un array vuoto
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSchede();
-  }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta
+  }, [pazienteId]); // Esegui l'effetto ogni volta che pazienteId cambia
 
   const handleVisualizzaClick = async (scheda: Scheda) => {
     // Se gli esercizi non sono già stati caricati, li carichiamo ora

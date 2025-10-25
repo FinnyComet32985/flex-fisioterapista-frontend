@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Search, Trash2, XCircle } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
+import { id } from "date-fns/locale";
 
 interface FormData {
   nome: string;
@@ -38,7 +39,7 @@ const inizialeFormData: FormData = {
 };
 
 const NuovaSchedaForm: React.FC = () => {
-  const { id: pazienteId } = useParams<{ id: string }>();
+  const { pazienteId } = useParams<{ pazienteId: string }>();
   const [formData, setFormData] = useState<FormData>(inizialeFormData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
@@ -89,15 +90,17 @@ const NuovaSchedaForm: React.FC = () => {
   };
 
   const handleEsercizioChange = (id: number, field: 'serie' | 'ripetizioni', value: number) => {
+    // Se il valore non è un numero (es. campo vuoto), o è minore di 1, lo imposta a 1.
+    const numericValue = !isNaN(value) && value >= 1 ? value : 0;
     setFormData(prev => ({
       ...prev,
-      esercizi: prev.esercizi.map(e => e.exercise_id === id ? { ...e, [field]: value } : e)
+      esercizi: prev.esercizi.map(e => (e.exercise_id === id ? { ...e, [field]: numericValue } : e))
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nome || !formData.tipo || formData.esercizi.length === 0) {
+    if (!formData.nome || !formData.tipo) {
       setStatus("error");
       return;
     }
@@ -105,19 +108,30 @@ const NuovaSchedaForm: React.FC = () => {
     try {
       const payload = {
         nome: formData.nome,
-        tipo: formData.tipo,
+        tipo_scheda: formData.tipo,
         note: formData.note,
-        exercises: formData.esercizi.map(({ exercise_id, serie, ripetizioni }) => ({
-          exercise_id,
-          serie,
-          ripetizioni,
-        })),
+        
       };
       const result = await apiPost(`/trainingCard/${pazienteId}`, payload);
+      const { scheda_id } = await result.json();
       if (result.ok) {
+        for (const { exercise_id, serie, ripetizioni } of formData.esercizi) {
+          const result = await apiPost(`/trainingCard/${scheda_id}/exercise`, 
+      {
+            esercizio_id: exercise_id,
+            serie: serie,
+            ripetizioni: ripetizioni
+          });
+          if (!result.ok) {
+            throw new Error("Errore durante la creazione degli esercizi");
+          }
+          
+        }
         setStatus("success");
         setTimeout(() => navigate(`/profilo-paziente/${pazienteId}`), 2000);
-      } else {
+      } 
+      
+      else {
         setStatus("error");
         throw new Error("Errore durante la creazione della scheda");
       }
