@@ -10,6 +10,7 @@ import { apiGet } from "@/lib/api";
 import React, { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 
 type Appointment = {
     id: number;
@@ -121,7 +122,7 @@ function HomePage() {
                                         Nessun appuntamento futuro
                                     </p>
                                 )}
-                                {groupedAppointments.map((group, groupIndex) => (
+                                {groupedAppointments.map((group) => (
                                     <React.Fragment key={group.date}>
                                         <div className="flex items-center gap-4 pt-2">
                                             <Separator className="flex-1" />
@@ -147,9 +148,9 @@ function HomePage() {
                                                 </ItemMedia>
                                                 <ItemContent>
                                                     <ItemTitle className="line-clamp-1">
-                                                        {appuntamento.nome +
+                                                    <Link to={`/profilo-paziente/${appuntamento.paziente_id}`}>{appuntamento.nome +
                                                             " " +
-                                                            appuntamento.cognome}
+                                                            appuntamento.cognome}</Link>
                                                     </ItemTitle>
                                                 </ItemContent>
                                                 <ItemContent className="flex-none text-center">

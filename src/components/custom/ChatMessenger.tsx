@@ -38,6 +38,9 @@ type Chat = {
     nome: string;
     cognome: string;
     immagine: string;
+    ultimo_testo?: string;
+    ultima_data_invio?: Date;
+    ultimo_mittente?: string;
 };
 
 type Messaggio = {
@@ -340,13 +343,24 @@ const ChatMessenger: React.FC = () => {
                                     <h3 className="font-semibold text-foreground hover:color-primary-foreground">
                                         {c.nome + " " + c.cognome}
                                     </h3>
-                                    {/* <span className="text-sm text-muted-foreground">
-                                        {format(contact.timestamp, "HH:mm")}
-                                    </span> */}
+                                    {c.ultima_data_invio && (
+                                        <div className="text-xs text-muted-foreground text-right">
+                                            <span>
+                                                {new Date(c.ultima_data_invio).toLocaleDateString('sv-SE')}
+                                            </span>
+                                            <br />
+                                            <span>
+                                                {new Date(c.ultima_data_invio).toLocaleTimeString('it-IT', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                })}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
-                                {/* <p className="text-sm text-muted-foreground truncate">
-                                    {contact.lastMessage}
-                                </p> */}
+                                <p className="text-sm text-muted-foreground truncate">
+                                    {c.ultimo_testo}
+                                </p>
                             </div>
                             {/* {contact.unread > 0 && (
                                 <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
