@@ -19,8 +19,8 @@ interface FormData {
   descrizione: string;
   descrizione_svolgimento: string;
   consigli_svolgimento: string;
-  immagine: string;
-  video: string;
+  immagine?: string; // OPTIONAL
+  video?: string; // OPTIONAL
 }
 
 type Errors = Partial<Record<keyof FormData, string>>;
@@ -54,6 +54,14 @@ function NuovoEsercizio() {
     });
   };
 
+  // reset completa del form
+  const handleCancel = () => {
+    setFormData(inizialeFormData);
+    setErrors({});
+    setIsLoading(false);
+    setStatus("");
+  };
+
   const validateField = (
     name: keyof FormData,
     value: string | undefined
@@ -79,13 +87,17 @@ function NuovoEsercizio() {
         return undefined;
 
       case "immagine":
-        if (typeof value !== "string" || !value.trim())
-          return "Seleziona un'immagine valida";
+        // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
+        if (!value || !value.trim()) return undefined;
+        if (!/^https?:\/\//i.test(value.trim()))
+          return "Inserisci un URL dell'immagine valido (http/https)";
         return undefined;
 
       case "video":
-        if (typeof value !== "string" || !value.trim())
-          return "Seleziona un video valido";
+        // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
+        if (!value || !value.trim()) return undefined;
+        if (!/^https?:\/\//i.test(value.trim()))
+          return "Inserisci un URL del video valido (http/https)";
         return undefined;
 
       default:
@@ -263,7 +275,7 @@ function NuovoEsercizio() {
                 "Aggiungi Esercizio"
               )}
             </Button>
-            <Button variant="outline" type="button" className="cursor-pointer">
+            <Button variant="outline" type="button" onClick={handleCancel} className="cursor-pointer">
               Annulla
             </Button>
           </Field>
