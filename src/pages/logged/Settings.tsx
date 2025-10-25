@@ -1,4 +1,4 @@
-import { apiPatch } from "@/lib/api";
+import { apiPatch, apiPost } from "@/lib/api";
 import { useState, useEffect, useMemo } from "react";
 import { FiUser, FiLock, FiEdit2, FiSave } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,8 +19,6 @@ const SettingsPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const routeUser = (location.state as { name?: string; email?: string } | null) ?? null;
-  // stato UI minimale (rimuovi errors se non usato)
-  const [status, setStatus] = useState<string>("");
 
   // UI state per submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -92,15 +90,56 @@ const SettingsPage: React.FC = () => {
     newPassword: "",
     confirmPassword: "",
   });
+  // password change UI state
+  const [pwLoading, setPwLoading] = useState<boolean>(false);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwSuccess, setPwSuccess] = useState<string | null>(null);
 
   const tabLabels: Record<"profile" | "security", string> = {
     profile: "Profilo",
     security: "Sicurezza",
   };
 
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Password aggiornata", passwordData);
+    setPwError(null);
+    setPwSuccess(null);
+
+    // validation
+    if (!passwordData.currentPassword) {
+      setPwError("Inserisci la password attuale");
+      return;
+    }
+   
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPwError("La conferma non corrisponde alla nuova password");
+      return;
+    }
+
+    setPwLoading(true);
+    try {
+      const result = await apiPost("/changePassword", {
+        oldPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+
+      if (!result.ok) {
+        const body = await result.json().catch(() => null);
+        setPwError(body?.message ?? body?.error ?? `Errore (${result.status})`);
+        return;
+      }
+
+      // success
+      setPwSuccess("Password aggiornata con successo");
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      // opzionale: se il backend ritorna nuovo token o forza logout, gestirlo qui
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : "Errore di rete");
+    } finally {
+      setPwLoading(false);
+      // rimuovi messaggio di successo dopo breve pausa
+      if (pwSuccess) setTimeout(() => setPwSuccess(null), 2500);
+    }
   };
 
   const tabContent = useMemo(() => {
@@ -198,12 +237,15 @@ const SettingsPage: React.FC = () => {
                 className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
               />
             </div>
+            {pwError && <p className="text-sm text-[color:var(--color-destructive)]">{pwError}</p>}
+            {pwSuccess && <p className="text-sm text-[color:var(--color-success)]">{pwSuccess}</p>}
             <button
               type="submit"
-              className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center space-x-2"
+              disabled={pwLoading}
+              className="w-full bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] py-2 px-4 rounded-lg hover:brightness-110 flex items-center justify-center space-x-2 disabled:opacity-60"
             >
               <FiLock size={18} />
-              <span>Aggiorna password</span>
+              <span>{pwLoading ? "Aggiornamento..." : "Aggiorna password"}</span>
             </button>
           </form>
         );
@@ -211,7 +253,7 @@ const SettingsPage: React.FC = () => {
       default:
         return null;
     }
-  }, [activeTab, profileData, passwordData, handleChange, handleSubmit, handlePasswordUpdate, isSubmitting, submitError, submitSuccess]);
+  }, [activeTab, profileData, passwordData, handleChange, handleSubmit, handlePasswordUpdate, isSubmitting, submitError, submitSuccess, pwLoading, pwError, pwSuccess]);
 
   return (
     <div className="min-h-screen bg-[color:var(--color-background)] text-[color:var(--color-foreground)] py-12 px-4 sm:px-6 lg:px-8">
