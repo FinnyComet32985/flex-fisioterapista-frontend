@@ -12,13 +12,12 @@ function CalendarAppointment({ key_id, img, paziente, orario, confermato, select
     let borderColor
     if (paziente && confermato === "Confermato") {
         borderColor = "border-red-500 hover:bg-red-500"
-    } else if (paziente && confermato === "Non confermato") {
-        borderColor = "border-green-500 hover:bg-yellow-500"
+    } else if (paziente && confermato === "Non Confermato") {
+        borderColor = "border-yellow-500 hover:bg-yellow-500"
     } else {
         borderColor = "border-green-500 hover:bg-green-500"
     }
     const colorSelected = selected ? "bg-accent" : "bg-card" 
-
 
     return (
         <Item variant="outline" className={`bg-primary-bg w-full h-full ${borderColor} ${colorSelected}`} onClick={() => setSelected(key_id)}>

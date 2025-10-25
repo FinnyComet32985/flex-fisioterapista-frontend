@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "@/components/custom/calendar-appointment";
-import { apiDelete, apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import { PazientiCombobox } from "@/components/custom/comboboxPazienti";
 import { Button } from "@/components/ui/button";
 import DialogModifyAppointment from "@/components/custom/DialogModifyAppointment";
@@ -59,7 +59,7 @@ export default function Calendar20() {
             if (!response.ok) {
                 throw new Error("Impossibile caricare gli appuntamenti");
             }
-
+            
             setDati(await response.json());
         } catch (error) {
             console.error("Errore nel caricamento degli appuntamenti:", error);
@@ -238,6 +238,32 @@ export default function Calendar20() {
         setOrarioSelezionato(undefined);
     };
 
+    const handleClickConfermaAppuntamento = async () => {
+        if (orarioSelezionato === undefined || !data) {
+            return;
+        }
+        const response = await apiPost(
+            `/appointment/${orariAttuali[orarioSelezionato].id}/confirm`, {}
+        );
+        if (!response.ok) {
+            const result = await response.json();
+            setStatus(["error", result.message]);
+            setTimeout(() => {
+                setStatus(["", ""]);
+            }, 5000);
+            throw new Error("Impossibile confermare l'appuntamento");
+        } 
+        setStatus(["success", ""]);
+        setTimeout(() => {
+            setStatus(["", ""]);
+        }, 3000);
+
+        fetchAppointments();
+
+        setOrarioSelezionato(undefined);
+        setPazienteSelezionato(undefined);
+    }
+
     return (
         <div>
             {status[0] === "success" && (
@@ -338,6 +364,11 @@ export default function Calendar20() {
                                             Modifica o elimina l'appuntamento
                                         </span>
                                         <div className="flex items-center gap-4">
+                                            {/* CONFERMA APPUNTAMENTO */}
+                                            {orariAttuali[orarioSelezionato].stato_conferma === "Non Confermato" &&
+                                                <Button onClick={() => handleClickConfermaAppuntamento()}>
+                                                Conferma
+                                            </Button>}
                                             {/* MODIFICA APPUNTAMENTO */}
                                             <DialogModifyAppointment id_appuntamento={orariAttuali[orarioSelezionato].id} paziente={orariAttuali[orarioSelezionato].nome + " " + orariAttuali[orarioSelezionato].cognome} data={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleDateString("it-IT")} ora={orariAttuali[orarioSelezionato].data_appuntamento.toLocaleTimeString("it-IT")} onAppointmentUpdate={handleAppointmentUpdate}></DialogModifyAppointment>
 
