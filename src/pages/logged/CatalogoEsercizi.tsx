@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { apiDelete, apiGet } from "@/lib/api";
 import { TrashIcon} from "lucide-react";
+import { ModificaEsercizio } from "@/components/custom/ModificaEsercizio";
 
 interface Exercise {
   id: number;
@@ -88,10 +89,21 @@ const CatalogoEsercizi: React.FC = () => {
 
   const WorkoutDisplay: React.FC<{ exercise: Exercise }> = ({ exercise }) => (
     <div className="relative bg-[color:var(--color-card)] rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow border border-[color:var(--color-border)]">
-      {/* pulsante cancella in alto a destra */}
-      <button onClick={() => handleDeleteExercise(exercise.id)} className="cursor-pointer w-14 h-14 p-4 absolute top-3 right-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg">
-            <TrashIcon className="w-6 h-6" /> 
+      {/* pulsante cancella e modifica in alto a destra */}
+      {/* pulsanti azione: edit sopra delete */}
+      <div className="absolute top-3 right-3 flex flex-col items-end space-y-2">
+        <ModificaEsercizio
+          exercise={exercise}
+          onUpdated={fetchEsercizi}
+        />
+        <button
+          onClick={() => handleDeleteExercise(exercise.id)}
+          className="cursor-pointer w-12 h-12 p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
+          aria-label="Elimina esercizio"
+        >
+          <TrashIcon className="w-5 h-5" />
         </button>
+      </div>
 
       <div className="flex items-start space-x-4">
         <div className="flex flex-col items-start gap-3">
