@@ -13,6 +13,7 @@ import NuovoEsercizio from "./components/custom/NuovoEsercizio";
 import NuovoPazienteForm from "./components/custom/NuovoPazienteForm";
 import ProfiloPazientePage from "./pages/logged/ProfiloPaziente";
 import DashboardPaziente from "@/components/custom/DashboardPaziente";
+import NuovaSchedaForm from "./components/custom/NuovaSchedaForm";
 
 
 
@@ -33,6 +34,7 @@ function App() {
             <Route path="/nuovo-esercizio" element={<NuovoEsercizio />} />
             <Route path="/nuovo-paziente" element={<NuovoPazienteForm />} />
             <Route path="/profilo-paziente" element={<ProfiloPazientePage />} />
+            <Route path="/nuova-scheda/:pazienteId" element={<NuovaSchedaForm />} />
 
           </Route>
           <Route path="/login" element={<LoginPage />} />

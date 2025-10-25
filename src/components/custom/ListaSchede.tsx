@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {EyeIcon} from "lucide-react";
 import { apiGet } from "@/lib/api";
-import { useParams } from "react-router-dom";
-
+import { Link, useParams } from "react-router-dom";
+import { PlusCircle } from "lucide-react";
 
 import {
   Dialog,
@@ -93,8 +93,15 @@ export default  function ListaSchede() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Schede di Allenamento</h1>
+      <div className="space-y-8">
+        <div className="flex items-center justify-start gap-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Schede di Allenamento</h1>
+            <Button asChild>
+                <Link to={`/nuova-scheda/${pazienteId}`}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi Scheda
+                </Link>
+            </Button>
+        </div>
         <div className="bg-card p-6 rounded-lg shadow-md border border-border">
 
           {isLoading && <div>Caricamento schede...</div>}
