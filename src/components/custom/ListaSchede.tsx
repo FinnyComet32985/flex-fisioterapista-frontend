@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {EyeIcon} from "lucide-react";
-import { apiGet } from "@/lib/api";
-import { Link, useParams } from "react-router-dom";
+import { apiGet, apiDelete } from "@/lib/api";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 
 import {
   Dialog,
@@ -14,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { FiEdit2 } from "react-icons/fi";
 
 
 interface Scheda {
@@ -41,6 +43,7 @@ export default  function ListaSchede() {
 
   const params = useParams();
   const pazienteId = params.id;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSchede = async () => {
@@ -65,6 +68,29 @@ export default  function ListaSchede() {
 
     fetchSchede();
   }, [pazienteId]); // Esegui l'effetto ogni volta che pazienteId cambia
+
+  // cancella una scheda con conferma e aggiorna lo state
+  const handleDeleteScheda = async (id: number) => {
+    if (!window.confirm("Sei sicuro di voler eliminare questa scheda? L'operazione è irreversibile.")) return;
+    try {
+      const res = await apiDelete(`/trainingCard/${id}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.message ?? `Eliminazione fallita (${res.status})`);
+      }
+      // rimuovi dalla lista senza ricaricare la pagina
+      setSchede((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Errore durante l'eliminazione";
+      setError(msg);
+      console.error("Errore delete scheda:", err);
+    }
+  };
+  // apri il form di "nuova scheda" in modalità edit passando la scheda nello state della route
+  const handleModificaScheda = (scheda: Scheda) => {
+    if (!scheda.id) return;
+    navigate(`/modifica-scheda/${pazienteId}/${scheda.id}`);
+  };
 
   const handleVisualizzaClick = async (scheda: Scheda) => {
     // Se gli esercizi non sono già stati caricati, li carichiamo ora
@@ -125,12 +151,27 @@ export default  function ListaSchede() {
                       <p className="truncate"><span className="font-medium">Note:</span> {scheda.note}</p>
                     </div>
                   </div>
-                  <div>
-                    <Button variant="outline" onClick={() => handleVisualizzaClick(scheda)}> <EyeIcon /> Visualizza</Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => handleVisualizzaClick(scheda)}>
+                      <EyeIcon /> Visualizza
+                    </Button>
+                    <Button
+                      onClick={() => handleModificaScheda(scheda)}
+                      aria-label={`Modifica scheda ${scheda.nome}`}
+                    >
+                      <FiEdit2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDeleteScheda(scheda.id)}
+                      aria-label={`Elimina scheda ${scheda.nome}`}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </Button>
                   </div>
-                </div>
-              </div>
-            ))}
+                 </div>
+               </div>
+             ))}
           </div>
         </div>
       </div>
