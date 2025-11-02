@@ -30,7 +30,7 @@ interface Exercise {
   descrizione: string | null;
   serie: number;
   ripetizioni: number;
-  video: string; // URL del video
+  video: string; 
 }
 
 export default function ListaSchede() {
@@ -48,7 +48,7 @@ export default function ListaSchede() {
 
   useEffect(() => {
     const fetchSchede = async () => {
-      if (!pazienteId) return; // Non fare nulla se non c'è un ID paziente
+      if (!pazienteId) return; // se id paziente non c'è, fai return senza fare alcuna operazione
       try {
         setIsLoading(true);
         const response = await apiGet("/trainingCard/" + pazienteId);
@@ -56,7 +56,7 @@ export default function ListaSchede() {
           throw new Error("Impossibile caricare le schede di allenamento");
         }
         const data = await response.json();
-        // Assicurati che data sia un array prima di impostarlo
+        // Assicurati che le schede del paziente siano un array prima di impostarlo
         setSchede(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(
@@ -99,7 +99,7 @@ export default function ListaSchede() {
       console.error("Errore delete scheda:", err);
     }
   };
-  // apri il form di "nuova scheda" in modalità edit passando la scheda nello state della route
+  // apri il form in modalità edit passando la scheda nello state della route
   const handleModificaScheda = (scheda: Scheda) => {
     if (!scheda.id) return;
     navigate(`/modifica-scheda/${pazienteId}/${scheda.id}`);
@@ -128,7 +128,7 @@ export default function ListaSchede() {
           err instanceof Error ? err.message : "Errore caricamento esercizi"
         );
         console.error("Errore nel caricamento degli esercizi:", err);
-        // Mostra comunque i dettagli con le info base anche se gli esercizi falliscono
+        // Mostra i dettagli con le info di base anche se gli esercizi falliscono
         setSchedaSelezionata(scheda);
       }
     } else {

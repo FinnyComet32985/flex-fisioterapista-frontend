@@ -26,7 +26,7 @@ interface EsercizioCatalogo {
 
 interface EsercizioSelezionato {
   esercizio_id: number;
-  nome: string; // Lo teniamo per comodità di visualizzazione
+  nome: string; 
   serie: number;
   ripetizioni: number;
 }
@@ -124,7 +124,7 @@ const ModificaScheda: React.FC = () => {
   };
 
   const handleEsercizioChange = (id: number, field: 'serie' | 'ripetizioni', value: number) => {
-    // Se il valore non è un numero (es. campo vuoto), o è minore di 1, lo imposta a 1.
+    // Se il valore non è un numero, o < di 1, lo imposta a 0.
     const numericValue = !isNaN(value) && value >= 1 ? value : 0;
     setFormData(prev => ({
       ...prev,

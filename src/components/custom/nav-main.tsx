@@ -1,21 +1,8 @@
 import { ChevronRight, type LucideIcon } from "lucide-react"
 
+import {  Collapsible,   CollapsibleTrigger} from "@/components/ui/collapsible"
 import {
-  Collapsible,
-  // CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import {
-  SidebarGroup,
-  // SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  // SidebarMenuSub,
-  // SidebarMenuSubButton,
-  // SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+  SidebarGroup,  SidebarMenu,  SidebarMenuAction,  SidebarMenuButton,  SidebarMenuItem} from "@/components/ui/sidebar"
 import { Link } from "react-router-dom"
 
 export function NavMain({
@@ -52,19 +39,6 @@ export function NavMain({
                       <span className="sr-only">Toggle</span>
                     </SidebarMenuAction>
                   </CollapsibleTrigger>
-                  {/* <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent> */}
                 </>
               ) : null}
             </SidebarMenuItem>

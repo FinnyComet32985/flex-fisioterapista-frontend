@@ -35,7 +35,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ title, children }) => (
 );
 
 export default function DashboardPaziente() {
-  const { id } = useParams<{ id: string }>(); // Estrae l'ID del paziente dall'URL
+  const { id } = useParams<{ id: string }>(); // prendi l'ID del paziente dall'URL
   const [paziente, setPaziente] = useState<Paziente | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ export default function DashboardPaziente() {
 
       const data: Paziente[] = await response.json();
       console.log("Dati paziente:", data);
-      setPaziente(data[0]); // ✅ assegna il primo elemento (se API restituisce array)
+      setPaziente(data[0]); // assegna il primo elemento (se API restituisce array)
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
@@ -77,7 +77,7 @@ export default function DashboardPaziente() {
       throw new Error("Impossibile eliminare il paziente");
     }
 
-    // ✅ Eliminazione riuscita
+    // Eliminazione riuscita
     setPaziente(null);
     navigate("/pazienti");
   } catch (err) {
@@ -175,7 +175,7 @@ const handleInfoUpdate = () => {
         </div>
       </div>
 
-      {/* Bottoni fluttuanti */}
+      {/* Bottoni fluttuanti di modifica e eliminazione */}
       {paziente && (
         <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
           <ModificaInformazioniPaziente
