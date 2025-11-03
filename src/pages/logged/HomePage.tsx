@@ -175,17 +175,12 @@ function HomePage() {
                                                     className="bg-accent w-full"
                                                 >
                                                     <ItemMedia variant="image">
-                                                        <img
-                                                            src="https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
-                                                            alt={
-                                                                appuntamento.nome +
-                                                                " " +
-                                                                appuntamento.cognome
-                                                            }
-                                                            width={32}
-                                                            height={32}
-                                                            className="object-cover"
-                                                        />
+                                                        <Avatar className="  border-card shadow-lg text-lg">
+                                                            <AvatarFallback>
+                                                            {appuntamento.nome.charAt(0)}
+                                                            {appuntamento.cognome.charAt(0)}
+                                                        </AvatarFallback>
+                                                     </Avatar>
                                                     </ItemMedia>
                                                     <ItemContent>
                                                         <ItemTitle className="line-clamp-1">
