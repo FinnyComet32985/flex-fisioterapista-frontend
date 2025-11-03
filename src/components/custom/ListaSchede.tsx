@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FiEdit2 } from "react-icons/fi";
+import { CalendarioSessioni } from "./CalendarioSessioni";
 
 interface Scheda {
   id: number;
@@ -41,6 +42,7 @@ export default function ListaSchede() {
     null
   );
   const [mostraDettagli, setMostraDettagli] = useState<boolean>(false);
+  const [mostraSessioni, setMostraSessioni] = useState<boolean>(false);
 
   const params = useParams();
   const pazienteId = params.id;
@@ -182,6 +184,12 @@ export default function ListaSchede() {
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
+                      onClick={() => setMostraSessioni(true)}
+                    >
+                      Visualizza Sessioni
+                    </Button>
+                    <Button
+                      variant="outline"
                       onClick={() => handleVisualizzaClick(scheda)}
                     >
                       <EyeIcon /> Visualizza
@@ -282,6 +290,25 @@ export default function ListaSchede() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Finestra di dialogo per visualizzare le sessioni */}
+      <Dialog open={mostraSessioni} onOpenChange={setMostraSessioni}>
+        <DialogContent className="sm:max-w-6xl">
+          <DialogHeader>
+            <DialogTitle>Storico Sessioni del Paziente</DialogTitle>
+          </DialogHeader>
+
+          <div className="p-4">
+            <CalendarioSessioni />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setMostraSessioni(false)}>
+              Chiudi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
