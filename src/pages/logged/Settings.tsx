@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiPatch, apiPost } from "@/lib/api";
 import { useState, useEffect, useMemo } from "react";
 import { FiUser, FiLock, FiEdit2, FiSave } from "react-icons/fi";
@@ -149,17 +150,12 @@ const SettingsPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-6">
               <div className="relative">
-                <img
-                  src={"https://via.placeholder.com/150"}
-                  alt="Profile"
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-                <button
-                  type="button"
-                  className="absolute bottom-0 right-0 p-2 bg-[color:var(--color-primary)] rounded-full text-[color:var(--color-primary-foreground)] hover:brightness-110"
-                >
-                  <FiEdit2 size={16} />
-                </button>
+                <Avatar className="w-32 h-32 border-4 border-card shadow-lg text-4xl">
+                        <AvatarFallback>
+                          {profileData.nome.charAt(0)}
+                          {profileData.cognome.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
               </div>
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
