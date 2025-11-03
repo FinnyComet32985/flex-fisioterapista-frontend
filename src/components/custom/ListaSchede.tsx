@@ -17,6 +17,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FiEdit2 } from "react-icons/fi";
 import { CalendarioSessioni } from "./CalendarioSessioni";
+import { set } from "date-fns";
 
 interface Scheda {
   id: number;
@@ -140,6 +141,12 @@ export default function ListaSchede() {
     setMostraDettagli(true);
   };
 
+  const handleClickMostraSessioni = (scheda: Scheda) => {
+    setSchedaSelezionata(scheda);
+    setMostraSessioni(true);
+  };
+
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="space-y-8">
@@ -184,7 +191,7 @@ export default function ListaSchede() {
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setMostraSessioni(true)}
+                      onClick={() => handleClickMostraSessioni(scheda)}
                     >
                       Visualizza Sessioni
                     </Button>
@@ -299,7 +306,7 @@ export default function ListaSchede() {
           </DialogHeader>
 
           <div className="p-4">
-            <CalendarioSessioni />
+            <CalendarioSessioni scheda_id={schedaSelezionata?.id}/>
           </div>
 
           <DialogFooter>

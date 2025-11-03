@@ -8,103 +8,222 @@ import { Separator } from "@/components/ui/separator";
 import { it } from "date-fns/locale";
 
 interface EsercizioSvolto {
-  id: number;
-  nome_esercizio: string;
-  serie_effettive: number;
-  ripetizioni_effettive: number;
-  note: string | null;
-  ripetizioni_assegnate: number;
-  serie_assegnate: number;
+    esercizio_id: number;
+    nome_esercizio: string;
+    serie_effettive: number;
+    ripetizioni_effettive: number;
+    note: string | null;
+    ripetizioni_assegnate: number;
+    serie_assegnate: number;
 }
 
-interface SessioneSvolta {
-  id: number;
-  data_sessione: string;
-  esercizi: EsercizioSvolto[];
+interface Sessione {
+    id: number;
+    data_sessione: string;
 }
 
-export function CalendarioSessioni() {
-  const { id: pazienteId } = useParams<{ id: string }>();
-  const [dataSelezionata, setDataSelezionata] = useState<Date | undefined>(new Date());
-  const [sessioniSvolte, setSessioniSvolte] = useState<SessioneSvolta[]>([]);
-  const [sessioneDelGiorno, setSessioneDelGiorno] = useState<SessioneSvolta | undefined>();
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+
+
+interface Sondaggio {
+    forza: string;
+    dolore: string;
+    feedback: string;
+    mobilita: string;
+}
+
+interface SessioneSelezionata {
+  data_sessione: Date,
+  sondaggio: Sondaggio
+  esercizi: EsercizioSvolto[]
+}
+
+export function CalendarioSessioni({
+    scheda_id,
+}: {
+    scheda_id: number | undefined;
+}) {
+    const [dataSelezionata, setDataSelezionata] = useState<Date | undefined>(
+        new Date()
+    );
+    const [sessioni, setSessioni] = useState<Sessione[]>([]);
+
+    const [sessioneDelGiorno, setSessioneDelGiorno] = useState<
+        SessioneSelezionata | undefined
+    >();
+    const [error, setError] = useState<string | null>(null);
+
+
     const fetchSessioni = async () => {
-      if (!pazienteId) return;
-      try {
-        const response = await apiGet(`/trainingSessions/1`);
-        console.log(response);
-        if (!response.ok) throw new Error("Impossibile caricare le sessioni svolte");
-        setSessioniSvolte(await response.json());
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Errore nel caricamento delle sessioni.");
-      }
-    };
-    fetchSessioni();
-  }, [pazienteId]);
-
-  useEffect(() => {
-  if (!dataSelezionata) return;
-  const fetchSessione = await apiGet(`/trainingSession/${SessioniSvolte.id}`);
-  const giorno = dataSelezionata.toDateString();
-  const sessione = sessioniSvolte.find(s => new Date(s.data_sessione).toDateString() === giorno);
-  setSessioneDelGiorno(sessione);
-  }, [dataSelezionata, sessioniSvolte]);
+            if (!scheda_id) return;
+            try {
+                const response = await apiGet(`/trainingSessions/${scheda_id}`);
+                if (!response.ok)
+                    throw new Error("Impossibile caricare le sessioni svolte");
+                const data: Sessione[] = await response.json();
+                setSessioni(data);
+            } catch (e) {
+                setError(
+                    e instanceof Error
+                        ? e.message
+                        : "Errore nel caricamento delle sessioni."
+                );
+            }
+        };
 
 
-  const giorniConSessione = sessioniSvolte.map(s => new Date(s.data_sessione));
+    useEffect(() => {
+        fetchSessioni();
+    }, []);
 
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div className="lg:col-span-2 flex justify-center">
-        <Calendar 
-          mode="single" 
-          locale={it} 
-          selected={dataSelezionata} 
-          onSelect={setDataSelezionata}
-          className="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
-          modifiers={{ booked: giorniConSessione }}
-          modifiersClassNames={{ booked: "bg-primary text-primary-foreground rounded-full" }} />
-      </div>
-      <div className="lg:col-span-3">
-        <Card>
-          <CardHeader><CardTitle>Dettagli Sessione del {dataSelezionata?.toLocaleDateString("it-IT") || ""}</CardTitle></CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[55vh]">
-              {error && <p className="text-destructive">{error}</p>}
-              {sessioneDelGiorno ? (
-                <div className="space-y-4 pr-4">
-                  {sessioneDelGiorno.esercizi.map(e => (
-                    <div key={e.id} className="border p-4 rounded-lg">
-                      <h4 className="font-semibold text-lg mb-2">{e.nome_esercizio}</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div><p className="text-muted-foreground">Serie effettive</p><p className="font-medium">{e.serie_effettive}</p></div>
-                        <div><p className="text-muted-foreground">Ripetizioni effettive</p><p className="font-medium">{e.ripetizioni_effettive}</p></div>
-                      </div>
-                    </div>
-                  ))}
-                  {sessioneDelGiorno.esercizi.some(e => e.note) && (
-                    <div className="mt-6">
-                      <Separator />
-                      <div className="mt-4">
-                        <h4 className="font-semibold text-lg mb-2">Note del Paziente</h4>
-                        {sessioneDelGiorno.esercizi.filter(e => e.note).map(e => (
-                          <div key={e.id} className="mb-2">
-                            <p className="font-medium text-sm">{e.nome_esercizio}:</p>
-                            <p className="text-sm text-muted-foreground bg-muted p-2 rounded-md">{e.note}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : <p className="text-muted-foreground">Nessuna sessione trovata per questo giorno.</p>}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+    const giorniConSessione = sessioni.map(
+        (s) => new Date(s.data_sessione)
+    );
+
+  const fetchSessioneSelezionata = async function (nuovaData: Date | undefined) {
+    const ids = sessioni.filter((s) => {
+      return nuovaData?.toLocaleDateString("it-IT") ===
+        new Date(s.data_sessione).toLocaleDateString("it-IT")
+    })
+    console.log("ids", ids)
+    const response = await apiGet(`/trainingSession/${ids[0].id}`);
+    const data: SessioneSelezionata = await response.json();
+    console.log(data);
+    setSessioneDelGiorno(data)
+  }
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="lg:col-span-2 flex justify-center">
+                <Calendar
+                    mode="single"
+                    locale={it}
+                    selected={dataSelezionata}
+                    onSelect={(nuovaData) => {
+                        setDataSelezionata(nuovaData);
+                        fetchSessioneSelezionata(nuovaData);
+                    }}
+                    className="rounded-lg border [--cell-size:--spacing(11)] md:[--cell-size:--spacing(12)]"
+                    modifiers={{ booked: giorniConSessione }}
+                    modifiersClassNames={{
+                        booked: "bg-primary text-primary-foreground rounded-full",
+                    }}
+                />
+            </div>
+            <div className="lg:col-span-3">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
+                            Dettagli Sessione del{" "}
+                            {dataSelezionata?.toLocaleDateString("it-IT") || ""}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[55vh]">
+                            {error && (
+                                <p className="text-destructive">{error}</p>
+                            )}
+                            {sessioneDelGiorno ? (
+                                <div className="space-y-4 pr-4">
+                                    {sessioneDelGiorno.esercizi.map((e) => (
+                                        <div
+                                            key={e.esercizio_id}
+                                            className="border p-4 rounded-lg"
+                                        >
+                                            <h4 className="font-semibold text-lg mb-2">
+                                                {e.nome_esercizio}
+                                            </h4>
+                                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <p className="text-muted-foreground">
+                                                        Serie assegnate
+                                                    </p>
+                                                    <p className="font-medium">
+                                                        {e.serie_assegnate}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground">
+                                                        Serie effettive
+                                                    </p>
+                                                    <p className="font-medium">
+                                                        {e.serie_effettive}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground">
+                                                        Ripetizioni assegnate
+                                                    </p>
+                                                    <p className="font-medium">
+                                                        {
+                                                            e.ripetizioni_assegnate
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground">
+                                                        Ripetizioni effettive
+                                                    </p>
+                                                    <p className="font-medium">
+                                                        {
+                                                            e.ripetizioni_effettive
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {sessioneDelGiorno.esercizi.some(
+                                        (e) => e.note
+                                    ) && (
+                                        <div className="mt-6">
+                                            <Separator />
+                                            <div className="mt-4">
+                                                <h4 className="font-semibold text-lg mb-2">
+                                                    Note del Paziente
+                                                </h4>
+                                                {sessioneDelGiorno.esercizi
+                                                    .filter((e) => e.note)
+                                                    .map((e) => (
+                                                        <div
+                                                            key={e.esercizio_id}
+                                                            className="mb-2"
+                                                        >
+                                                            <p className="font-medium text-sm">
+                                                                {
+                                                                    e.nome_esercizio
+                                                                }
+                                                                :
+                                                            </p>
+                                                            <p className="text-sm text-muted-foreground bg-muted p-2 rounded-md">
+                                                                {e.note}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                    <div
+                                                            className="mb-2"
+                                                        >
+                                                            <p className="font-medium text-sm">
+                                                                Feedback scheda
+                                                                :
+                                                            </p>
+                                                            <p className="text-sm text-muted-foreground bg-muted p-2 rounded-md">
+                                                                {sessioneDelGiorno.sondaggio.feedback}
+                                                            </p>
+                                                        </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground">
+                                    Nessuna sessione trovata per questo giorno.
+                                </p>
+                            )}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
 }
