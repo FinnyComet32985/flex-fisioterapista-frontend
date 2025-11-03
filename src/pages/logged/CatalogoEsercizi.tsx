@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { apiDelete, apiGet } from "@/lib/api";
 import { TrashIcon} from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ModificaEsercizio } from "@/components/custom/ModificaEsercizio";
 
 interface Exercise {
@@ -65,7 +76,6 @@ const CatalogoEsercizi: React.FC = () => {
 
   // handler per cancellare esercizio (con conferma) — optimistic update + rollback
   const handleDeleteExercise = async (id: number) => {
-    if (!window.confirm("Confermi la cancellazione dell'esercizio?")) return;
 
     // salvo snapshot per eventuale rollback
     const prev = exercises;
@@ -96,13 +106,35 @@ const CatalogoEsercizi: React.FC = () => {
           exercise={exercise}
           onUpdated={fetchEsercizi}
         />
-        <button
-          onClick={() => handleDeleteExercise(exercise.id)}
-          className="cursor-pointer w-12 h-12 p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
-          aria-label="Elimina esercizio"
-        >
-          <TrashIcon className="w-5 h-5" />
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button
+              className="cursor-pointer w-12 h-12 p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
+              aria-label="Elimina esercizio"
+            >
+              <TrashIcon className="w-5 h-5" />
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Ne sei assolutamente sicuro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Questa azione non può essere annullata.
+                <br />
+                L'esercizio verrà eliminato definitivamente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annulla</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => handleDeleteExercise(exercise.id)}
+              >
+                Conferma
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="flex items-start space-x-4">
