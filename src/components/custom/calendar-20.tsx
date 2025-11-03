@@ -355,7 +355,7 @@ export default function Calendar20() {
                 </CardContent>
 
                 {orarioSelezionato !== undefined && (
-                    <CardFooter className="flex flex-col gap-4 border-t px-6 !py-5 md:flex-row">
+                    <CardFooter className="flex flex-col gap-4 border-t px-6 py-5! md:flex-row">
                         <div className="text-sm w-full">
                             {orariAttuali[orarioSelezionato].paziente_id ? (
                                 <>

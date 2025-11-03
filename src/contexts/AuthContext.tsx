@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Funzione per il Login
     const login = async (email: string, password: string) => {
         const response = await fetch(
-            "http://localhost:1337/fisioterapista/login",
+            "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/login",
+            //"http://localhost:1337/fisioterapista/login",
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const register = async (nome:string, cognome:string, email: string, password: string) => {
-        const response = await fetch("http://localhost:1337/fisioterapista/register", {
+        const response = await fetch("https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -90,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const refreshToken = async () => {
         const response = await fetch(
-            "http://localhost:1337/fisioterapista/refreshToken",
+            "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/refreshToken",
             {
                 method: "POST",
                 credentials: "include",
