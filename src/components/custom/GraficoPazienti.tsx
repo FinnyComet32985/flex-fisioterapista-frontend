@@ -215,22 +215,19 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
               dataKey="dolore"
               type="natural"
               fill="url(#fillDolore)"
-              stroke="var(--color-dolore)"
-              stackId="a"
+              stroke="var(--color-dolore)"              
             />
             <Area
               dataKey="forza"
               type="natural"
               fill="url(#fillForza)"
-              stroke="var(--color-forza)"
-              stackId="a"
+              stroke="var(--color-forza)"              
             />
             <Area
               dataKey="mobilita"
               type="natural"
               fill="url(#fillMobilita)"
-              stroke="var(--color-mobilita)"
-              stackId="a"
+              stroke="var(--color-mobilita)"              
             />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
