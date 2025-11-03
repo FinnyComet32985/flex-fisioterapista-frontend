@@ -170,7 +170,7 @@ const handleInfoUpdate = () => {
         </div>
 
         <div className="max-w-7xl mx-auto mt-8 space-y-8">
-          <GraficoPazienti />
+          <GraficoPazienti pazienteId={id} />
           <ListaSchede />
         </div>
       </div>
