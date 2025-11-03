@@ -27,15 +27,12 @@ import { apiGet } from "@/lib/api"
 interface SurveyData {
   id: number;
   data_sessione: string;
-  dolore: string;
-  forza: string;
-  mobilita: string;
-  feedback: string;
+  sondaggio: {forza: string; dolore: string; mobilita: string; feedback: string;};
 }
 
 interface SchedaWithSessioni {
-  schedaId: number;
-  schedaNome: string;
+  id_scheda: number;
+  nome_scheda: string;
   sessioni: SurveyData[];
 }
 
@@ -52,15 +49,11 @@ const chartConfig = {
     label: "Mobilità",
     color: "var(--chart-3)",
   },
-  feedback: {
-    label: "Feedback",
-    color: "var(--chart-4)",
-  },
 } satisfies ChartConfig
 
 export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
   const [allSurveyData, setAllSurveyData] = useState<SchedaWithSessioni[]>([]);
-  const [selectedSchedaId, setSelectedSchedaId] = useState<string | undefined>(undefined);
+  const [selectedSchedaId, setSelectedSchedaId] = useState<number | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,11 +75,12 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
           throw new Error(errorMessage);
         }
         const data = await response.json();
+        console.log("Dati sondaggi ricevuti:", data);
         setAllSurveyData(data);
 
         // Se ci sono dati, seleziona la prima scheda di default
         if (data && data.length > 0) {
-          setSelectedSchedaId(String(data[0].schedaId));
+          setSelectedSchedaId(data[0].id_scheda);
         }
 
       } catch (err) {
@@ -104,15 +98,14 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
   const chartData = React.useMemo(() => {
     if (!selectedSchedaId || allSurveyData.length === 0) return [];
 
-    const scheda = allSurveyData.find(s => String(s.schedaId) === selectedSchedaId);
+    const scheda = allSurveyData.find(s => s.id_scheda === selectedSchedaId);
     if (!scheda) return [];
 
     return scheda.sessioni.map(sondaggio => ({
       date: sondaggio.data_sessione,
-      dolore: Number(sondaggio.dolore),
-      forza: Number(sondaggio.forza),
-      mobilita: Number(sondaggio.mobilita),
-      feedback: Number(sondaggio.feedback),
+      dolore: Number(sondaggio.sondaggio.dolore),
+      forza: Number(sondaggio.sondaggio.forza),
+      mobilita: Number(sondaggio.sondaggio.mobilita),
     }));
   }, [allSurveyData, selectedSchedaId]);
 
@@ -124,7 +117,7 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
           
         </div>
         <div className="flex items-center gap-2">
-          <Select value={selectedSchedaId} onValueChange={setSelectedSchedaId} disabled={allSurveyData.length === 0}>
+          <Select value={String(selectedSchedaId)} onValueChange={str => setSelectedSchedaId(Number(str))} disabled={allSurveyData.length === 0}>
             <SelectTrigger
               className="w-[180px] rounded-lg"
               aria-label="Seleziona una scheda"
@@ -133,8 +126,8 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
             </SelectTrigger>
             <SelectContent className="rounded-xl">
               {allSurveyData.map((scheda) => (
-                <SelectItem key={scheda.schedaId} value={String(scheda.schedaId)} className="rounded-lg">
-                  {scheda.schedaNome}
+                <SelectItem key={scheda.id_scheda} value={String(scheda.id_scheda)} className="rounded-lg">
+                  {scheda.nome_scheda}
                 </SelectItem>
               ))}
             </SelectContent>
