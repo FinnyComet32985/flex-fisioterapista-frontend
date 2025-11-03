@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiGet } from "@/lib/api";
@@ -21,9 +20,6 @@ interface Sessione {
     id: number;
     data_sessione: string;
 }
-
-
-
 
 interface Sondaggio {
     forza: string;
@@ -75,22 +71,36 @@ export function CalendarioSessioni({
     useEffect(() => {
         fetchSessioni();
     }, []);
-
+    
     const giorniConSessione = sessioni.map(
         (s) => new Date(s.data_sessione)
     );
 
-  const fetchSessioneSelezionata = async function (nuovaData: Date | undefined) {
-    const ids = sessioni.filter((s) => {
-      return nuovaData?.toLocaleDateString("it-IT") ===
-        new Date(s.data_sessione).toLocaleDateString("it-IT")
-    })
-    console.log("ids", ids)
-    const response = await apiGet(`/trainingSession/${ids[0].id}`);
-    const data: SessioneSelezionata = await response.json();
-    console.log(data);
-    setSessioneDelGiorno(data)
-  }
+    const fetchSessioneSelezionata = useCallback(async (nuovaData: Date | undefined) => {
+        if (!nuovaData || sessioni.length === 0) {
+            setSessioneDelGiorno(undefined);
+            return;
+        }
+
+        const ids = sessioni.filter((s) => {
+            return nuovaData?.toLocaleDateString("it-IT") === new Date(s.data_sessione).toLocaleDateString("it-IT");
+        });
+
+        if (ids.length > 0) {
+            const response = await apiGet(`/trainingSession/${ids[0].id}`);
+            const data: SessioneSelezionata = await response.json();
+            setSessioneDelGiorno(data);
+        } else {
+            setSessioneDelGiorno(undefined); // Nessuna sessione per la data selezionata
+        }
+    }, [sessioni]); // La funzione dipende da `sessioni`
+
+    // Esegue il fetch per la data di oggi quando le sessioni sono state caricate
+    useEffect(() => {
+        if (sessioni.length > 0) {
+            fetchSessioneSelezionata(dataSelezionata);
+        }
+    }, [sessioni, dataSelezionata, fetchSessioneSelezionata]);
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
