@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiPatch, apiPost } from "@/lib/api";
 import { useState, useEffect, useMemo } from "react";
-import { FiUser, FiLock, FiEdit2, FiSave } from "react-icons/fi";
+import { FiUser, FiLock, FiSave } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type ProfileData = {
