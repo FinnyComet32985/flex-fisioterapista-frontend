@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react"
-import {
-  Users,
-  CalendarFold,
-  MessageCircle,
-  Dumbbell
-} from "lucide-react"
+import { Users, CalendarFold, MessageCircle, Dumbbell} from "lucide-react"
 
 import { NavMain } from "@/components/custom/nav-main"
 import { ModeToggle } from "./theme-toggler";
@@ -34,7 +29,6 @@ const navMainData = {
       title: "Pazienti",
       url: "/pazienti",
       icon: Users,
-      isActive: true,
     },
     {
       title: "Appuntamenti",
@@ -60,12 +54,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // Usiamo la nostra funzione helper per la chiamata API
+        // chiamata API
         const response = await apiGet("/profile");
 
         if (!response.ok) {
-          // La logica di refresh/logout è già gestita in api.ts
-          // Qui gestiamo solo il caso in cui la chiamata fallisca per altri motivi
+          // La logica di refresh/logout è gestita in api.ts
           throw new Error("Impossibile caricare il profilo utente.");
         }
 
@@ -73,12 +66,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         setUserProfile(data);
       } catch (error) {
         console.error("Errore nel caricamento del profilo:", error);
-        // Potresti voler impostare uno stato di errore qui
       }
     };
 
     fetchProfile();
-  }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta
+  }, []);
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -107,10 +99,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <NavUser user={{
             name: `${userProfile.nome} ${userProfile.cognome}`,
             email: userProfile.email,
-            avatar: "/avatars/shadcn.jpg" // Avatar ancora statico per ora
+            avatar: "/avatars/shadcn.jpg" 
           }} />
         ) : (
-          // Mostra uno stato di caricamento o un fallback
+          // Mostra stato di caricamento o un fallback
           <NavUser user={{ name: "Caricamento...", email: "...", avatar: "" }} />
         )}
       </SidebarFooter>
