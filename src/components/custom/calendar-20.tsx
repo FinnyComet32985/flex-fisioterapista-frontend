@@ -222,7 +222,7 @@ export default function Calendar20() {
             throw new Error("Impossibile eliminare l'appuntamento");
         }
 
-        setStatus(["success", ""]);
+        setStatus(["success2", ""]);
         setTimeout(() => {
             setStatus(["", ""]);
         }, 3000);
@@ -276,6 +276,12 @@ export default function Calendar20() {
                     {status[1]}
                 </div>
             )}
+            {status[0] === "success2" && (
+                <div className="mb-4 p-4 text-green-800 bg-green-200 rounded mt-6">
+                    Appuntamento eliminato con successo!
+                </div>
+            )}
+            
             <Card className="gap-0 p-0">
                 <CardContent className="relative p-0 md:pr-48">
                     <div className="p-6">
