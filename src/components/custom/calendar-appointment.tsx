@@ -1,14 +1,18 @@
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from "@/components/ui/item";
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle} from "@/components/ui/item";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-
-
-function CalendarAppointment({ key_id, img, paziente, orario, confermato, selected, setSelected }: { key_id:number, id_appuntamento?: number, img?: string; id_paziente?:number, paziente?: string; orario: string, confermato?:string, selected: boolean, setSelected: (index: number) => void}) {
+function CalendarAppointment({ key_id, paziente, orario, confermato, selected, setSelected, nome, cognome }: { 
+    key_id:number, 
+    id_appuntamento?: number, 
+    id_paziente?:number, 
+    paziente?: string; 
+    orario: string, 
+    confermato?:string, 
+    selected: boolean, 
+    setSelected: (index: number) => void,
+    nome?: string,
+    cognome?: string
+}) {
     let borderColor
     if (paziente && confermato === "Confermato") {
         borderColor = "border-red-500 hover:bg-red-500"
@@ -21,15 +25,13 @@ function CalendarAppointment({ key_id, img, paziente, orario, confermato, select
 
     return (
         <Item variant="outline" className={`bg-primary-bg w-full h-full ${borderColor} ${colorSelected}`} onClick={() => setSelected(key_id)}>
-                {img && <ItemMedia variant="image">
-                    <img
-                        src={img}
-                        alt={paziente}
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                    />
-                </ItemMedia>}
+                {paziente && nome && cognome && (
+                    <ItemMedia>
+                        <Avatar className="w-10 h-10">
+                            <AvatarFallback>{nome.charAt(0)}{cognome.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                    </ItemMedia>
+                )}
                 {paziente && <ItemContent>
                     <ItemTitle className="line-clamp-1">
                         {paziente}

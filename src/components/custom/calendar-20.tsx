@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import CalendarAppointment from "@/components/custom/calendar-appointment";
-import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPost } from "@/lib/api";
 import { PazientiCombobox } from "@/components/custom/comboboxPazienti";
 import { Button } from "@/components/ui/button";
 import DialogModifyAppointment from "@/components/custom/DialogModifyAppointment";
@@ -325,12 +325,9 @@ export default function Calendar20() {
                                         key={index}
                                         key_id={index}
                                         id_appuntamento={orario.id}
-                                        img={
-                                            orario.paziente_id
-                                                ? "https://images.unsplash.com/photo-1731531992660-d63e738c0b05?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
-                                                : undefined
-                                        }
                                         id_paziente={orario.paziente_id}
+                                        nome={orario.nome}
+                                        cognome={orario.cognome}
                                         paziente={
                                             orario.paziente_id
                                                 ? orario.nome +
