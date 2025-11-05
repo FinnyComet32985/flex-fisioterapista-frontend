@@ -1,4 +1,3 @@
-
 import Calendar20 from "@/components/custom/calendar-20"
 
 function AppuntamentiPage() {

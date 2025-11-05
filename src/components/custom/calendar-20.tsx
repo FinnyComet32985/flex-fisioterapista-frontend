@@ -380,8 +380,7 @@ export default function Calendar20() {
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>
-                                                            Ne sei assolutamente
-                                                            sicuro?
+                                                            Confermi la scelta?
                                                         </AlertDialogTitle>
                                                         <AlertDialogDescription>
                                                             Questa azione non
