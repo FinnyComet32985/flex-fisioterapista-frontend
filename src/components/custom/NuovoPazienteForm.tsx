@@ -184,9 +184,9 @@ const NuovoPazienteForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[color:var(--color-background)] flex items-center justify-center p-4">
-      <div className="bg-[color:var(--color-card)] rounded-lg shadow-xl p-8 w-full max-w-4xl border border-[color:var(--color-border)]">
-        <h1 className="text-2xl font-bold text-center mb-6 text-[color:var(--color-foreground)]">
+    <div className="min-h-screen bg-(--color-background) flex items-center justify-center p-4">
+      <div className="bg-(--color-card) rounded-lg shadow-xl p-8 w-full max-w-4xl border border-(--color-border)">
+        <h1 className="text-2xl font-bold text-center mb-6 text-(--color-foreground)">
           Aggiungi Paziente
         </h1>
         {status === "success" && (
@@ -205,13 +205,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="nome"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Nome
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <User className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="text"
@@ -219,17 +219,17 @@ const NuovoPazienteForm: React.FC = () => {
                   id="nome"
                   value={formData.nome}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
+                  className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) placeholder-(--color-muted-foreground) border ${
                     errors.nome
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="Mario"
                   aria-label="Nome"
                 />
               </div>
               {errors.nome && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.nome}
                 </p>
               )}
@@ -238,13 +238,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="cognome"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Cognome
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <User className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="text"
@@ -252,17 +252,17 @@ const NuovoPazienteForm: React.FC = () => {
                   id="cognome"
                   value={formData.cognome}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
+                  className={`block w-full pl-10 pr-3 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) placeholder-(--color-muted-foreground) border ${
                     errors.cognome
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="Rossi"
                   aria-label="Cognome"
                 />
               </div>
               {errors.cognome && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.cognome}
                 </p>
               )}
@@ -271,13 +271,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Email
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <Mail className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="email"
@@ -285,16 +285,16 @@ const NuovoPazienteForm: React.FC = () => {
                   id="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) placeholder-(--color-muted-foreground) border ${
                     errors.email
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="mario@example.com"
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.email}
                 </p>
               )}
@@ -303,13 +303,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="data_nascita"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Data di nascita
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar1 className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <Calendar1 className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="date"
@@ -325,15 +325,15 @@ const NuovoPazienteForm: React.FC = () => {
                       : ""
                   }
                   onChange={handleChange}
-                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) border ${
                     errors.data_nascita
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                 />
               </div>
               {errors.data_nascita && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.data_nascita}
                 </p>
               )}
@@ -342,45 +342,45 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="genere"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Genere
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <VenusAndMars className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <VenusAndMars className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <select
                   name="genere"
                   id="genere"
                   value={formData.genere}
                   onChange={handleChange}
-                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) border ${
                     errors.genere
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                 >
                   <option
-                    className="bg-secondary text-[color:var(--color-muted-foreground)]"
+                    className="bg-secondary text-(--color-muted-foreground)"
                     value=""
                   >
                     Seleziona
                   </option>
                   <option
-                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    className="bg-secondary text-(--color-foreground)"
                     value="M"
                   >
                     Maschile
                   </option>
                   <option
-                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    className="bg-secondary text-(--color-foreground)"
                     value="F"
                   >
                     Femminile
                   </option>
                   <option
-                    className="bg-secondary text-[color:var(--color-foreground)]"
+                    className="bg-secondary text-(--color-foreground)"
                     value="O"
                   >
                     Altro
@@ -388,7 +388,7 @@ const NuovoPazienteForm: React.FC = () => {
                 </select>
               </div>
               {errors.genere && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.genere}
                 </p>
               )}
@@ -397,13 +397,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="altezza"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Altezza (cm)
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Ruler className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <Ruler className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="number"
@@ -413,16 +413,16 @@ const NuovoPazienteForm: React.FC = () => {
                   onChange={handleChange}
                   min={0}
                   step="0.1"
-                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) border ${
                     errors.altezza
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="170"
                 />
               </div>
               {errors.altezza && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.altezza}
                 </p>
               )}
@@ -431,13 +431,13 @@ const NuovoPazienteForm: React.FC = () => {
             <div>
               <label
                 htmlFor="peso"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Peso (kg)
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Weight className="h-5 w-5 text-[color:var(--color-muted-foreground)]" />
+                  <Weight className="h-5 w-5 text-(--color-muted-foreground)" />
                 </div>
                 <input
                   type="number"
@@ -447,16 +447,16 @@ const NuovoPazienteForm: React.FC = () => {
                   onChange={handleChange}
                   min={0}
                   step="0.1"
-                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] border ${
+                  className={`block w-full pl-10 px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) border ${
                     errors.peso
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="70"
                 />
               </div>
               {errors.peso && (
-                <p className="mt-2 text-sm text-[color:var(--color-destructive)]">
+                <p className="mt-2 text-sm text-(--color-destructive)">
                   {errors.peso}
                 </p>
               )}
@@ -465,7 +465,7 @@ const NuovoPazienteForm: React.FC = () => {
             <div className="md:col-span-2">
               <label
                 htmlFor="diagnosi"
-                className="block text-sm font-medium text-[color:var(--color-muted-foreground)]"
+                className="block text-sm font-medium text-(--color-muted-foreground)"
               >
                 Diagnosi (opzionale)
               </label>
@@ -477,11 +477,11 @@ const NuovoPazienteForm: React.FC = () => {
                   value={formData.diagnosi}
                   onChange={handleChange}
                   list="diagnosesList"
-                  className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-[color:var(--color-input)] text-[color:var(--color-foreground)] placeholder-[color:var(--color-muted-foreground)] border ${
+                  className={`block w-full px-4 py-2 rounded-md sm:text-sm bg-(--color-input) text-(--color-foreground) placeholder-(--color-muted-foreground) border ${
                     errors.diagnosi
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
-                  } focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)]`}
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
+                  } focus:outline-none focus:ring-2 focus:ring-(--color-ring)`}
                   placeholder="Seleziona o scrivi una diagnosi"
                 />
                 <datalist id="diagnosesList">
@@ -497,13 +497,13 @@ const NuovoPazienteForm: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`flex items-center justify-center px-6 py-3 rounded-md text-base font-medium text-[color:var(--color-primary-foreground)] bg-[color:var(--color-primary)] hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] ${
+              className={`flex items-center justify-center px-6 py-3 rounded-md text-base font-medium text-(--color-primary-foreground) bg-(--color-primary) hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-(--color-ring) ${
                 isLoading ? "opacity-75 cursor-not-allowed" : ""
               }`}
             >
               {isLoading ? (
                 <>
-                  <FaSpinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-[color:var(--color-primary-foreground)]" />
+                  <FaSpinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-(--color-primary-foreground)" />
                   Elaborazione...
                 </>
               ) : (

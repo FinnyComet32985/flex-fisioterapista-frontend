@@ -5,7 +5,6 @@ import AppuntamentiPage from "@/pages/logged/Appuntamenti";
 import ChatPage from "@/pages/logged/Chat";
 import SettingsPage from "@/pages/logged/Settings";
 import PazientiPage from "@/pages/logged/Pazienti";
-import SchedaAllenamentoPage from "@/pages/logged/SchedaAllenamento";
 import LoginPage from "./pages/unlogged/login";
 import ProtectedRoute from "@/components/utils/ProtectedRoutes";
 import RegisterPage from "./pages/unlogged/register";
@@ -31,7 +30,6 @@ function App() {
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/pazienti" element={<PazientiPage />} />
-            <Route path="/scheda-allenamento" element={<SchedaAllenamentoPage />} />
             <Route path="/nuovo-esercizio" element={<NuovoEsercizio />} />
             <Route path="/nuovo-paziente" element={<NuovoPazienteForm />} />
             <Route path="/profilo-paziente" element={<ProfiloPazientePage />} />
