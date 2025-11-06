@@ -4,10 +4,7 @@ import { EyeIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiGet } from "@/lib/api";
 
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback} from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Item,
