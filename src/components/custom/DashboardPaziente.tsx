@@ -7,6 +7,17 @@ import { GraficoPazienti } from "@/components/custom/GraficoPazienti";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ListaSchede from "@/components/custom/ListaSchede";
 import { ModificaInformazioniPaziente } from "@/components/custom/ModificaInformazioniPaziente";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 interface Paziente {
   id: number;
@@ -39,7 +50,7 @@ export default function DashboardPaziente() {
   const [paziente, setPaziente] = useState<Paziente | null>(null);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   const fetchPaziente = React.useCallback(async () => {
     if (!id) return;
     try {
@@ -54,7 +65,11 @@ export default function DashboardPaziente() {
       setPaziente(data[0]); // assegna il primo elemento (se API restituisce array)
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Si è verificato un errore sconosciuto"
+      );
       console.error("Errore nel caricamento del profilo del paziente:", err);
     }
   }, [id]);
@@ -64,38 +79,42 @@ export default function DashboardPaziente() {
   }, [fetchPaziente]);
 
   const handleDeletePaziente = async (id: number) => {
-  if (!window.confirm("Confermi la cancellazione del paziente?")) return;
 
-  const prev = paziente;
+    const prev = paziente;
 
-  try {
-    const response = await apiDelete(`/patient/${id}`);
-    console.log("Response delete paziente:", response);
-    console.log("id:", id);
-    if (!response.ok) {
-      setPaziente(prev);
-      throw new Error("Impossibile eliminare il paziente");
+    try {
+      const response = await apiDelete(`/patient/${id}`);
+      console.log("Response delete paziente:", response);
+      console.log("id:", id);
+      if (!response.ok) {
+        setPaziente(prev);
+        throw new Error("Impossibile eliminare il paziente");
+      }
+
+      // Eliminazione riuscita
+      setPaziente(null);
+      navigate("/pazienti");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Si è verificato un errore sconosciuto"
+      );
+      console.error("Errore nella cancellazione del paziente:", err);
     }
+  };
 
-    // Eliminazione riuscita
-    setPaziente(null);
-    navigate("/pazienti");
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Si è verificato un errore sconosciuto");
-    console.error("Errore nella cancellazione del paziente:", err);
-  }
-};
-
-const handleInfoUpdate = () => {
-  fetchPaziente();
-};
-
+  const handleInfoUpdate = () => {
+    fetchPaziente();
+  };
 
   return (
     <div className="min-h-screen">
       <div className="bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">Profilo Paziente</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
+            Profilo Paziente
+          </h1>
 
           {error && <div className="text-red-500">Errore: {error}</div>}
           {!paziente && !error && <div>Caricamento del profilo...</div>}
@@ -120,7 +139,9 @@ const handleInfoUpdate = () => {
 
                   <div className="mt-6 space-y-4">
                     <div>
-                      <label className="text-sm text-muted-foreground">Email:</label>
+                      <label className="text-sm text-muted-foreground">
+                        Email:
+                      </label>
                       <p className="text-foreground">{paziente.email}</p>
                     </div>
                   </div>
@@ -131,35 +152,55 @@ const handleInfoUpdate = () => {
                 <ProfileSection title="Dettagli Account">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
                     <div>
-                      <label className="text-sm text-muted-foreground">Inizio Trattamento:</label>
+                      <label className="text-sm text-muted-foreground">
+                        Inizio Trattamento:
+                      </label>
                       <p className="text-foreground">
-                        {new Date(paziente.data_inizio).toLocaleDateString("it-IT")}
+                        {new Date(paziente.data_inizio).toLocaleDateString(
+                          "it-IT"
+                        )}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Sedute Effettuate:</label>
-                      <p className="text-foreground">{paziente.sedute_effettuate}</p>
+                      <label className="text-sm text-muted-foreground">
+                        Sedute Effettuate:
+                      </label>
+                      <p className="text-foreground">
+                        {paziente.sedute_effettuate}
+                      </p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Genere</label>
+                      <label className="text-sm text-muted-foreground">
+                        Genere
+                      </label>
                       <p className="text-foreground">{paziente.genere}</p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Data di Nascita</label>
+                      <label className="text-sm text-muted-foreground">
+                        Data di Nascita
+                      </label>
                       <p className="text-foreground">
-                        {new Date(paziente.data_nascita).toLocaleDateString("it-IT")}
+                        {new Date(paziente.data_nascita).toLocaleDateString(
+                          "it-IT"
+                        )}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Altezza (cm)</label>
+                      <label className="text-sm text-muted-foreground">
+                        Altezza (cm)
+                      </label>
                       <p className="text-foreground">{paziente.altezza} cm</p>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Peso (kg)</label>
+                      <label className="text-sm text-muted-foreground">
+                        Peso (kg)
+                      </label>
                       <p className="text-foreground">{paziente.peso} kg</p>
                     </div>
                     <div className="md:col-span-2">
-                      <label className="text-sm text-muted-foreground">Diagnosi</label>
+                      <label className="text-sm text-muted-foreground">
+                        Diagnosi
+                      </label>
                       <p className="text-foreground">{paziente.diagnosi}</p>
                     </div>
                   </div>
@@ -185,12 +226,36 @@ const handleInfoUpdate = () => {
             diagnosi={paziente.diagnosi}
             onInfoUpdate={handleInfoUpdate}
           />
-          <button
-            onClick={() => handleDeletePaziente(paziente.id)}
-            className="w-14 h-14 p-4 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
-          >
-            <TrashIcon className="w-6 h-6" />
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="w-14 h-14 p-4 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
+              >
+                <TrashIcon className="w-6 h-6" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Ne sei assolutamente sicuro?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Questa azione non può essere annullata.
+                  <br />
+                  L'esercizio verrà eliminato definitivamente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annulla</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  onClick={() => handleDeletePaziente(paziente.id)}
+                >
+                  Conferma
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

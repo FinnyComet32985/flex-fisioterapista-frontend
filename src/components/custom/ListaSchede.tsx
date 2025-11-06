@@ -18,6 +18,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FiEdit2 } from "react-icons/fi";
 import { CalendarioSessioni } from "./CalendarioSessioni";
 import { set } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 interface Scheda {
   id: number;
@@ -32,7 +43,7 @@ interface Exercise {
   descrizione: string | null;
   serie: number;
   ripetizioni: number;
-  video: string; 
+  video: string;
 }
 
 export default function ListaSchede() {
@@ -79,12 +90,6 @@ export default function ListaSchede() {
 
   // cancella una scheda con conferma e aggiorna lo state
   const handleDeleteScheda = async (id: number) => {
-    if (
-      !window.confirm(
-        "Sei sicuro di voler eliminare questa scheda? L'operazione è irreversibile."
-      )
-    )
-      return;
     try {
       const res = await apiDelete(`/trainingCard/${id}`);
       if (!res.ok) {
@@ -146,7 +151,6 @@ export default function ListaSchede() {
     setMostraSessioni(true);
   };
 
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="space-y-8">
@@ -207,13 +211,37 @@ export default function ListaSchede() {
                     >
                       <FiEdit2 className="w-4 h-4" />
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDeleteScheda(scheda.id)}
-                      aria-label={`Elimina scheda ${scheda.nome}`}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          aria-label={`Elimina scheda ${scheda.nome}`}
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Ne sei assolutamente sicuro?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Questa azione non può essere annullata.
+                            <br />
+                            L'esercizio verrà eliminato definitivamente.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                          <AlertDialogAction
+                            variant="destructive"
+                            onClick={() => handleDeleteScheda(scheda.id)}
+                          >
+                            Conferma
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </div>
@@ -306,11 +334,15 @@ export default function ListaSchede() {
           </DialogHeader>
 
           <div className="p-4">
-            <CalendarioSessioni scheda_id={schedaSelezionata?.id}/>
+            <CalendarioSessioni scheda_id={schedaSelezionata?.id} />
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setMostraSessioni(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setMostraSessioni(false)}
+            >
               Chiudi
             </Button>
           </DialogFooter>
