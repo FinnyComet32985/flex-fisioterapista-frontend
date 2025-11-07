@@ -53,8 +53,12 @@ export function CalendarioSessioni({
         if (!scheda_id) return;
         try {
             const response = await apiGet(`/trainingSessions/${scheda_id}`);
-            if (!response.ok)
+            if (response.status === 204) {
+                setSessioni([]);
+                return;
+            } else if (!response.ok) {
                 throw new Error("Impossibile caricare le sessioni svolte");
+            }
             const data: Sessione[] = await response.json();
             setSessioni(data);
         } catch (e) {

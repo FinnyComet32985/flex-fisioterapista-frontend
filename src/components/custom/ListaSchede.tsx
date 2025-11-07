@@ -46,7 +46,7 @@ interface Exercise {
     video: string;
 }
 
-export default function ListaSchede() {
+export default function ListaSchede({trattamento_terminato}: {trattamento_terminato: boolean}) {
     const [schede, setSchede] = useState<Scheda[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -59,6 +59,8 @@ export default function ListaSchede() {
     const params = useParams();
     const pazienteId = params.id;
     const navigate = useNavigate();
+
+    console.log(trattamento_terminato)
 
     useEffect(() => {
         const fetchSchede = async () => {
@@ -129,6 +131,12 @@ export default function ListaSchede() {
                 const response = await apiGet(
                     "/trainingCard/" + scheda.id + "/exercise"
                 );
+
+                if (response.status === 204) {
+                    setSchedaSelezionata(scheda);
+                    setMostraDettagli(true);
+                    return;
+                }
                 if (!response.ok) {
                     throw new Error(
                         "Impossibile caricare gli esercizi della scheda"
@@ -173,12 +181,12 @@ export default function ListaSchede() {
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                         Schede di Allenamento
                     </h1>
-                    <Button asChild>
+                    {!trattamento_terminato && <Button asChild>
                         <Link to={`/nuova-scheda/${pazienteId}`}>
                             <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi
                             Scheda
                         </Link>
-                    </Button>
+                    </Button>}
                 </div>
                 <div className="bg-card p-6 rounded-lg shadow-md border border-border">
                     {isLoading && <div>Caricamento schede...</div>}
@@ -234,15 +242,15 @@ export default function ListaSchede() {
                                         >
                                             <EyeIcon /> Visualizza
                                         </Button>
-                                        <Button
+                                        {!trattamento_terminato &&<Button
                                             onClick={() =>
                                                 handleModificaScheda(scheda)
                                             }
                                             aria-label={`Modifica scheda ${scheda.nome}`}
                                         >
                                             <FiEdit2 className="w-4 h-4" />
-                                        </Button>
-                                        <AlertDialog>
+                                        </Button>}
+                                        {!trattamento_terminato &&<AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button
                                                     variant="destructive"
@@ -282,7 +290,7 @@ export default function ListaSchede() {
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
-                                        </AlertDialog>
+                                        </AlertDialog>}
                                     </div>
                                 </div>
                             </div>
@@ -308,7 +316,8 @@ export default function ListaSchede() {
                         </DialogHeader>
                         <ScrollArea className="max-h-[70vh]">
                             <div className="space-y-6 pr-6">
-                                {schedaSelezionata.exercises?.map(
+                                {schedaSelezionata.exercises?
+                                schedaSelezionata.exercises.map(
                                     (exercise, index) => (
                                         <div
                                             key={index}
@@ -369,7 +378,7 @@ export default function ListaSchede() {
                                             )}
                                         </div>
                                     )
-                                )}
+                                ): (<div className="text-red-500 flex flex-col items-center justify-center mt-2"><p>Nessun esercizio nella scheda</p></div>)}
                             </div>
                         </ScrollArea>
                         <DialogFooter>
