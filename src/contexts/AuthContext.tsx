@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { type ReactNode } from "react";
 import { initApi } from "@/lib/api";
+
+
+const URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
+// const URL = "http://localhost:1337/fisioterapista";
+
 // Definiamo la "forma" del nostro context
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -33,8 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Funzione per il Login
     const login = async (email: string, password: string) => {
         const response = await fetch(
-            "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/login",
-            //"http://localhost:1337/fisioterapista/login",
+            URL.concat("/login"),
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -45,7 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
         if (response.status !== 200) {
-            throw new Error("Login failed");
+            const data = await response.json()
+            throw new Error(data.message);
         }
         const data = await response.json();
         const apiToken = data.accessToken;
@@ -64,18 +69,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Funzione per il Logout
-    const logout = () => {
+    const logout = async () => {
         // 1. Rimuovi il token dallo stato
         setToken(null);
 
         // 2. Rimuovi il token dallo storage persistente
         localStorage.removeItem("token");
+
+        const response = await fetch(
+            URL.concat("/logout"),
+            {
+                method: "POST",
+                credentials: "include",
+            })
+
+        if (!response.ok) {
+            throw new Error("Logout failed");
+        }
     };
 
     const register = async (nome:string, cognome:string, email: string, password: string) => {
         const response = await fetch(
-            //"http://localhost:1337/fisioterapista/register",
-            "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/register", {
+            URL.concat("/register"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -84,7 +99,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (!response.ok) {
             // Lancia un errore che verrà catturato nel form di registrazione
-            throw new Error("Registrazione fallita");
+            const data = await response.json()
+            throw new Error(data.message);
         }
 
         // Dopo la registrazione, esegui il login automatico
@@ -93,8 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const refreshToken = async () => {
         const response = await fetch(
-            //"http://localhost:1337/fisioterapista/refreshToken"
-            "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista/refreshToken",
+            URL.concat("/refreshToken"),
             {
                 method: "POST",
                 credentials: "include",

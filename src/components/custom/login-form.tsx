@@ -37,8 +37,8 @@ export default function LoginForm({
         try {
             await login(email, password);
             navigate("/");
-        } catch (err) {
-            setError("Credenziali non valide.");
+        } catch (err: Error | any) {
+            setError(err.message);
             console.error(err);
         } finally {
             setIsLoading(false);
