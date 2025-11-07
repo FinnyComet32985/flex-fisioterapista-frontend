@@ -48,37 +48,45 @@ function HomePage() {
         try {
             const response = await apiGet("/appointment");
 
-            if (!response.ok) {
+            if (response.status === 200) {
+                setAppuntamenti(await response.json());
+            } else if (response.status === 204) {
+                setAppuntamenti([]);
+            } else if (!response.ok) {
                 throw new Error("Impossibile caricare gli appuntamenti");
             }
-
-            setAppuntamenti(await response.json());
         } catch (error) {
             console.error("Errore nel caricamento degli appuntamenti:", error);
+        }
+    };
+
+    const fetchRecentChats = async () => {
+        try {
+            setLoadingRecenti(true);
+            const response = await apiGet("/chat");
+            if (response.status === 200) {
+                const data: RecentChat[] = await response.json();
+                setRecenti(data);
+                setErrorRecenti(null);
+            } else if (response.status === 204) {
+                setRecenti([]);
+                setErrorRecenti(null);
+            }
+            if (!response.ok) {
+                throw new Error("Impossibile caricare le chat recenti");
+            }
+        } catch (err) {
+            setErrorRecenti(
+                err instanceof Error ? err.message : "Errore sconosciuto"
+            );
+        } finally {
+            setLoadingRecenti(false);
         }
     };
 
     useEffect(() => {
         fetchAppointments();
 
-        const fetchRecentChats = async () => {
-            try {
-                setLoadingRecenti(true);
-                const response = await apiGet("/chat");
-                if (!response.ok) {
-                    throw new Error("Impossibile caricare le chat recenti");
-                }
-                const data: RecentChat[] = await response.json();
-                setRecenti(data);
-                setErrorRecenti(null);
-            } catch (err) {
-                setErrorRecenti(
-                    err instanceof Error ? err.message : "Errore sconosciuto"
-                );
-            } finally {
-                setLoadingRecenti(false);
-            }
-        };
         fetchRecentChats();
     }, []);
 
@@ -150,11 +158,22 @@ function HomePage() {
                     <CardHeader>
                         <CardTitle>Prossimi appuntamenti</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pr-0">
                         <ScrollArea className="h-96">
                             <div className="flex flex-col gap-4 pr-4">
-                                {groupedAppointments.length === 0 &&
-                                    appuntamenti && (
+                                {appuntamenti === undefined && (
+                                    <p className="text-muted-foreground text-center py-4">
+                                        Caricamento appuntamenti...
+                                    </p>
+                                )}
+                                {appuntamenti && appuntamenti.length === 0 && (
+                                    <p className="text-muted-foreground text-center py-4">
+                                        Nessun appuntamento.
+                                    </p>
+                                )}
+                                {appuntamenti &&
+                                    appuntamenti.length > 0 &&
+                                    groupedAppointments.length === 0 && (
                                         <p className="text-muted-foreground text-center py-4">
                                             Nessun appuntamento futuro
                                         </p>
@@ -177,10 +196,14 @@ function HomePage() {
                                                     <ItemMedia variant="image">
                                                         <Avatar className="  border-card shadow-lg text-lg">
                                                             <AvatarFallback>
-                                                            {appuntamento.nome.charAt(0)}
-                                                            {appuntamento.cognome.charAt(0)}
-                                                        </AvatarFallback>
-                                                     </Avatar>
+                                                                {appuntamento.nome.charAt(
+                                                                    0
+                                                                )}
+                                                                {appuntamento.cognome.charAt(
+                                                                    0
+                                                                )}
+                                                            </AvatarFallback>
+                                                        </Avatar>
                                                     </ItemMedia>
                                                     <ItemContent>
                                                         <ItemTitle className="line-clamp-1">

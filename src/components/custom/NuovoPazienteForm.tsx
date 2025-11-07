@@ -167,7 +167,7 @@ const NuovoPazienteForm: React.FC = () => {
           }, 2000);
           throw new Error("Errore durante l'invio dei dati");
         }
-        if (result.status === 200) {
+        if (result.status === 201) {
           setStatus("success");
           setTimeout(() => {
             setIsLoading(false);

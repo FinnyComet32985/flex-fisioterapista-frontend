@@ -268,7 +268,7 @@ export default function Calendar20() {
         <div>
             {status[0] === "success" && (
                 <div className="mb-4 p-4 text-green-800 bg-green-200 rounded mt-6">
-                    Paziente aggiunto con successo!
+                    Appuntamento prenotato con successo!
                 </div>
             )}
             {status[0] === "error" && (

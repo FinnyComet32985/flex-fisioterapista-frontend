@@ -125,18 +125,18 @@ function NuovoEsercizio() {
         const result = await apiPost("/exercise", formData);
         if (!result.ok) {
           setStatus("error");
+          setIsLoading(false);
           setTimeout(() => {
-            setIsLoading(false);
             setFormData(inizialeFormData);
             setErrors({});
             setStatus("");
           }, 2000);
           throw new Error("Errore durante l'invio dei dati");
         }
-        if (result.status === 200) {
+        if (result.status === 201) {
           setStatus("success");
+          setIsLoading(false);
           setTimeout(() => {
-            setIsLoading(false);
             setFormData(inizialeFormData);
             setErrors({});
             setStatus("");
@@ -158,6 +158,16 @@ function NuovoEsercizio() {
             <FieldDescription>
               Aggiungi un nuovo esercizio al catalogo
             </FieldDescription>
+            {status === "success" && (
+              <div className="mb-4 p-4 text-green-800 bg-green-200 rounded">
+                Esercizio aggiunto con successo!
+              </div>
+            )}
+            {status === "error" && (
+              <div className="mb-4 p-4 text-red-800 bg-red-200 rounded">
+                Errore durante l'aggiunta dell'esercizio.
+              </div>
+            )}
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="nome">Nome esercizio</FieldLabel>

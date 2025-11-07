@@ -66,13 +66,18 @@ export function GraficoPazienti({ pazienteId }: { pazienteId?: string }) {
       try {
         const response = await apiGet(`/trainingSession/graph/${pazienteId}`);
         // Se la risposta non è OK, proviamo a leggere il messaggio di errore dal server
-        if (!response.ok) {
+        if (response.status!==200 && response.status!==204) {
           let errorMessage = `Errore ${response.status}: Impossibile caricare i dati dei sondaggi.`;
           try {
             const errorData = await response.json();
             errorMessage = errorData.message || errorMessage;
           } catch (e) { /* Il corpo della risposta non è JSON, usiamo il messaggio di default */ }
           throw new Error(errorMessage);
+        }
+        if (response.status === 204) {
+          setAllSurveyData([]);
+          setError(null);
+          return;
         }
         const data = await response.json();
         console.log("Dati sondaggi ricevuti:", data);

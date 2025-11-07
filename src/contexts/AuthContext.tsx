@@ -3,8 +3,8 @@ import { type ReactNode } from "react";
 import { initApi } from "@/lib/api";
 
 
-const URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
-// const URL = "http://localhost:1337/fisioterapista";
+// const URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
+const URL = "http://localhost:1337/fisioterapista";
 
 // Definiamo la "forma" del nostro context
 interface AuthContextType {

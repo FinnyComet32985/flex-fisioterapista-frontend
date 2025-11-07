@@ -1,5 +1,5 @@
-// const BASE_URL = "http://localhost:1337/fisioterapista";
-const BASE_URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
+const BASE_URL = "http://localhost:1337/fisioterapista";
+// const BASE_URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
 
 // Contenitore per le funzioni di autenticazione fornite dal Context
 let authHelpers = {

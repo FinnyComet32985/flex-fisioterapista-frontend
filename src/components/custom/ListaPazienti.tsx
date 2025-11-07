@@ -25,19 +25,23 @@ interface Paziente {
 
 export default function ListaPazienti() {
   const [pazienti, setPazienti] = useState<Paziente[]>([]);
- 
+
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPazienti = async () => {
       try {
         
-        const response = await apiGet("/patient"); // Assumendo che l'endpoint sia /patient
+        const response = await apiGet("/patient"); 
 
         if (!response.ok) {
           throw new Error("Impossibile caricare la lista dei pazienti");
         }
-
+        if (response.status === 204) {
+          setPazienti([]);
+          setError(null);
+          return;
+        }
         const data: Paziente[] = await response.json();
         setPazienti(data);
         setError(null);
@@ -59,8 +63,11 @@ export default function ListaPazienti() {
 
   return (
     <div className="flex w-full flex-col gap-6">
+      {pazienti && pazienti.length === 0 && (
+        <p className="text-muted-foreground text-center py-4">Nessun paziente trovato.</p>
+      )}
       <ItemGroup>
-        {pazienti.map((paziente, index) => (
+        {pazienti && pazienti.map((paziente, index) => (
           <React.Fragment key={paziente.id}>
             <Item>
               <ItemMedia>

@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { set } from "date-fns";
 
 interface Paziente {
   id: number;
@@ -57,12 +58,14 @@ export default function DashboardPaziente() {
       const response = await apiGet(`/patient/${id}`);
 
       if (!response.ok) {
-        throw new Error("Impossibile caricare il profilo del paziente");
+        const data = await response.json();
+        console.log(data.message);
+        throw new Error(data.message);
       }
 
-      const data: Paziente[] = await response.json();
+      const data: Paziente = await response.json();
       console.log("Dati paziente:", data);
-      setPaziente(data[0]); // assegna il primo elemento (se API restituisce array)
+      setPaziente(data);
       setError(null);
     } catch (err) {
       setError(
@@ -210,10 +213,10 @@ export default function DashboardPaziente() {
           )}
         </div>
 
-        <div className="max-w-7xl mx-auto mt-8 space-y-8">
+        {paziente && <div className="max-w-7xl mx-auto mt-8 space-y-8">
           <GraficoPazienti pazienteId={id} />
           <ListaSchede />
-        </div>
+        </div>}
       </div>
 
       {/* Bottoni fluttuanti di modifica e eliminazione */}
