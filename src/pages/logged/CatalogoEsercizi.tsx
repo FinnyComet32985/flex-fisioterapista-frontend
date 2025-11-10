@@ -122,7 +122,7 @@ const CatalogoEsercizi: React.FC = () => {
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <button
-                            className="cursor-pointer w-12 h-12 p-3 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
+                            className="cursor-pointer w-12 h-12 p-3 bg-destructive text-white rounded-full hover:bg-destructive/90 transition-colors flex items-center justify-center shadow-lg"
                             aria-label="Elimina esercizio"
                         >
                             <TrashIcon className="w-5 h-5" />
