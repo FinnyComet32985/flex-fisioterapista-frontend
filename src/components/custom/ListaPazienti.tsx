@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { EyeIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, EyeIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiGet } from "@/lib/api";
 
@@ -24,7 +24,7 @@ interface Paziente {
 
 export default function ListaPazienti() {
     const [pazienti, setPazienti] = useState<Paziente[]>([]);
-
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const [viewOldPatients, setViewOldPatients] = useState(false);
@@ -37,15 +37,18 @@ export default function ListaPazienti() {
             const response = await apiGet("/patient");
 
             if (!response.ok) {
+                setLoading(false);
                 throw new Error("Impossibile caricare la lista dei pazienti");
             }
             if (response.status === 204) {
+                setLoading(false);
                 setPazienti([]);
                 setError(null);
                 return;
             }
             const data: Paziente[] = await response.json();
             setPazienti(data);
+            setLoading(false);
             setError(null);
         } catch (err) {
             setError(
@@ -93,7 +96,12 @@ export default function ListaPazienti() {
 
     return (
         <div className="flex w-full flex-col gap-6">
-            {pazienti && pazienti.length === 0 && (
+            {loading && (
+                <p className="text-muted-foreground text-center py-4">
+                    Caricamento pazienti...
+                </p>
+            )}
+            {!loading && pazienti && pazienti.length === 0 && (
                 <p className="text-muted-foreground text-center py-4">
                     Nessun paziente trovato.
                 </p>
@@ -134,7 +142,18 @@ export default function ListaPazienti() {
                     ))}
             </ItemGroup>
 
-            <Button variant="outline" size="lg" onClick={() => setViewOldPatients(!viewOldPatients)}>Visualizza pazienti con trattamento terminato</Button>
+            <div className="flex justify-center">
+                <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setViewOldPatients(!viewOldPatients)}
+                    className="flex items-center gap-2"
+                >
+                    {viewOldPatients
+                        ? <><ChevronUp className="h-4 w-4" /> Nascondi pazienti con trattamento terminato</>
+                        : <><ChevronDown className="h-4 w-4" /> Visualizza pazienti con trattamento terminato</>}
+                </Button>
+            </div>
 
             {viewOldPatients && (
                 <ItemGroup>
