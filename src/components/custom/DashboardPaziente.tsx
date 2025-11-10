@@ -253,7 +253,7 @@ export default function DashboardPaziente() {
             </div>
 
             {/* Bottoni fluttuanti di modifica e eliminazione */}
-            {paziente && paziente.data_fine === null && (
+            {paziente && !paziente.data_fine && (
                 <div className="fixed bottom-8 right-8 flex flex-col gap-4 z-50">
                     <ModificaInformazioniPaziente
                         id_paziente={paziente.id}
