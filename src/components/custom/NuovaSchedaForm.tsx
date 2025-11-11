@@ -18,6 +18,8 @@ interface FormData {
   esercizi: EsercizioSelezionato[];
 }
 
+type Errors = Partial<Record<keyof Omit<FormData, 'esercizi'>, string>>;
+
 interface EsercizioCatalogo {
   id: number;
   nome: string;
@@ -43,6 +45,7 @@ const NuovaSchedaForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>(inizialeFormData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
+  const [errors, setErrors] = useState<Errors>({});
   const navigate = useNavigate();
 
   const [eserciziCatalogo, setEserciziCatalogo] = useState<EsercizioCatalogo[]>([]);
@@ -90,12 +93,29 @@ const NuovaSchedaForm: React.FC = () => {
     }));
   };
 
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name as keyof Errors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nome || !formData.tipo) {
+    const newErrors: Errors = {};
+    /* Validazione dei campi */
+    if (!formData.nome.trim()) newErrors.nome = "Il nome è obbligatorio.";
+    if (formData.nome.trim().length > 50) newErrors.nome = "Il nome non può superare i 50 caratteri.";
+    if (!formData.tipo) newErrors.tipo = "Il tipo è obbligatorio.";
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0 || formData.esercizi.length === 0) {
       setStatus("error");
       return;
     }
+
+    /* Invia i dati al server */
     setIsLoading(true);
     try {
       const payload = {
@@ -158,15 +178,17 @@ const NuovaSchedaForm: React.FC = () => {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="nome">Nome Scheda</Label>
-                  <Input id="nome" value={formData.nome} onChange={e => setFormData(prev => ({ ...prev, nome: e.target.value }))} placeholder="Es. Rinforzo schiena" required />
+                  <Input id="nome" name="nome" value={formData.nome} onChange={handleFormChange} placeholder="Es. Rinforzo schiena" required />
+                  {errors.nome && <p className="mt-1 text-sm text-destructive">{errors.nome}</p>}
                 </div>
                 <div>
                   <Label htmlFor="tipo">Tipo Scheda</Label>
                   <ComboboxTipoScheda value={formData.tipo} onChange={value => setFormData(prev => ({ ...prev, tipo: value }))} />
+                  {errors.tipo && <p className="mt-1 text-sm text-destructive">{errors.tipo}</p>}
                 </div>
                 <div>
                   <Label htmlFor="note">Note Aggiuntive</Label>
-                  <Textarea id="note" value={formData.note} onChange={e => setFormData(prev => ({ ...prev, note: e.target.value }))} placeholder="Consigli per il paziente, frequenza, ecc." />
+                  <Textarea id="note" name="note" value={formData.note} onChange={handleFormChange} placeholder="Consigli per il paziente, frequenza, ecc." />
                 </div>
               </CardContent>
             </Card>

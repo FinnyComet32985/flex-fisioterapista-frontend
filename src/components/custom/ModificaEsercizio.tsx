@@ -55,6 +55,10 @@ export function ModificaEsercizio({
       setStatus(["error", "Il nome è obbligatorio"]);
       return;
     }
+    if (form.nome.trim().length > 50) {
+      setStatus(["error", "Il nome non può superare i 50 caratteri."]);
+      return;
+    }
 
     setLoading(true);
     try {

@@ -71,6 +71,8 @@ function NuovoEsercizio() {
       case "nome":
         if (typeof value !== "string" || !value.trim())
           return "Il nome è obbligatorio";
+        if (value.length > 50)
+          return "Il nome non può superare i 50 caratteri.";
         return undefined;
       case "descrizione":
         if (typeof value !== "string" || !value.trim())
@@ -184,6 +186,11 @@ function NuovoEsercizio() {
                   }`}
                   onChange={handleChange}
                 />
+                {errors.nome && (
+                  <p className="mt-1 text-sm text-[color:var(--color-destructive)]">
+                    {errors.nome}
+                  </p>
+                )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="descrizione">
