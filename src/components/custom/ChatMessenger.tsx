@@ -385,7 +385,7 @@ const ChatMessenger: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-sm text-muted-foreground truncate">
+                                <p className="text-sm text-muted-foreground truncate w-90">
                                     {c.ultimo_testo}
                                 </p>
                             </div>
