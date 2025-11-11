@@ -18,8 +18,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { set } from "date-fns";
-import { Separator } from "@radix-ui/react-separator";
+
 
 interface Paziente {
     id: number;

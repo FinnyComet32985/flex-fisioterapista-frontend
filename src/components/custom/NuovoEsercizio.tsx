@@ -184,13 +184,13 @@ function NuovoEsercizio() {
                   required
                   className={`${
                     errors.nome
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
                 {errors.nome && (
-                  <p className="mt-1 text-sm text-[color:var(--color-destructive)]">
+                  <p className="mt-1 text-sm text-(--color-destructive)">
                     {errors.nome}
                   </p>
                 )}
@@ -206,8 +206,8 @@ function NuovoEsercizio() {
                   required
                   className={`${
                     errors.descrizione
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
@@ -223,8 +223,8 @@ function NuovoEsercizio() {
                   required
                   className={`${
                     errors.descrizione_svolgimento
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
@@ -240,8 +240,8 @@ function NuovoEsercizio() {
                   required
                   className={`${
                     errors.consigli_svolgimento
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
@@ -257,8 +257,8 @@ function NuovoEsercizio() {
                   value={formData.video}
                   className={`${
                     errors.video
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
@@ -273,8 +273,8 @@ function NuovoEsercizio() {
                   value={formData.immagine}
                   className={`${
                     errors.immagine
-                      ? "border-[color:var(--color-destructive)]"
-                      : "border-[color:var(--color-border)]"
+                      ? "border-(--color-destructive)"
+                      : "border-(--color-border)"
                   }`}
                   onChange={handleChange}
                 />
@@ -289,7 +289,7 @@ function NuovoEsercizio() {
             >
               {isLoading ? (
                 <>
-                  <FaSpinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-[color:var(--color-primary-foreground)]" />
+                  <FaSpinner className="animate-spin -ml-1 mr-3 h-5 w-5 text-(--color-primary-foreground)" />
                   Elaborazione...
                 </>
               ) : (
