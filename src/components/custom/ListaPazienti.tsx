@@ -25,12 +25,11 @@ interface Paziente {
 export default function ListaPazienti() {
     const [pazienti, setPazienti] = useState<Paziente[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingOldPatients, setLoadingOldPatients] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const [viewOldPatients, setViewOldPatients] = useState(false);
     const [oldPatients, setOldPatients] = useState<Paziente[]>([]);
-
-
 
     const fetchPazienti = async () => {
         try {
@@ -68,10 +67,12 @@ export default function ListaPazienti() {
                 throw new Error("Impossibile caricare la lista dei pazienti");
             }
             if (response.status === 204) {
+                setLoadingOldPatients(false);
                 setOldPatients([]);
                 setError(null);
                 return;
             }
+            setLoadingOldPatients(false);
             const data: Paziente[] = await response.json();
             setOldPatients(data);
             setError(null);
@@ -81,7 +82,10 @@ export default function ListaPazienti() {
                     ? err.message
                     : "Si è verificato un errore sconosciuto"
             );
-            console.error("Errore nel caricamento dei pazienti con trattamento terminato:", err);
+            console.error(
+                "Errore nel caricamento dei pazienti con trattamento terminato:",
+                err
+            );
         }
     };
 
@@ -149,48 +153,71 @@ export default function ListaPazienti() {
                     onClick={() => setViewOldPatients(!viewOldPatients)}
                     className="flex items-center gap-2"
                 >
-                    {viewOldPatients
-                        ? <><ChevronUp className="h-4 w-4" /> Nascondi pazienti con trattamento terminato</>
-                        : <><ChevronDown className="h-4 w-4" /> Visualizza pazienti con trattamento terminato</>}
+                    {viewOldPatients ? (
+                        <>
+                            <ChevronUp className="h-4 w-4" /> Nascondi pazienti
+                            con trattamento terminato
+                        </>
+                    ) : (
+                        <>
+                            <ChevronDown className="h-4 w-4" /> Visualizza
+                            pazienti con trattamento terminato
+                        </>
+                    )}
                 </Button>
             </div>
 
             {viewOldPatients && (
                 <ItemGroup>
-                {oldPatients &&
-                    oldPatients.map((paziente, index) => (
-                        <React.Fragment key={paziente.id}>
-                            <Item>
-                                <ItemMedia>
-                                    <Avatar className="w-15 h-15">
-                                        {/* <AvatarImage src={paziente.avatar} /> */}
-                                        <AvatarFallback>
-                                            {paziente.nome.charAt(0)}
-                                            {paziente.cognome.charAt(0)}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                </ItemMedia>
-                                <ItemContent className="gap-1">
-                                    <ItemTitle>
-                                        {paziente.nome} {paziente.cognome}
-                                    </ItemTitle>
-                                    {/* <ItemDescription>{paziente.email}</ItemDescription> */}
-                                </ItemContent>
-                                <ItemActions>
-                                    <Button variant="outline" size="lg">
-                                        <EyeIcon className=" size-5" />
-                                        <Link
-                                            to={`/profilo-paziente/${paziente.id}`}
-                                        >
-                                            Visualizza profilo
-                                        </Link>
-                                    </Button>
-                                </ItemActions>
-                            </Item>
-                            {index !== pazienti.length - 1 && <ItemSeparator />}
-                        </React.Fragment>
-                    ))}
-            </ItemGroup>)}
+                    {loadingOldPatients && (
+                        <p className="text-muted-foreground text-center py-4">
+                            Caricamento pazienti...
+                        </p>
+                    )}
+                    {!loadingOldPatients &&
+                        oldPatients &&
+                        oldPatients.length === 0 && (
+                            <p className="text-muted-foreground text-center py-4">
+                                Nessun paziente trovato.
+                            </p>
+                        )}
+                    {oldPatients &&
+                        oldPatients.map((paziente, index) => (
+                            <React.Fragment key={paziente.id}>
+                                <Item>
+                                    <ItemMedia>
+                                        <Avatar className="w-15 h-15">
+                                            {/* <AvatarImage src={paziente.avatar} /> */}
+                                            <AvatarFallback>
+                                                {paziente.nome.charAt(0)}
+                                                {paziente.cognome.charAt(0)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </ItemMedia>
+                                    <ItemContent className="gap-1">
+                                        <ItemTitle>
+                                            {paziente.nome} {paziente.cognome}
+                                        </ItemTitle>
+                                        {/* <ItemDescription>{paziente.email}</ItemDescription> */}
+                                    </ItemContent>
+                                    <ItemActions>
+                                        <Button variant="outline" size="lg">
+                                            <EyeIcon className=" size-5" />
+                                            <Link
+                                                to={`/profilo-paziente/${paziente.id}`}
+                                            >
+                                                Visualizza profilo
+                                            </Link>
+                                        </Button>
+                                    </ItemActions>
+                                </Item>
+                                {index !== pazienti.length - 1 && (
+                                    <ItemSeparator />
+                                )}
+                            </React.Fragment>
+                        ))}
+                </ItemGroup>
+            )}
         </div>
     );
 }

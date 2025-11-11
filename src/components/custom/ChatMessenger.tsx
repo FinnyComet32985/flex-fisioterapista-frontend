@@ -11,8 +11,8 @@ import {
 // Importazione utility per la formattazione delle date
 import { apiGet, apiPost } from "@/lib/api";
 import {
-  Avatar,
-  AvatarFallback,
+    Avatar,
+    AvatarFallback,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +27,10 @@ import {
 
 // Tipo per gli allegati nei messaggi
 // type Attachment = {
-//     type: "image" | "file"; // Tipo di allegato: immagine o file generico
-//     url: string; // URL dell'allegato
-//     name: string; // Nome del file
-//     fileType?: string; // Tipo MIME del file (opzionale)
+//     type: "image" | "file"; // Tipo di allegato: immagine o file generico
+//     url: string; // URL dell'allegato
+//     name: string; // Nome del file
+//     fileType?: string; // Tipo MIME del file (opzionale)
 // };
 
 type Chat = {
@@ -61,12 +61,12 @@ const ChatMessenger: React.FC = () => {
     // Stati per la gestione dell'interfaccia
     const [isMobileView, setIsMobileView] = useState<boolean>(false); // Gestisce la vista mobile/desktop
     const [messageSearch, setMessageSearch] = useState<string>(""); // Testo di ricerca messaggi
-
+    
     /* CHAT */
     const [allPatients, setAllPatients] = useState<Paziente[]>([]);
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
-
     const [chat, setChat] = useState<Chat[]>([]);
+    const [activeChat, setActiveChat] = useState<Chat | null>(null); // Contatto selezionato
 
     const fetchChat = async () => {
         try {
@@ -95,7 +95,6 @@ const ChatMessenger: React.FC = () => {
         }
     };
 
-
     /* MESSAGGI */
     const [messaggi, setMessaggi] = useState<Messaggio[]>([]);
 
@@ -117,9 +116,36 @@ const ChatMessenger: React.FC = () => {
         }
     };
 
+    // === EFFETTI DI POLLING ===
+
+    // 1. Polling Iniziale e Lista Chat (ogni 5 secondi)
     useEffect(() => {
-        fetchChat();
-    }, []);
+        fetchChat(); // Primo fetch al mount
+
+        const chatPollingInterval = setInterval(() => {
+            // Controlla se c'è una chat attiva. Se non c'è, aggiorna la lista chat.
+            // Se c'è una chat attiva, l'aggiornamento della lista chat è implicito nell'aggiornamento dei messaggi.
+            if (!activeChat) {
+                fetchChat();
+            }
+        }, 5000); // Aggiorna ogni 5 secondi
+
+        return () => clearInterval(chatPollingInterval); // Cleanup
+    }, [activeChat]); // Dipende da activeChat per decidere se chiamare fetchChat
+
+    // 2. Polling Messaggi (ogni 2 secondi)
+    useEffect(() => {
+        if (!activeChat) return; // Non avviare il polling se non c'è una chat attiva
+
+        // Primo fetch viene gestito da handleSetActiveChat
+
+        const messagePollingInterval = setInterval(() => {
+            fetchMessaggi(activeChat.id);
+        }, 2000); // Aggiorna ogni 2 secondi per i messaggi
+
+        return () => clearInterval(messagePollingInterval); // Cleanup
+    }, [activeChat]); // Si riavvia ogni volta che l'activeChat cambia
+
 
     // Effetto per impostare la chat attiva quando i dati vengono caricati
     useEffect(() => {
@@ -130,8 +156,8 @@ const ChatMessenger: React.FC = () => {
         }
     }, [chat]); // Questo effetto si attiva ogni volta che 'chat' cambia
 
+
     // Stati per la gestione della chat
-    const [activeChat, setActiveChat] = useState<Chat | null>(null); // Contatto selezionato
     const [searchQuery, setSearchQuery] = useState<string>(""); // Ricerca contatti
     const [newMessage, setNewMessage] = useState<string>(""); // Testo nuovo messaggio
     const messageEndRef = useRef<HTMLDivElement | null>(null); // Riferimento per lo scroll automatico
@@ -211,7 +237,8 @@ const ChatMessenger: React.FC = () => {
                     throw new Error("Impossibile inviare il messaggio");
                 }
                 if (response.ok) {
-                    fetchMessaggi(activeChat.id);
+                    fetchMessaggi(activeChat.id); // Aggiorna i messaggi dopo l'invio
+                    fetchChat(); // Aggiorna la lista chat per il cambio di ultimo_testo/data
                 }
             } catch (err) {
                 console.error("Errore nell'invio del messaggio:", err);
@@ -232,33 +259,33 @@ const ChatMessenger: React.FC = () => {
 
     // Gestisce il caricamento di file come allegati
     // const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    //     if (!activeChat) return; // Verifica che ci sia un contatto attivo
-    //     const file = event.target.files?.[0]; // Prende il primo file selezionato
-    //     if (file) {
-    //         // Crea un nuovo messaggio con l'allegato
-    //         const newMsg: Message = {
-    //             id: messages[activeChat.id]?.length + 1 || 1,
-    //             senderId: "me",
-    //             text: "", // Messaggio vuoto perché contiene solo l'allegato
-    //             timestamp: new Date(),
-    //             status: "sent",
-    //             attachments: [
-    //                 {
-    //                     // Determina se è un'immagine o un altro tipo di file
-    //                     type: file.type.startsWith("image/") ? "image" : "file",
-    //                     url: URL.createObjectURL(file), // Crea un URL locale per il file
-    //                     name: file.name,
-    //                     fileType: file.type,
-    //                 },
-    //             ],
-    //         };
+    //     if (!activeChat) return; // Verifica che ci sia un contatto attivo
+    //     const file = event.target.files?.[0]; // Prende il primo file selezionato
+    //     if (file) {
+    //         // Crea un nuovo messaggio con l'allegato
+    //         const newMsg: Message = {
+    //             id: messages[activeChat.id]?.length + 1 || 1,
+    //             senderId: "me",
+    //             text: "", // Messaggio vuoto perché contiene solo l'allegato
+    //             timestamp: new Date(),
+    //             status: "sent",
+    //             attachments: [
+    //                 {
+    //                     // Determina se è un'immagine o un altro tipo di file
+    //                     type: file.type.startsWith("image/") ? "image" : "file",
+    //                     url: URL.createObjectURL(file), // Crea un URL locale per il file
+    //                     name: file.name,
+    //                     fileType: file.type,
+    //                 },
+    //             ],
+    //         };
 
-    //         // Aggiunge il messaggio con l'allegato alla chat
-    //         setMessages((prev) => ({
-    //             ...prev,
-    //             [activeChat.id]: [...(prev[activeChat.id] || []), newMsg],
-    //         }));
-    //     }
+    //         // Aggiunge il messaggio con l'allegato alla chat
+    //         setMessages((prev) => ({
+    //             ...prev,
+    //             [activeChat.id]: [...(prev[activeChat.id] || []), newMsg],
+    //         }));
+    //     }
     // };
 
     // Gestisce il ridimensionamento della finestra e imposta la vista mobile/desktop
@@ -278,7 +305,7 @@ const ChatMessenger: React.FC = () => {
                 className={`${
                     isMobileView && activeChat ? "hidden" : "w-full md:w-1/3"
                 } bg-backgrownd border-r border-border`}
-            >   
+            >   
                 <div className="p-4 border-b border-border flex items-center gap-4">
                     <div className="relative flex-1">
                         <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
@@ -363,10 +390,10 @@ const ChatMessenger: React.FC = () => {
                                 </p>
                             </div>
                             {/* {contact.unread > 0 && (
-                                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
-                                    {contact.unread}
-                                </span>
-                            )} */}
+                                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
+                                    {contact.unread}
+                                </span>
+                            )} */}
                         </div>
                     ))}
                 </div>
@@ -443,19 +470,19 @@ const ChatMessenger: React.FC = () => {
                     <div className="flex items-center">
                         <div className="flex space-x-2">
                             {/* <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="text-muted-foreground hover:text-foreground"
-                            >
-                                <FiPaperclip className="text-xl" />
-                            </button> */}
+                                onClick={() => fileInputRef.current?.click()}
+                                className="text-muted-foreground hover:text-foreground"
+                            >
+                                <FiPaperclip className="text-xl" />
+                            </button> */}
                         </div>
                         {/* <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            accept="image/*,.pdf,.doc,.docx"
-                        /> */}
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFileUpload}
+                            accept="image/*,.pdf,.doc,.docx"
+                        /> */}
                         <input
                             type="text"
                             placeholder="Scrivi un messaggio ..."
