@@ -365,7 +365,7 @@ const ChatMessenger: React.FC = () => {
                                     {c.cognome.charAt(0)}
                                 </AvatarFallback>
                             </Avatar>
-                            <div className="ml-4 flex-1">
+                            <div className="ml-4 flex-1 min-w-0">
                                 <div className="flex justify-between items-center">
                                     <h3 className="font-semibold text-foreground hover:color-primary-foreground">
                                         {c.nome + " " + c.cognome}
@@ -385,7 +385,9 @@ const ChatMessenger: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-sm text-muted-foreground truncate w-90">
+
+                                
+                                <p className="text-sm text-muted-foreground truncate max-w-[100%]">
                                     {c.ultimo_testo}
                                 </p>
                             </div>
