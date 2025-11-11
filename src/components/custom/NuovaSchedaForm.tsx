@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Search, Trash2, XCircle } from "lucide-react";
+import { PlusCircle, Search, XCircle } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { ComboboxTipoScheda } from "./ComboboxTipoScheda";
 

@@ -17,7 +17,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FiEdit2 } from "react-icons/fi";
 import { CalendarioSessioni } from "./CalendarioSessioni";
-import { set } from "date-fns";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -132,7 +131,7 @@ export default function ListaSchede({trattamento_terminato}: {trattamento_termin
                     "/trainingCard/" + scheda.id + "/exercise"
                 );
 
-                if (response.status === 204) {
+                if (response.status === 204) { // Nessun contenuto
                     setSchedaSelezionata(scheda);
                     setMostraDettagli(true);
                     return;
