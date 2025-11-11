@@ -13,6 +13,7 @@ import { apiPost } from "@/lib/api";
 import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Textarea } from "../ui/textarea";
 
 interface FormData {
   nome: string;
@@ -42,8 +43,8 @@ function NuovoEsercizio() {
 
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target; // usa name, non id
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => {
       const next = { ...prev };
@@ -188,7 +189,7 @@ function NuovoEsercizio() {
                 <FieldLabel htmlFor="descrizione">
                   Descrizione dell'esercizio
                 </FieldLabel>
-                <Input
+                <Textarea
                   id="descrizione"
                   name="descrizione"
                   value={formData.descrizione}
@@ -205,7 +206,7 @@ function NuovoEsercizio() {
                 <FieldLabel htmlFor="descrizione_svolgimento">
                   Descrizione dello svolgimento
                 </FieldLabel>
-                <Input
+                <Textarea
                   id="descrizione_svolgimento"
                   name="descrizione_svolgimento"
                   value={formData.descrizione_svolgimento}
@@ -222,7 +223,7 @@ function NuovoEsercizio() {
                 <FieldLabel htmlFor="consigli_svolgimento">
                   Consigli per lo svolgimento
                 </FieldLabel>
-                <Input
+                <Textarea
                   id="consigli_svolgimento"
                   name="consigli_svolgimento"
                   value={formData.consigli_svolgimento}

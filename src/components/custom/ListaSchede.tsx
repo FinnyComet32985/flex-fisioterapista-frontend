@@ -215,7 +215,7 @@ export default function ListaSchede({trattamento_terminato}: {trattamento_termin
                                                     {scheda.tipo_scheda}
                                                 </span>
                                             </span>
-                                            <p className="truncate">
+                                            <p className="truncate w-xl">
                                                 <span className="font-medium">
                                                     Note:
                                                 </span>{" "}
