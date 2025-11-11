@@ -35,6 +35,7 @@ const CatalogoEsercizi: React.FC = () => {
     );
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const getImageSrc = (path?: string) => {
         const fallback =
@@ -56,14 +57,19 @@ const CatalogoEsercizi: React.FC = () => {
         try {
             const response = await apiGet("/exercise");
 
-            if (!response.ok) {
+            if (response.status === 200) {
+                setLoading(false);
+                const data: Exercise[] = await response.json();
+                console.log("Esercizi caricati:", data);
+                setExercises(data);
+                setError(null);
+            } else if (response.status === 204) {
+                setLoading(false);
+                setExercises([]);
+                setError(null);
+            } else if (!response.ok) {
                 throw new Error("Impossibile caricare la lista degli esercizi");
             }
-
-            const data: Exercise[] = await response.json();
-            console.log("Esercizi caricati:", data);
-            setExercises(data);
-            setError(null);
         } catch (err) {
             setError(
                 err instanceof Error
@@ -97,6 +103,7 @@ const CatalogoEsercizi: React.FC = () => {
             // opzionale: forzare un refetch per essere sicuri di avere dati aggiornati
             // await fetchEsercizi();
         } catch (err) {
+            setLoading(false);
             setError(
                 err instanceof Error
                     ? err.message
@@ -234,6 +241,16 @@ const CatalogoEsercizi: React.FC = () => {
                         </Link>
                     </Button>
                 </div>
+                {loading && (
+                    <p className="text-muted-foreground text-center py-4">
+                        Caricamento esercizi...
+                    </p>
+                )}
+                {!loading && exercises && exercises.length === 0 && (
+                    <p className="text-muted-foreground text-center py-4">
+                        Nessun esercizio trovato.
+                    </p>
+                )}
                 {error && (
                     <div className="mb-4 p-4 text-red-800 bg-red-200 rounded mt-6">
                         {error}
