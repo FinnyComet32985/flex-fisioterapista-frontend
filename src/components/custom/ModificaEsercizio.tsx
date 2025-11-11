@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FiEdit2 } from "react-icons/fi";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPatch } from "@/lib/api";
 import { useEffect } from "react";
 
@@ -148,8 +149,16 @@ export function ModificaEsercizio({
             <Input id="video" value={form.video} onChange={(e) => setForm((s) => ({ ...s, video: e.target.value }))} />
           </div>
 
-          {status[0] === "success" && <div className="p-2 text-sm text-green-800 bg-green-100 rounded">{status[1]}</div>}
-          {status[0] === "error" && <div className="p-2 text-sm text-red-800 bg-red-100 rounded">{status[1]}</div>}
+          {status[0] === "success" && (
+            <div className="flex items-center gap-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
+              <CheckCircle2 className="h-5 w-5" />
+              <span>{status[1]}</span>
+            </div>)}
+          {status[0] === "error" && (
+            <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              <span>{status[1]}</span>
+            </div>)}
 
           <DialogFooter>
             <Button type="submit" className="cursor-pointer w-full" disabled={loading}>

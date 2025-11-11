@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Search, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, PlusCircle, Search, XCircle } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { ComboboxTipoScheda } from "./ComboboxTipoScheda";
 
@@ -215,10 +215,16 @@ const ModificaScheda: React.FC = () => {
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6">Modifica Scheda di Allenamento</h1>
         {status === "success" && (
-          <div className="mb-4 p-3 text-sm text-green-800 bg-green-100 rounded">Scheda modificata con successo!</div>
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
+            <CheckCircle2 className="h-5 w-5" />
+            <span>Scheda modificata con successo!</span>
+          </div>
         )}
         {status === "error" && (
-          <div className="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded">Errore. Compila tutti i campi e aggiungi almeno un esercizio.</div>
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            <span>Errore. Compila tutti i campi e aggiungi almeno un esercizio.</span>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">

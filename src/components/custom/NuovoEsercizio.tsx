@@ -9,6 +9,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPost } from "@/lib/api";
 import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
@@ -162,13 +163,15 @@ function NuovoEsercizio() {
               Aggiungi un nuovo esercizio al catalogo
             </FieldDescription>
             {status === "success" && (
-              <div className="mb-4 p-4 text-green-800 bg-green-200 rounded">
-                Esercizio aggiunto con successo!
+              <div className="mb-4 flex items-center gap-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
+                <CheckCircle2 className="h-5 w-5" />
+                <span>Esercizio aggiunto con successo!</span>
               </div>
             )}
             {status === "error" && (
-              <div className="mb-4 p-4 text-red-800 bg-red-200 rounded">
-                Errore durante l'aggiunta dell'esercizio.
+              <div className="mb-4 flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                <span>Errore durante l'aggiunta dell'esercizio.</span>
               </div>
             )}
             <FieldGroup>
