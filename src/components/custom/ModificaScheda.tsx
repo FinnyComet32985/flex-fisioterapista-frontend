@@ -83,7 +83,7 @@ const ModificaScheda: React.FC = () => {
             ripetizioni: e.ripetizioni
           }))
         });
-        setFormDataIniziale({
+        setFormDataIniziale({ // Salva una copia iniziale per il confronto con le modifiche
           nome: data.nome,
           tipo: data.tipo_scheda,
           note: data.note,
@@ -126,9 +126,9 @@ const ModificaScheda: React.FC = () => {
   const handleEsercizioChange = (id: number, field: 'serie' | 'ripetizioni', value: number) => {
     // Se il valore non è un numero, o < di 1, lo imposta a 0.
     const numericValue = !isNaN(value) && value >= 1 ? value : 0;
-    setFormData(prev => ({
-      ...prev,
-      esercizi: prev.esercizi.map(e => (e.esercizio_id === id ? { ...e, [field]: numericValue } : e))
+    setFormData(prev => ({ //passa attraverso tutti gli esercizi e aggiorna quello con l'id corrispondente
+      ...prev, // mantiene gli altri campi invariati
+      esercizi: prev.esercizi.map(e => (e.esercizio_id === id ? { ...e, [field]: numericValue } : e)) //aggiorna solo il campo specificato
     }));
   };
 
