@@ -1,7 +1,13 @@
+//* MODULO API.TS
+
 // const BASE_URL = "http://localhost:1337/fisioterapista";
 const BASE_URL = "https://84dcg7p1-1337.euw.devtunnels.ms/fisioterapista";
 
-// Contenitore per le funzioni di autenticazione fornite dal Context
+
+// non essendo un file tsx ma solo un modulo, api non può utilizzare i react hooks 
+// (in particolare useContext per accedere direttamente alle funzioni di authContext)
+
+// queste righe creano delle funzioni placeholder che verranno sovrascritte
 let authHelpers = {
     refreshToken: async (): Promise<void> => {
         throw new Error("Auth helpers not initialized. Call initApi from AuthProvider.");
@@ -11,11 +17,12 @@ let authHelpers = {
     },
 };
 
+// una volta chiamata la funzione initApi le funzioni placeholder vengono sovrascritte dalle vere funzioni presenti nel authContext
 export const initApi = (helpers: typeof authHelpers) => {
     authHelpers = helpers;
 };
 
-
+// definiamo la funzione che verrà utilizzata al posto del fetch originale di react
 const authedFetch = async (path: string, options: RequestInit = {}): Promise<Response> => {
     const url = `${BASE_URL}${path}`;
     const currentToken = localStorage.getItem("token");

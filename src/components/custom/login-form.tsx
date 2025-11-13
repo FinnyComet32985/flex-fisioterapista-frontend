@@ -29,6 +29,8 @@ export default function LoginForm({
             navigate("/", { replace: true });
         }
     }, [isAuthenticated, navigate]);
+
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");

@@ -30,6 +30,7 @@ export default function Calendar20() {
 
     const [status, setStatus] = React.useState<[string, string]>(["", ""]);
 
+    // definiamo il tipo per gli appuntamenti 
     type Appointment = {
         id: number;
         data_appuntamento: string;
@@ -74,9 +75,14 @@ export default function Calendar20() {
         Array<AppointmentCalendar>
     >([]);
 
+    // Questo useEffect si attiva ogni volta che i valori di 'data' (la data selezionata)
+    // o 'dati' (l'elenco completo degli appuntamenti) cambiano.
+    // Il suo scopo è calcolare e mostrare gli slot orari (liberi e occupati) per il giorno scelto.
     useEffect(() => {
         if (!data || !dati) {
             if (data) {
+                // se non ci sono dati allora tutti gli slot orari devono essere liberi
+                // crea un array di appointmnetCalendar con solo data_appuntamento settata
                 const baseOrari = [9, 10, 11, 12, 15, 16, 17, 18, 19].map(
                     (ora) => ({
                         data_appuntamento: new Date(
@@ -93,6 +99,8 @@ export default function Calendar20() {
             }
             return;
         }
+
+        // 1. FILTRAGGIO: Isola gli appuntamenti che appartengono solo al giorno selezionato ('data').
         const appuntamentiGiornalieri = dati.filter((appuntamento) => {
             const dataApp = new Date(appuntamento.data_appuntamento);
             return (
@@ -102,6 +110,7 @@ export default function Calendar20() {
             );
         });
 
+        // 2. CREAZIONE GRIGLIA: Crea una griglia di orari standard per la giornata (9:00, 10:00, ecc.).
         const baseOrari = [9, 10, 11, 12, 15, 16, 17, 18, 19].map((ora) => ({
             data_appuntamento: new Date(
                 data.getFullYear(),
@@ -113,17 +122,25 @@ export default function Calendar20() {
             ),
         }));
 
+        // 3. trasforma la lista di appuntamenti del giorno
+        //    in una 'Map', dove la chiave è l'ora (es. 9, 15) e il valore è l'oggetto appuntamento.
+        const appuntamentiPerOra = new Map(
+            appuntamentiGiornalieri.map(app => {
+                const ora = parseInt(app.ora_appuntamento.split(":")[0], 10);
+                return [ora, app];
+            })
+        );
+        
+        // 4. UNIONE: Scorre ogni slot della griglia oraria di base ('baseOrari').
         const mergedOrari = baseOrari.map((slot) => {
-            const trovato = appuntamentiGiornalieri.find((app) => {
-                const [ore, minuti, secondi] = app.ora_appuntamento
-                    .split(":")
-                    .map(Number);
-                const appDate = new Date(app.data_appuntamento);
-                appDate.setHours(ore, minuti, secondi);
-                return appDate.getHours() === slot.data_appuntamento.getHours();
-            });
-
+            // Per ogni slot, estrae l'ora (es. 9, 10...).
+            const oraSlot = slot.data_appuntamento.getHours();
+            // Cerca nella mappa se esiste un appuntamento per quell'ora. Questa operazione è istantanea.
+            const trovato = appuntamentiPerOra.get(oraSlot);
+            
+            // Se è stato trovato un appuntamento per questo slot...
             if (trovato) {
+                // ...restituisce un nuovo oggetto che unisce i dati dello slot con quelli dell'appuntamento.
                 return {
                     ...slot,
                     id: trovato.id,
@@ -133,10 +150,13 @@ export default function Calendar20() {
                     cognome: trovato.cognome,
                 };
             }
+            // Altrimenti, se lo slot è libero, restituisce lo slot originale vuoto.
             return slot;
         });
+        // 5. AGGIORNAMENTO: Aggiorna lo stato con la lista finale di slot (pieni e vuoti),
+        //    causando il ri-render dell'interfaccia utente.
         setOrariAttuali(mergedOrari);
-    }, [data, dati]);
+    }, [data, dati]); // Array delle dipendenze: l'effetto si riesegue se 'data' o 'dati' cambiano.
 
     const giorniDisabilitati = [{ before: new Date() }];
 
@@ -157,15 +177,15 @@ export default function Calendar20() {
         }
 
         try {
-            const slotSelezionato = orariAttuali[orarioSelezionato];
+            const slotSelezionato = orariAttuali[orarioSelezionato]; // prende lo slot con l'indice in orarioSelezionato 
 
             const anno = data.getFullYear();
 
-            const meseFormattato = (data.getMonth() + 1)
+            const meseFormattato = (data.getMonth() + 1) // .getMonth() restituisce 0-11, quindi aggiungiamo 1.
                 .toString()
-                .padStart(2, "0");
+                .padStart(2, "0"); // Aggiunge uno '0' iniziale se la stringa è più corta di 2 caratteri (es. "9" -> "09").
             const giornoFormattato = data.getDate().toString().padStart(2, "0");
-            const dataFormattata = `${anno}-${meseFormattato}-${giornoFormattato}`;
+            const dataFormattata = `${anno}-${meseFormattato}-${giornoFormattato}`; // crea una string unica separata da -
 
             const oraFormattata =
                 slotSelezionato.data_appuntamento.toLocaleTimeString("it-IT", {

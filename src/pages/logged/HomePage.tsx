@@ -94,42 +94,46 @@ function HomePage() {
     const getGroupedUpcomingAppointments = (): GroupedAppointments[] => {
         if (!appuntamenti) return [];
 
-        const now = new Date();
+        const now = new Date(); // crea una costante di tipo Date con la data attuale
 
         // Filtra appuntamenti futuri e ordina per data e ora
         const upcomingAppointments = appuntamenti
             .filter((app) => {
-                const appointmentDate = new Date(app.data_appuntamento);
-                const [hours, minutes] = app.ora_appuntamento.split(":");
+                const appointmentDate = new Date(app.data_appuntamento); // crea una costante con la data dell'appuntamento
+                const [hours, minutes] = app.ora_appuntamento.split(":"); // crea un array contenente l'ora e i minuti dell'appuntamento
                 appointmentDate.setHours(
-                    parseInt(hours),
-                    parseInt(minutes),
-                    0,
-                    0
-                );
+                    parseInt(hours), // hours
+                    parseInt(minutes), // min
+                    0, // sec
+                    0 // ms
+                ); // aggiunge l'orario alla data dell'appuntamento
 
-                return appointmentDate > now;
+                return appointmentDate > now; // aggiunge all'array filtrato l'appuntamento se è successivo alla data attuale
             })
             .sort((a, b) => {
+                // crea una costante di tipo Date con i dati di a
                 const dateA = new Date(a.data_appuntamento);
                 const [hoursA, minutesA] = a.ora_appuntamento.split(":");
                 dateA.setHours(parseInt(hoursA), parseInt(minutesA), 0, 0);
 
+                // crea una costante di tipo Date con i dati di b
                 const dateB = new Date(b.data_appuntamento);
                 const [hoursB, minutesB] = b.ora_appuntamento.split(":");
                 dateB.setHours(parseInt(hoursB), parseInt(minutesB), 0, 0);
 
+                // se iil risultato è positivo la data b sarà dopo a nell'array finale
                 return dateA.getTime() - dateB.getTime();
             });
 
         // Raggruppa per giorno
-        const grouped: { [key: string]: GroupedAppointments } = {};
+        const grouped: { [key: string]: GroupedAppointments } = {}; // crea un oggetto grouped di questo tipo: key (di tipo string), value (di tipo GroupedAppointments)
 
         upcomingAppointments.forEach((app) => {
             const date = new Date(app.data_appuntamento);
-            const dateKey = date.toISOString().split("T")[0];
+            const dateKey = date.toISOString().split("T")[0]; // crea quella che sarà la chiave da inserire nell'oggetto (lasciando solo la data e rimuovendo l'orario)
 
             if (!grouped[dateKey]) {
+                // se la data non esiste già nell'oggetto allora crea una nuova struttura per quel giorno
                 grouped[dateKey] = {
                     date: dateKey,
                     displayDate: date.toLocaleDateString("it-IT", {
@@ -141,11 +145,11 @@ function HomePage() {
                     appointments: [],
                 };
             }
-
+            // aggiunge all'oggetto il nuovo appuntamento
             grouped[dateKey].appointments.push(app);
         });
 
-        return Object.values(grouped);
+        return Object.values(grouped); // resituisce un array dei valori dell'oggetto (rimuovendo così le chiavi)
     };
 
     const groupedAppointments = getGroupedUpcomingAppointments();

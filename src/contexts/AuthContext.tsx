@@ -18,7 +18,10 @@ interface AuthContextType {
 // 1. Creazione del Context
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// 2. Hook personalizzato per un facile accesso al Context
+// 2. creazione hook useAuth
+// per semplificare l'accesso all'auth context creiamo questo hook personalizzato
+// nei file in cui abbiamo bisogno del contesto invece di importare sia AuthContext che useContext 
+// possiamo direttamente importare useAuth che ci restituirà direttamente le funzioni di cui abbiamo bisogno
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    // Funzione per il Register
     const register = async (nome:string, cognome:string, email: string, password: string) => {
         const response = await fetch(
             URL.concat("/register"), {
@@ -107,6 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await login(email, password);
     };
 
+    // funzione per il RefreshToken
     const refreshToken = async () => {
         const response = await fetch(
             URL.concat("/refreshToken"),
@@ -125,7 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log("Token rinfrescato con successo dal context.");
     }
 
-    // Inizializza il modulo API con le funzioni di refresh e logout
+    // inizializziamo il modulo API in modo da sostituire le sue funzioni placeholder con quelle reali
     // Usiamo useEffect per assicurarci che venga eseguito una sola volta
     useEffect(() => {
         initApi({ refreshToken, logout });

@@ -27,9 +27,10 @@ export function SignupForm({
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
+    // assicura che se isAutheticated viene cambiato in true allora l'utente viene reindirizzato alla homepage
     useEffect(() => {
         if (isAuthenticated) {
-            navigate("/", { replace: true });
+            navigate("/", { replace: true }); // il replace true consente di sostituire la voce corrente nella cronologia delle pagine con quella nuova
         }
     }, [isAuthenticated, navigate]);
 

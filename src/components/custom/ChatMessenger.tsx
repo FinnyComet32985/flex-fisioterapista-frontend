@@ -10,10 +10,7 @@ import {
 } from "react-icons/fi";
 // Importazione utility per la formattazione delle date
 import { apiGet, apiPost } from "@/lib/api";
-import {
-    Avatar,
-    AvatarFallback,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -61,7 +58,7 @@ const ChatMessenger: React.FC = () => {
     // Stati per la gestione dell'interfaccia
     const [isMobileView, setIsMobileView] = useState<boolean>(false); // Gestisce la vista mobile/desktop
     const [messageSearch, setMessageSearch] = useState<string>(""); // Testo di ricerca messaggi
-    
+
     /* CHAT */
     const [allPatients, setAllPatients] = useState<Paziente[]>([]);
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
@@ -86,7 +83,9 @@ const ChatMessenger: React.FC = () => {
         try {
             const response = await apiGet("/patient");
             if (!response.ok) {
-                throw new Error("Impossibile caricare la lista di tutti i pazienti");
+                throw new Error(
+                    "Impossibile caricare la lista di tutti i pazienti"
+                );
             }
             const data: Paziente[] = await response.json();
             setAllPatients(data);
@@ -107,7 +106,7 @@ const ChatMessenger: React.FC = () => {
                 const data = await response.json();
                 const messaggiConDate = data.map((m: Messaggio) => ({
                     ...m,
-                    data_invio: new Date(m.data_invio),
+                    data_invio: new Date(m.data_invio), // converte la data di invio da string a Date
                 }));
                 setMessaggi(messaggiConDate);
             }
@@ -122,16 +121,14 @@ const ChatMessenger: React.FC = () => {
     useEffect(() => {
         fetchChat(); // Primo fetch al mount
 
+        // Aggiorna la lista delle chat ogni 5 secondi per mantenere l'elenco sincronizzato
         const chatPollingInterval = setInterval(() => {
-            // Controlla se c'è una chat attiva. Se non c'è, aggiorna la lista chat.
-            // Se c'è una chat attiva, l'aggiornamento della lista chat è implicito nell'aggiornamento dei messaggi.
-            if (!activeChat) {
-                fetchChat();
-            }
-        }, 5000); // Aggiorna ogni 5 secondi
+            fetchChat();
+        }, 5000);
 
-        return () => clearInterval(chatPollingInterval); // Cleanup
-    }, [activeChat]); // Dipende da activeChat per decidere se chiamare fetchChat
+        // quando l'useEffect ritorna una funzione allora questa viene eseguita allo smontaggio del componente
+        return () => clearInterval(chatPollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
+    }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta al mount
 
     // 2. Polling Messaggi (ogni 2 secondi)
     useEffect(() => {
@@ -141,11 +138,10 @@ const ChatMessenger: React.FC = () => {
 
         const messagePollingInterval = setInterval(() => {
             fetchMessaggi(activeChat.id);
-        }, 2000); // Aggiorna ogni 2 secondi per i messaggi
+        }, 2000); // Aggiorna ogni 2 secondi per nuovi messaggi
 
-        return () => clearInterval(messagePollingInterval); // Cleanup
-    }, [activeChat]); // Si riavvia ogni volta che l'activeChat cambia
-
+        return () => clearInterval(messagePollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
+    }, [activeChat]); // viene eseguito ogni volta che cambia la chat per creare il pooling sulla chat corretta
 
     // Effetto per impostare la chat attiva quando i dati vengono caricati
     useEffect(() => {
@@ -155,7 +151,6 @@ const ChatMessenger: React.FC = () => {
             handleSetActiveChat(chat[0]);
         }
     }, [chat]); // Questo effetto si attiva ogni volta che 'chat' cambia
-
 
     // Stati per la gestione della chat
     const [searchQuery, setSearchQuery] = useState<string>(""); // Ricerca contatti
@@ -167,13 +162,19 @@ const ChatMessenger: React.FC = () => {
         // Controlla se la chat precedente era fittizia e non utilizzata
         if (activeChat && !messaggi.length) {
             // Verifica se la chat precedente esiste realmente sul server (chiamando fetchChat)
-            apiGet("/chat").then(response => response.json()).then((realChats: Chat[]) => {
-                const isPreviousChatFictitious = !realChats.some(c => c.id === activeChat.id);
-                if (isPreviousChatFictitious) {
-                    // Rimuovi la chat fittizia se l'utente cambia conversazione senza aver scritto
-                    setChat(prev => prev.filter(c => c.id !== activeChat.id));
-                }
-            });
+            apiGet("/chat")
+                .then((response) => response.json())
+                .then((realChats: Chat[]) => {
+                    const isPreviousChatFictitious = !realChats.some(
+                        (c) => c.id === activeChat.id
+                    ); // .some() restituisce vero se esiste almeno un oggetto che soddisfa un requisito
+                    if (isPreviousChatFictitious) {
+                        // Rimuovi la chat fittizia se l'utente cambia conversazione senza aver scritto
+                        setChat((prev) =>
+                            prev.filter((c) => c.id !== activeChat.id)
+                        );
+                    }
+                });
         }
 
         setActiveChat(chat);
@@ -205,7 +206,7 @@ const ChatMessenger: React.FC = () => {
 
     // Effetto per lo scroll automatico quando arrivano nuovi messaggi
     useEffect(() => {
-        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" }); // prende con current l'elemento di cui abbiamo il riferimento in messaggeEndRef e se esiste fa lo scroll
     }, [messaggi]);
 
     // Filtra i contatti in base alla ricerca
@@ -235,8 +236,7 @@ const ChatMessenger: React.FC = () => {
                 });
                 if (!response.ok) {
                     throw new Error("Impossibile inviare il messaggio");
-                }
-                if (response.ok) {
+                } else {
                     fetchMessaggi(activeChat.id); // Aggiorna i messaggi dopo l'invio
                     fetchChat(); // Aggiorna la lista chat per il cambio di ultimo_testo/data
                 }
@@ -250,7 +250,7 @@ const ChatMessenger: React.FC = () => {
 
     // Gestisce l'invio del messaggio con il tasto Invio
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
             // Previene il comportamento di default (es. invio di un form)
             event.preventDefault();
             handleSendMessage();
@@ -305,7 +305,9 @@ const ChatMessenger: React.FC = () => {
                 className={`${
                     isMobileView && activeChat ? "hidden" : "w-full md:w-1/3"
                 } bg-backgrownd border-r border-border`}
-            >   
+            >
+                {" "}
+                 
                 <div className="p-4 border-b border-border flex items-center gap-4">
                     <div className="relative flex-1">
                         <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
@@ -317,9 +319,16 @@ const ChatMessenger: React.FC = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Dialog open={isNewChatDialogOpen} onOpenChange={setIsNewChatDialogOpen}>
+                    <Dialog
+                        open={isNewChatDialogOpen}
+                        onOpenChange={setIsNewChatDialogOpen}
+                    >
                         <DialogTrigger asChild>
-                            <Button variant="outline" size="icon" onClick={fetchAllPatients}>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={fetchAllPatients}
+                            >
                                 <FiPlus className="h-5 w-5" />
                                 <span className="sr-only">Nuova Chat</span>
                             </Button>
@@ -330,21 +339,31 @@ const ChatMessenger: React.FC = () => {
                             </DialogHeader>
                             <div className="max-h-[60vh] overflow-y-auto">
                                 {allPatients
-                                    .filter(p => !chat.some(c => c.id === p.id)) // Mostra solo pazienti non ancora in chat
+                                    .filter(
+                                        (p) => !chat.some((c) => c.id === p.id)
+                                    ) // Mostra solo pazienti non ancora in chat
                                     .map((paziente) => (
-                                    <div
-                                        key={paziente.id}
-                                        className="flex items-center p-3 cursor-pointer hover:bg-accent rounded-lg"
-                                        onClick={() => handleStartNewChat(paziente)}
-                                    >
-                                        <Avatar className="w-10 h-10">
-                                            <AvatarFallback>{paziente.nome.charAt(0)}{paziente.cognome.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="ml-3">
-                                            <p className="font-semibold">{paziente.nome} {paziente.cognome}</p>
+                                        <div
+                                            key={paziente.id}
+                                            className="flex items-center p-3 cursor-pointer hover:bg-accent rounded-lg"
+                                            onClick={() =>
+                                                handleStartNewChat(paziente)
+                                            }
+                                        >
+                                            <Avatar className="w-10 h-10">
+                                                <AvatarFallback>
+                                                    {paziente.nome.charAt(0)}
+                                                    {paziente.cognome.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="ml-3">
+                                                <p className="font-semibold">
+                                                    {paziente.nome}{" "}
+                                                    {paziente.cognome}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         </DialogContent>
                     </Dialog>
@@ -354,7 +373,9 @@ const ChatMessenger: React.FC = () => {
                         <div
                             key={c.id}
                             className={`mt-1 mr-2 flex rounded-4xl items-center p-4 cursor-pointer hover:bg-primary ${
-                                activeChat?.id === c.id ? "border-2 border-primary" : ""
+                                activeChat?.id === c.id
+                                    ? "border-2 border-primary"
+                                    : ""
                             }`}
                             onClick={() => handleSetActiveChat(c)}
                         >
@@ -373,20 +394,23 @@ const ChatMessenger: React.FC = () => {
                                     {c.ultima_data_invio && (
                                         <div className="text-xs text-muted-foreground text-right">
                                             <span>
-                                                {new Date(c.ultima_data_invio).toLocaleDateString('sv-SE')}
+                                                {new Date(
+                                                    c.ultima_data_invio
+                                                ).toLocaleDateString("sv-SE")}
                                             </span>
                                             <br />
                                             <span>
-                                                {new Date(c.ultima_data_invio).toLocaleTimeString('it-IT', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
+                                                {new Date(
+                                                    c.ultima_data_invio
+                                                ).toLocaleTimeString("it-IT", {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
                                                 })}
                                             </span>
                                         </div>
                                     )}
                                 </div>
 
-                                
                                 <p className="text-sm text-muted-foreground truncate max-w-[100%]">
                                     {c.ultimo_testo}
                                 </p>
