@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FiEdit2 } from "react-icons/fi";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import { apiPatch } from "@/lib/api";
+import { apiPatch } from "@/lib/api"; 
 import { useEffect } from "react";
 
 interface ExerciseShort {
@@ -18,6 +18,12 @@ interface ExerciseShort {
   immagine?: string;
 }
 
+/**
+ * Componente che gestisce la modifica di un esercizio esistente.
+ * Apre un modale (Dialog) con un form pre-compilato con i dati dell'esercizio.
+ * exercise L'oggetto esercizio da modificare.
+ * onUpdated Callback da eseguire dopo un aggiornamento andato a buon fine.
+ */
 export function ModificaEsercizio({
   exercise,
   onUpdated,
@@ -26,6 +32,7 @@ export function ModificaEsercizio({
   onUpdated: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
+
   const [form, setForm] = React.useState({
     nome: exercise.nome ?? "",
     descrizione: exercise.descrizione ?? "",
@@ -34,11 +41,13 @@ export function ModificaEsercizio({
     immagine: exercise.immagine ?? "",
     video: exercise.video ?? "",
   });
+
+  /* stato per messaggi di successo o errore */
   const [status, setStatus] = React.useState<[string, string]>(["", ""]);
   const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
-    // sync when exercise prop changes
+    // Sincronizza lo stato del form se le props dell'esercizio cambiano.
     setForm({
       nome: exercise.nome ?? "",
       descrizione: exercise.descrizione ?? "",
@@ -49,49 +58,55 @@ export function ModificaEsercizio({
     });
   }, [exercise]);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus(["", ""]);
-    if (!form.nome.trim()) {
-      setStatus(["error", "Il nome è obbligatorio"]);
-      return;
-    }
-    if (form.nome.trim().length > 50) {
-      setStatus(["error", "Il nome non può superare i 50 caratteri."]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const body = {
-        nome: form.nome.trim(),
-        descrizione: form.descrizione.trim(),
-        descrizione_svolgimento: form.descrizione_svolgimento.trim(),
-        consigli_svolgimento: form.consigli_svolgimento.trim(),
-        immagine: form.immagine?.trim() || undefined,
-        video: form.video?.trim() || undefined,
-      };
-
-      const res = await apiPatch(`/exercise/${exercise.id}`, body);
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        setStatus(["error", err?.message ?? `Errore (${res.status})`]);
+  /*Gestisce il salvataggio delle modifiche all'esercizio.*/
+  const handleSave = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setStatus(["", ""]);
+      // Validazione dei campi obbligatori e della lunghezza.
+      if (!form.nome.trim()) {
+        setStatus(["error", "Il nome è obbligatorio"]);
+        return;
+      }
+      if (form.nome.trim().length > 50) {
+        setStatus(["error", "Il nome non può superare i 50 caratteri."]);
         return;
       }
 
-      setStatus(["success", "Esercizio aggiornato"]);
-      setTimeout(() => {
-        setOpen(false);
-        onUpdated();
-        setStatus(["", ""]);
-      }, 900);
-    } catch (err) {
-      console.error(err);
-      setStatus(["error", "Errore di rete"]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoading(true);
+      try {
+        const body = {
+          nome: form.nome.trim(),
+          descrizione: form.descrizione.trim(),
+          descrizione_svolgimento: form.descrizione_svolgimento.trim(),
+          consigli_svolgimento: form.consigli_svolgimento.trim(),
+          immagine: form.immagine?.trim() || undefined,
+          video: form.video?.trim() || undefined,
+        };
+
+        // Invia i dati aggiornati al server.
+        const res = await apiPatch(`/exercise/${exercise.id}`, body);
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          setStatus(["error", err?.message ?? `Errore (${res.status})`]);
+          return;
+        }
+        
+        setStatus(["success", "Esercizio aggiornato"]);
+        setTimeout(() => {
+          setOpen(false);
+          onUpdated();
+          setStatus(["", ""]);
+        }, 900);
+      } catch (err) {
+        console.error(err);
+        setStatus(["error", "Errore di rete"]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [form, exercise.id, onUpdated]
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -106,6 +121,7 @@ export function ModificaEsercizio({
           <DialogTitle>Modifica Esercizio</DialogTitle>
         </DialogHeader>
 
+        {/* Form per la modifica dei dati dell'esercizio */}
         <form onSubmit={handleSave} className="space-y-3 mt-2">
           <div>
             <Label htmlFor="nome">Nome</Label>
@@ -149,6 +165,7 @@ export function ModificaEsercizio({
             <Input id="video" value={form.video} onChange={(e) => setForm((s) => ({ ...s, video: e.target.value }))} />
           </div>
 
+          {/* Area per visualizzare i messaggi di stato (successo/errore) */}
           {status[0] === "success" && (
             <div className="flex items-center gap-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
               <CheckCircle2 className="h-5 w-5" />

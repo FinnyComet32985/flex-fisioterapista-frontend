@@ -11,22 +11,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { apiPost } from "@/lib/api";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "../ui/textarea";
 
+// Definizione del tipo per i dati del form di un nuovo esercizio
 interface FormData {
   nome: string;
   descrizione: string;
   descrizione_svolgimento: string;
   consigli_svolgimento: string;
-  immagine?: string; // OPTIONAL
-  video?: string; // OPTIONAL
+  immagine?: string; // Campo opzionale per l'URL dell'immagine
+  video?: string; // Campo opzionale per l'URL del video
 }
 
+// Tipo per la gestione degli errori di validazione, mappando i campi del form a messaggi di errore
 type Errors = Partial<Record<keyof FormData, string>>;
 
+// Stato iniziale e vuoto per il form, usato per l'inizializzazione e il reset
 const inizialeFormData: FormData = {
   nome: "",
   descrizione: "",
@@ -36,15 +39,69 @@ const inizialeFormData: FormData = {
   video: "",
 };
 
+/* Componente che renderizza un form per la creazione di un nuovo esercizio.*/
 function NuovoEsercizio() {
+  // Stato per i dati correnti del form
   const [formData, setFormData] = useState<FormData>(inizialeFormData);
+  // Stato per memorizzare e visualizzare gli errori di validazione
   const [errors, setErrors] = useState<Errors>({});
+  // Stato per gestire la visualizzazione del caricamento durante l'invio
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // Stato per mostrare messaggi di successo o errore all'utente
   const [status, setStatus] = useState<string>("");
 
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const validateField = useCallback(
+    (
+    name: keyof FormData,
+    value: string | undefined
+  ): string | undefined => {
+      switch (name) {
+        case "nome":
+          if (typeof value !== "string" || !value.trim())
+            return "Il nome è obbligatorio";
+          if (value.length > 50)
+            return "Il nome non può superare i 50 caratteri.";
+          return undefined;
+        case "descrizione":
+          if (typeof value !== "string" || !value.trim())
+            return "Questo campo è obbligatorio";
+          return undefined;
+  
+        case "descrizione_svolgimento":
+          if (typeof value !== "string" || !value.trim())
+            return "Inserisci una descrizione valida";
+          return undefined;
+  
+        case "consigli_svolgimento":
+          if (typeof value !== "string" || !value.trim())
+            return "Inserisci dei consigli validi";
+          return undefined;
+  
+        case "immagine":
+          // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
+          if (!value || !value.trim()) return undefined;
+          if (!/^https?:\/\//i.test(value.trim()))
+            return "Inserisci un URL dell'immagine valido (http/https)";
+          return undefined;
+  
+        case "video":
+          // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
+          if (!value || !value.trim()) return undefined;
+          if (!/^https?:\/\//i.test(value.trim()))
+            return "Inserisci un URL del video valido (http/https)";
+          return undefined;
+  
+        default:
+          return undefined;
+      }
+    },
+    []
+  );
+
+  /* Gestisce le modifiche ai campi di input del form.*/
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => {
@@ -54,62 +111,18 @@ function NuovoEsercizio() {
       else delete next[name as keyof FormData];
       return next;
     });
-  };
+  }, [validateField]);
 
-  // reset completa del form
-  const handleCancel = () => {
+  /*Resetta completamente lo stato del form ai valori iniziali.*/
+  const handleCancel = useCallback(() => {
     setFormData(inizialeFormData);
     setErrors({});
     setIsLoading(false);
     setStatus("");
-  };
+  }, []);
 
-  const validateField = (
-    name: keyof FormData,
-    value: string | undefined
-  ): string | undefined => {
-    switch (name) {
-      case "nome":
-        if (typeof value !== "string" || !value.trim())
-          return "Il nome è obbligatorio";
-        if (value.length > 50)
-          return "Il nome non può superare i 50 caratteri.";
-        return undefined;
-      case "descrizione":
-        if (typeof value !== "string" || !value.trim())
-          return "Questo campo è obbligatorio";
-        return undefined;
-
-      case "descrizione_svolgimento":
-        if (typeof value !== "string" || !value.trim())
-          return "Inserisci una descrizione valida";
-        return undefined;
-
-      case "consigli_svolgimento":
-        if (typeof value !== "string" || !value.trim())
-          return "Inserisci dei consigli validi";
-        return undefined;
-
-      case "immagine":
-        // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
-        if (!value || !value.trim()) return undefined;
-        if (!/^https?:\/\//i.test(value.trim()))
-          return "Inserisci un URL dell'immagine valido (http/https)";
-        return undefined;
-
-      case "video":
-        // optional: se vuoto va bene, altrimenti verifica minimale che sia un URL
-        if (!value || !value.trim()) return undefined;
-        if (!/^https?:\/\//i.test(value.trim()))
-          return "Inserisci un URL del video valido (http/https)";
-        return undefined;
-
-      default:
-        return undefined;
-    }
-  };
-
-  const validateAll = (data: FormData): Errors => {
+  /* Esegue la validazione su tutti i campi del form. */
+  const validateAll = useCallback((data: FormData): Errors => {
     const newErrors: Errors = {};
     (Object.keys(data) as (keyof FormData)[]).forEach((key) => {
       const val = data[key];
@@ -117,41 +130,49 @@ function NuovoEsercizio() {
       if (err) newErrors[key] = err;
     });
     return newErrors;
-  };
+  }, [validateField]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const newErrors = validateAll(formData);
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      setIsLoading(true);
-      try {
-        const result = await apiPost("/exercise", formData);
-        if (!result.ok) {
+  /* Gestisce l'invio del form. */
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+      e.preventDefault();
+      // Esegue la validazione completa prima dell'invio
+      const newErrors = validateAll(formData);
+      setErrors(newErrors);
+      if (Object.keys(newErrors).length === 0) {
+        setIsLoading(true);
+        // Invia i dati del form al server
+        try {
+          const result = await apiPost("/exercise", formData);
+          if (!result.ok) {
+            setStatus("error");
+            setIsLoading(false);
+            setTimeout(() => {
+              setFormData(inizialeFormData);
+              setErrors({});
+              setStatus("");
+            }, 2000);
+            throw new Error("Errore durante l'invio dei dati");
+          }
+          // In caso di successo (status 201 Created)
+          if (result.status === 201) {
+            setStatus("success");
+            setIsLoading(false);
+            setTimeout(() => {
+              setFormData(inizialeFormData);
+              setErrors({});
+              setStatus("");
+              navigate("/catalogo-esercizi");
+            }, 3000);
+          }
+        } catch (error) {
+          // Gestisce errori di rete o altri fallimenti della richiesta
+          console.error("Errore durante l'invio dei dati:", error);
           setStatus("error");
           setIsLoading(false);
-          setTimeout(() => {
-            setFormData(inizialeFormData);
-            setErrors({});
-            setStatus("");
-          }, 2000);
-          throw new Error("Errore durante l'invio dei dati");
         }
-        if (result.status === 201) {
-          setStatus("success");
-          setIsLoading(false);
-          setTimeout(() => {
-            setFormData(inizialeFormData);
-            setErrors({});
-            setStatus("");
-            navigate("/catalogo-esercizi");
-          }, 3000);
-        }
-      } catch (error) {
-        console.error("Errore durante l'invio dei dati:", error);
       }
-    }
-  }
+    }, [formData, navigate, validateAll]
+  );
 
   return (
     <div className="w-full max-w-md">
@@ -159,6 +180,7 @@ function NuovoEsercizio() {
         <FieldGroup>
           <FieldSet>
             <FieldLegend>Nuovo esercizio</FieldLegend>
+            {/* Messaggi di stato per feedback all'utente */}
             <FieldDescription>
               Aggiungi un nuovo esercizio al catalogo
             </FieldDescription>
@@ -174,6 +196,7 @@ function NuovoEsercizio() {
                 <span>Errore durante l'aggiunta dell'esercizio.</span>
               </div>
             )}
+            {/* Gruppo di campi del form */}
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="nome">Nome esercizio</FieldLabel>
@@ -282,6 +305,7 @@ function NuovoEsercizio() {
             </FieldGroup>
           </FieldSet>
           <FieldSeparator />
+          {/* Pulsanti di azione per inviare o annullare */}
           <Field orientation="horizontal">
             <Button
               type="submit"

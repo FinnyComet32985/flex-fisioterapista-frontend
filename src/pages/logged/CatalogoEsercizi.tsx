@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 import { apiDelete, apiGet } from "@/lib/api";
 import { TrashIcon } from "lucide-react";
 import {
@@ -16,6 +15,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { ModificaEsercizio } from "@/components/custom/ModificaEsercizio";
 
 interface Exercise {
@@ -37,6 +42,7 @@ const CatalogoEsercizi: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
+    /* funzione per ottenere l'URL completo dell'immagine */
     const getImageSrc = (path?: string) => {
         const fallback =
             "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b";
@@ -53,20 +59,16 @@ const CatalogoEsercizi: React.FC = () => {
         return fallback;
     };
 
-    const fetchEsercizi = async () => {
+    /* funzione per ottenere la lista degli esercizi dal server */
+    const fetchEsercizi = useCallback(async () => {
+        setLoading(true);
+        setError(null);
         try {
             const response = await apiGet("/exercise");
 
-            if (response.status === 200) {
-                setLoading(false);
+            if (response.ok) {
                 const data: Exercise[] = await response.json();
-                console.log("Esercizi caricati:", data);
-                setExercises(data);
-                setError(null);
-            } else if (response.status === 204) {
-                setLoading(false);
-                setExercises([]);
-                setError(null);
+                setExercises(data || []); // Gestisce anche il caso 204 No Content
             } else if (!response.ok) {
                 throw new Error("Impossibile caricare la lista degli esercizi");
             }
@@ -78,32 +80,34 @@ const CatalogoEsercizi: React.FC = () => {
             );
             console.error("Errore nel caricamento degli esercizi:", err);
         } finally {
+            setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchEsercizi();
-    }, []);
-
-    // ora gli esercizi sono nello state così possiamo rimuoverli
+    }, [fetchEsercizi]);
 
     // handler per cancellare esercizio (con conferma) — optimistic update + rollback
-    const handleDeleteExercise = async (id: number) => {
+    const handleDeleteExercise = useCallback(async (id: number) => {
+        // Salvataggio dello stato originale per il rollback
+        const originalExercises = [...exercises];
+
+        // Aggiornamento ottimistico dell'interfaccia
+        setExercises((currentExercises) => currentExercises.filter((e) => e.id !== id));
+
         try {
+            // Chiamata al server
             const response = await apiDelete(`/exercise/${id}`);
-            if (response.status === 409) {
+
+            // Se la chiamata fallisce, esegui il rollback
+            if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.message);
-            } else if (!response.ok) {
-                // rollback: ripristina la lista dal server (o dallo snapshot)
-                throw new Error("Impossibile eliminare l'esercizio");
-            } else if (response.status === 200) {
-                setExercises((s) => s.filter((e) => e.id !== id));
+                throw new Error(data.message || "Impossibile eliminare l'esercizio");
             }
-            // opzionale: forzare un refetch per essere sicuri di avere dati aggiornati
-            // await fetchEsercizi();
         } catch (err) {
-            setLoading(false);
+            // Rollback in caso di errore e notifica all'utente
+            setExercises(originalExercises);
             setError(
                 err instanceof Error
                     ? err.message
@@ -111,11 +115,9 @@ const CatalogoEsercizi: React.FC = () => {
             );
             console.error(err);
 
-            setTimeout(() => {
-                setError(null);
-            }, 5000);
+            setTimeout(() => setError(null), 5000);
         }
-    };
+    }, [exercises]);
 
     const WorkoutDisplay: React.FC<{ exercise: Exercise }> = ({ exercise }) => (
         <div className="relative bg-[color:var(--color-card)] rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow border border-[color:var(--color-border)]">
@@ -261,65 +263,28 @@ const CatalogoEsercizi: React.FC = () => {
                 ))}
             </div>
 
-            {/* MODALE VIDEO */}
-            {videoSelezionato && (
-                <div
-                    onClick={() => setVideoSelezionato(null)}
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100vw",
-                        height: "100vh",
-                        backgroundColor: "rgba(0,0,0,0.7)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 999,
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            background: "white",
-                            padding: "20px",
-                            borderRadius: "12px",
-                            maxWidth: "800px",
-                            width: "90%",
-                            boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-                            position: "relative",
-                        }}
-                    >
-                        <button
-                            onClick={() => setVideoSelezionato(null)}
-                            aria-label="Chiudi"
-                            style={{
-                                position: "absolute",
-                                top: "10px",
-                                right: "15px",
-                                border: "none",
-                                background: "none",
-                                fontSize: "20px",
-                                cursor: "pointer",
-                            }}
-                        >
-                            ✖
-                        </button>
-
-                        {/* Se il video è di YouTube */}
-                        {videoSelezionato.includes("youtube.com") ||
-                        videoSelezionato.includes("youtu.be") ? (
+            {/* Modale Video con componente Dialog */}
+            <Dialog
+                open={!!videoSelezionato}
+                onOpenChange={(isOpen) => !isOpen && setVideoSelezionato(null)}
+            >
+                <DialogContent className="w-[90vw] sm:max-w-[1200px]">
+                    <DialogHeader>
+                        <DialogTitle>Video Esercizio</DialogTitle>
+                    </DialogHeader>
+                    <div className="aspect-video">
+                        {videoSelezionato &&
+                        (videoSelezionato.includes("youtube.com") ||
+                            videoSelezionato.includes("youtu.be")) ? (
                             <iframe
-                                width="100%"
-                                height="450"
+                                className="w-full h-full rounded-lg"
                                 src={
                                     videoSelezionato.includes("watch?v=")
                                         ? videoSelezionato.replace(
                                               "watch?v=",
                                               "embed/"
                                           )
-                                        : // convert shortened youtu.be into embed
-                                        videoSelezionato.includes("youtu.be")
+                                        : videoSelezionato.includes("youtu.be")
                                         ? videoSelezionato.replace(
                                               "https://youtu.be/",
                                               "https://www.youtube.com/embed/"
@@ -327,20 +292,20 @@ const CatalogoEsercizi: React.FC = () => {
                                         : videoSelezionato
                                 }
                                 title="Video esercizio"
+                                frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
-                                style={{ borderRadius: 8 }}
                             />
                         ) : (
                             <video
-                                src={videoSelezionato}
+                                src={getImageSrc(videoSelezionato!)}
                                 controls
-                                style={{ width: "100%", borderRadius: 8 }}
+                                className="w-full h-full rounded-lg"
                             />
                         )}
                     </div>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
