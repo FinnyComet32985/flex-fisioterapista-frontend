@@ -1,5 +1,5 @@
 // Importazione delle dipendenze React necessarie
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // Importazione delle icone da react-icons/fi per l'interfaccia utente
 import {
@@ -65,7 +65,11 @@ const ChatMessenger: React.FC = () => {
     const [chat, setChat] = useState<Chat[]>([]);
     const [activeChat, setActiveChat] = useState<Chat | null>(null); // Contatto selezionato
 
-    const fetchChat = async () => {
+    //* useCallback salva la dichiarazione della funzione in modo che non venga ricreata ad ogni render.
+    //* Questo evita di eliminare e ricreare il polling ad ogni render, garantendo chiamate ogni 2 secondi
+    //* senza rischiare di eseguire più o meno fetch del necessario.
+
+    const fetchChat = useCallback(async () => {
         try {
             const response = await apiGet("/chat");
             if (!response.ok) {
@@ -77,7 +81,7 @@ const ChatMessenger: React.FC = () => {
         } catch (err) {
             console.error("Errore nel caricamento dei pazienti:", err);
         }
-    };
+    }, []);
 
     const fetchAllPatients = async () => {
         try {
@@ -97,7 +101,7 @@ const ChatMessenger: React.FC = () => {
     /* MESSAGGI */
     const [messaggi, setMessaggi] = useState<Messaggio[]>([]);
 
-    const fetchMessaggi = async (chat_id: number) => {
+    const fetchMessaggi = useCallback(async (chat_id: number) => {
         try {
             const response = await apiGet(`/chat/${chat_id}`);
             if (!response.ok) {
@@ -113,7 +117,7 @@ const ChatMessenger: React.FC = () => {
         } catch (err) {
             console.error("Errore nel caricamento dei messaggi:", err);
         }
-    };
+    }, []);
 
     // === EFFETTI DI POLLING ===
 
@@ -128,7 +132,7 @@ const ChatMessenger: React.FC = () => {
 
         // quando l'useEffect ritorna una funzione allora questa viene eseguita allo smontaggio del componente
         return () => clearInterval(chatPollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
-    }, []); // L'array vuoto assicura che l'effetto venga eseguito solo una volta al mount
+    }, [fetchChat]); // La dipendenza da fetchChat (memoizzata) assicura che l'effetto venga eseguito solo al mount.
 
     // 2. Polling Messaggi (ogni 2 secondi)
     useEffect(() => {
@@ -141,7 +145,7 @@ const ChatMessenger: React.FC = () => {
         }, 2000); // Aggiorna ogni 2 secondi per nuovi messaggi
 
         return () => clearInterval(messagePollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
-    }, [activeChat]); // viene eseguito ogni volta che cambia la chat per creare il pooling sulla chat corretta
+    }, [activeChat, fetchMessaggi]); // Si attiva quando cambia la chat attiva per avviare il polling dei messaggi corretti.
 
     // Effetto per impostare la chat attiva quando i dati vengono caricati
     useEffect(() => {

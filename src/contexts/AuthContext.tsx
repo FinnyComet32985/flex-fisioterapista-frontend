@@ -146,8 +146,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={contextValue}>
-            {children}
+        <AuthContext.Provider value={contextValue}> {/* il componente .Provider ha lo scopo di fornire il value a tutti i figli che ne necessitano */}
+            {children} {/* prende il prop children e lo renderizza esattamente come l'ha ricevuto*/}
         </AuthContext.Provider>
     );
 };
