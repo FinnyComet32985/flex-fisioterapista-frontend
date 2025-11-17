@@ -38,6 +38,7 @@ type Chat = {
     ultimo_testo?: string;
     ultima_data_invio?: Date;
     ultimo_mittente?: string;
+    isFictitious?: boolean; // flag opzionale per vedere se la chat è fittizzia
 };
 
 type Messaggio = {
@@ -123,6 +124,11 @@ const ChatMessenger: React.FC = () => {
 
     // 1. Polling Iniziale e Lista Chat (ogni 5 secondi)
     useEffect(() => {
+        // Se la chat attiva è fittizia, non avviare il polling per la lista chat
+        if (activeChat && activeChat.isFictitious) {
+            return;
+        }
+
         fetchChat(); // Primo fetch al mount
 
         // Aggiorna la lista delle chat ogni 5 secondi per mantenere l'elenco sincronizzato
@@ -132,11 +138,12 @@ const ChatMessenger: React.FC = () => {
 
         // quando l'useEffect ritorna una funzione allora questa viene eseguita allo smontaggio del componente
         return () => clearInterval(chatPollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
-    }, [fetchChat]); // La dipendenza da fetchChat (memoizzata) assicura che l'effetto venga eseguito solo al mount.
+    }, [fetchChat, activeChat]); // Si riattiva se la chat attiva cambia (es. da fittizia a reale)
 
     // 2. Polling Messaggi (ogni 2 secondi)
     useEffect(() => {
-        if (!activeChat) return; // Non avviare il polling se non c'è una chat attiva
+        // Non avviare il polling se non c'è una chat attiva o se è fittizia
+        if (!activeChat || activeChat.isFictitious) return;
 
         // Primo fetch viene gestito da handleSetActiveChat
 
@@ -146,44 +153,36 @@ const ChatMessenger: React.FC = () => {
 
         return () => clearInterval(messagePollingInterval); // stoppa l'aggiornamento quando il componente viene smontato
     }, [activeChat, fetchMessaggi]); // Si attiva quando cambia la chat attiva per avviare il polling dei messaggi corretti.
+    
+    
+    const handleSetActiveChat = useCallback(
+        (newActiveChat: Chat) => {
+            // Se la chat precedente era fittizia (e quindi vuota), rimuovila.
+            if (activeChat?.isFictitious) {
+                setChat((prev) => prev.filter((c) => c.id !== activeChat.id));
+            }
 
-    // Effetto per impostare la chat attiva quando i dati vengono caricati
+            setActiveChat(newActiveChat); // imposta la nuova chat come attiva
+            fetchMessaggi(newActiveChat.id); // Carica i messaggi per la chat selezionata
+        },
+        [activeChat, fetchMessaggi]
+    ); // Le dipendenze assicurano che la funzione si aggiorni solo se activeChat o fetchMessaggi cambiano.
+
+    // Effetto per impostare la chat attiva all'avvio del componente.
+    // Viene eseguito quando la lista delle chat viene caricata per la prima volta.
     useEffect(() => {
-        // Se non c'è una chat attiva e la lista delle chat è stata caricata,
-        // imposta la prima chat della lista come attiva.
-        if (!activeChat && chat.length > 0) {
+        // Se la chat precedente era fittizia (e quindi vuota), rimuovila.
+        if (!activeChat && chat.length > 0 && !chat[0].isFictitious) {
             handleSetActiveChat(chat[0]);
         }
-    }, [chat]); // Questo effetto si attiva ogni volta che 'chat' cambia
+    }, [chat, activeChat, handleSetActiveChat]); // l'effetto viene richiamato ogni volta che cambia chat e active chat
+    // Le dipendenze includono tutto ciò che l'effetto usa, per rispettare le regole degli hook.
 
     // Stati per la gestione della chat
     const [searchQuery, setSearchQuery] = useState<string>(""); // Ricerca contatti
     const [newMessage, setNewMessage] = useState<string>(""); // Testo nuovo messaggio
     const messageEndRef = useRef<HTMLDivElement | null>(null); // Riferimento per lo scroll automatico
     // const fileInputRef = useRef<HTMLInputElement | null>(null); // Riferimento per input file
-
-    const handleSetActiveChat = (chat: Chat) => {
-        // Controlla se la chat precedente era fittizia e non utilizzata
-        if (activeChat && !messaggi.length) {
-            // Verifica se la chat precedente esiste realmente sul server (chiamando fetchChat)
-            apiGet("/chat")
-                .then((response) => response.json())
-                .then((realChats: Chat[]) => {
-                    const isPreviousChatFictitious = !realChats.some(
-                        (c) => c.id === activeChat.id
-                    ); // .some() restituisce vero se esiste almeno un oggetto che soddisfa un requisito
-                    if (isPreviousChatFictitious) {
-                        // Rimuovi la chat fittizia se l'utente cambia conversazione senza aver scritto
-                        setChat((prev) =>
-                            prev.filter((c) => c.id !== activeChat.id)
-                        );
-                    }
-                });
-        }
-
-        setActiveChat(chat);
-        fetchMessaggi(chat.id); // Carica i messaggi per la chat selezionata
-    };
 
     // Gestisce la selezione di un paziente per avviare una nuova chat
     const handleStartNewChat = (paziente: Paziente) => {
@@ -200,6 +199,7 @@ const ChatMessenger: React.FC = () => {
                 nome: paziente.nome,
                 cognome: paziente.cognome,
                 immagine: "", // Placeholder per l'immagine
+                isFictitious: true, // Impostiamo il flag della chat fittizzia
             };
             setChat((prev) => [newChat, ...prev]); // Aggiunge la nuova chat in cima alla lista
             setActiveChat(newChat); // Imposta la nuova chat come attiva
@@ -241,6 +241,12 @@ const ChatMessenger: React.FC = () => {
                 if (!response.ok) {
                     throw new Error("Impossibile inviare il messaggio");
                 } else {
+                    // Se l'invio va a buon fine, la chat non è più fittizia
+                    if (activeChat.isFictitious) {
+                        setChat(prev => prev.map(c => c.id === activeChat.id ? {...c, isFictitious: false} : c)); // imposta la chat come non fittizzia
+                        setActiveChat(prev => prev ? {...prev, isFictitious: false} : null); // se prev non è nullo imposta isFictious su false, altrimenti lascia null
+                    }
+
                     fetchMessaggi(activeChat.id); // Aggiorna i messaggi dopo l'invio
                     fetchChat(); // Aggiorna la lista chat per il cambio di ultimo_testo/data
                 }
@@ -310,8 +316,6 @@ const ChatMessenger: React.FC = () => {
                     isMobileView && activeChat ? "hidden" : "w-full md:w-1/3"
                 } bg-backgrownd border-r border-border`}
             >
-                {" "}
-                 
                 <div className="p-4 border-b border-border flex items-center gap-4">
                     <div className="relative flex-1">
                         <FiSearch className="absolute left-3 top-3 text-muted-foreground" />
