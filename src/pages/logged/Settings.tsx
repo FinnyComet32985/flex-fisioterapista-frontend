@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiPatch, apiPost } from "@/lib/api";
-import { useState, useEffect, useMemo } from "react";
-import { FiUser, FiLock, FiSave } from "react-icons/fi"; // Icone
-import { useLocation, useNavigate } from "react-router-dom"; // Hook per la navigazione e gestione della rotta
+import { useState, useMemo } from "react";
+import { FiUser, FiLock, FiSave } from "react-icons/fi";
+import { useLocation, useNavigate } from "react-router-dom"; 
 
 // tipo dati del profilo utente
 type ProfileData = {
