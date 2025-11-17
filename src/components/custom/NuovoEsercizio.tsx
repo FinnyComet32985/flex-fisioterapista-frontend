@@ -133,46 +133,45 @@ function NuovoEsercizio() {
   }, [validateField]);
 
   /* Gestisce l'invio del form. */
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-      e.preventDefault();
-      // Esegue la validazione completa prima dell'invio
-      const newErrors = validateAll(formData);
-      setErrors(newErrors);
-      if (Object.keys(newErrors).length === 0) {
-        setIsLoading(true);
-        // Invia i dati del form al server
-        try {
-          const result = await apiPost("/exercise", formData);
-          if (!result.ok) {
-            setStatus("error");
-            setIsLoading(false);
-            setTimeout(() => {
-              setFormData(inizialeFormData);
-              setErrors({});
-              setStatus("");
-            }, 2000);
-            throw new Error("Errore durante l'invio dei dati");
-          }
-          // In caso di successo (status 201 Created)
-          if (result.status === 201) {
-            setStatus("success");
-            setIsLoading(false);
-            setTimeout(() => {
-              setFormData(inizialeFormData);
-              setErrors({});
-              setStatus("");
-              navigate("/catalogo-esercizi");
-            }, 3000);
-          }
-        } catch (error) {
-          // Gestisce errori di rete o altri fallimenti della richiesta
-          console.error("Errore durante l'invio dei dati:", error);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Esegue la validazione completa prima dell'invio
+    const newErrors = validateAll(formData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true);
+      // Invia i dati del form al server
+      try {
+        const result = await apiPost("/exercise", formData);
+        if (!result.ok) {
           setStatus("error");
           setIsLoading(false);
+          setTimeout(() => {
+            setFormData(inizialeFormData);
+            setErrors({});
+            setStatus("");
+          }, 2000);
+          throw new Error("Errore durante l'invio dei dati");
         }
+        // In caso di successo (status 201 Created)
+        if (result.status === 201) {
+          setStatus("success");
+          setIsLoading(false);
+          setTimeout(() => {
+            setFormData(inizialeFormData);
+            setErrors({});
+            setStatus("");
+            navigate("/catalogo-esercizi");
+          }, 3000);
+        }
+      } catch (error) {
+        // Gestisce errori di rete o altri fallimenti della richiesta
+        console.error("Errore durante l'invio dei dati:", error);
+        setStatus("error");
+        setIsLoading(false);
       }
-    }, [formData, navigate, validateAll]
-  );
+    }
+  };
 
   return (
     <div className="w-full max-w-md">

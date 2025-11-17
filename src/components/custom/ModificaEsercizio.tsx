@@ -54,54 +54,51 @@ export function ModificaEsercizio({
   }, [exercise]);
 
   /*Gestisce il salvataggio delle modifiche all'esercizio.*/
-  const handleSave = React.useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setStatus(["", ""]);
-      // Validazione dei campi obbligatori e della lunghezza.
-      if (!form.nome.trim()) {
-        setStatus(["error", "Il nome è obbligatorio"]);
-        return;
-      }
-      if (form.nome.trim().length > 50) {
-        setStatus(["error", "Il nome non può superare i 50 caratteri."]);
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus(["", ""]);
+    // Validazione dei campi obbligatori e della lunghezza.
+    if (!form.nome.trim()) {
+      setStatus(["error", "Il nome è obbligatorio"]);
+      return;
+    }
+    if (form.nome.trim().length > 50) {
+      setStatus(["error", "Il nome non può superare i 50 caratteri."]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const body = {
+        nome: form.nome.trim(),
+        descrizione: form.descrizione.trim(),
+        descrizione_svolgimento: form.descrizione_svolgimento.trim(),
+        consigli_svolgimento: form.consigli_svolgimento.trim(),
+        immagine: form.immagine?.trim() || undefined,
+        video: form.video?.trim() || undefined,
+      };
+
+      // Invia i dati aggiornati al server.
+      const res = await apiPatch(`/exercise/${exercise.id}`, body);
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        setStatus(["error", err?.message ?? `Errore (${res.status})`]);
         return;
       }
 
-      setLoading(true);
-      try {
-        const body = {
-          nome: form.nome.trim(),
-          descrizione: form.descrizione.trim(),
-          descrizione_svolgimento: form.descrizione_svolgimento.trim(),
-          consigli_svolgimento: form.consigli_svolgimento.trim(),
-          immagine: form.immagine?.trim() || undefined,
-          video: form.video?.trim() || undefined,
-        };
-
-        // Invia i dati aggiornati al server.
-        const res = await apiPatch(`/exercise/${exercise.id}`, body);
-        if (!res.ok) {
-          const err = await res.json().catch(() => null);
-          setStatus(["error", err?.message ?? `Errore (${res.status})`]);
-          return;
-        }
-        
-        setStatus(["success", "Esercizio aggiornato"]);
-        setTimeout(() => {
-          setOpen(false);
-          onUpdated();
-          setStatus(["", ""]);
-        }, 900);
-      } catch (err) {
-        console.error(err);
-        setStatus(["error", "Errore di rete"]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [form, exercise.id, onUpdated]
-  );
+      setStatus(["success", "Esercizio aggiornato"]);
+      setTimeout(() => {
+        setOpen(false);
+        onUpdated();
+        setStatus(["", ""]);
+      }, 900);
+    } catch (err) {
+      console.error(err);
+      setStatus(["error", "Errore di rete"]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
