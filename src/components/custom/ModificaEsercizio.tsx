@@ -18,12 +18,7 @@ interface ExerciseShort {
   immagine?: string;
 }
 
-/**
- * Componente che gestisce la modifica di un esercizio esistente.
- * Apre un modale (Dialog) con un form pre-compilato con i dati dell'esercizio.
- * exercise L'oggetto esercizio da modificare.
- * onUpdated Callback da eseguire dopo un aggiornamento andato a buon fine.
- */
+/* Componente che gestisce la modifica di un esercizio esistente. */
 export function ModificaEsercizio({
   exercise,
   onUpdated,

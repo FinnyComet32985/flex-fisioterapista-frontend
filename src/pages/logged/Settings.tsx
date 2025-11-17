@@ -1,15 +1,17 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { apiPatch, apiPost } from "@/lib/api";
 import { useState, useEffect, useMemo } from "react";
-import { FiUser, FiLock, FiSave } from "react-icons/fi";
-import { useLocation, useNavigate } from "react-router-dom";
+import { FiUser, FiLock, FiSave } from "react-icons/fi"; // Icone
+import { useLocation, useNavigate } from "react-router-dom"; // Hook per la navigazione e gestione della rotta
 
+// tipo dati del profilo utente
 type ProfileData = {
   nome: string;
   cognome: string;
   email: string;
 };
 
+// tipo dati del form di cambio password
 type PasswordData = {
   currentPassword: string;
   newPassword: string;
@@ -17,28 +19,27 @@ type PasswordData = {
 };
 
 const SettingsPage: React.FC = () => {
+  // per passare dati tra rotte
   const location = useLocation();
   const navigate = useNavigate();
+  // Estrae i dati utente (name, email) passati tramite lo state della rotta, con un fallback a null
   const routeUser = (location.state as { name?: string; email?: string } | null) ?? null;
 
-  // UI state per submit
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
-  // handleChange semplice per aggiornare nome/cognome/email
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // handleSubmit: invia profileData con apiPatch("/profile")
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitError(null);
     setSubmitSuccess(null);
 
-    // semplice validazione client
+    // Validazione semplice lato client prima dell'invio
     if (!profileData.nome.trim() || !profileData.cognome.trim()) {
       setSubmitError("Nome e cognome sono obbligatori");
       return;
@@ -52,16 +53,15 @@ const SettingsPage: React.FC = () => {
     try {
       const result = await apiPatch("/profile", profileData);
 
-      // apiPatch dovrebbe restituire un Response-like (ok, status)
+      // Controlla se la chiamata API ha avuto successo (status 2xx)
       if (!result.ok) {
-        // prova a leggere il corpo per un messaggio d'errore
+        // Se la chiamata fallisce, prova a leggere il corpo della risposta per un messaggio d'errore
         const body = await result.json().catch(() => null);
         const msg = body?.message ?? body?.error ?? "Aggiornamento profilo fallito";
         setSubmitError(msg);
       } else {
         setSubmitSuccess("Profilo aggiornato con successo");
-        // opzionale: aggiorna UI / context qui se necessario
-        // redirect dopo breve pausa
+        // Dopo il successo, reindirizza l'utente alla home e ricarica la pagina per aggiornare i dati
         setTimeout(() => {
           setSubmitSuccess(null);
           navigate("/");
@@ -76,9 +76,10 @@ const SettingsPage: React.FC = () => {
     }
   }
 
-  // split nome completo in nome + cognome (se disponibile)
+  // Divide il nome completo
   const [nomeInit, cognomeInit] = routeUser?.name ? routeUser.name.split(" ", 2) : ["John", "Doe"];
 
+  // Stato per tenere traccia della scheda attiva ("profilo" o "sicurezza")
   const [activeTab, setActiveTab] = useState<"profile" | "security">("profile");
   const [profileData, setProfileData] = useState<ProfileData>({
     nome: nomeInit ?? "John",
@@ -91,11 +92,12 @@ const SettingsPage: React.FC = () => {
     newPassword: "",
     confirmPassword: "",
   });
-  // password change UI state
+ 
   const [pwLoading, setPwLoading] = useState<boolean>(false);
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwSuccess, setPwSuccess] = useState<string | null>(null);
 
+  // Oggetto per mappare gli ID delle schede ai loro nomi visualizzati
   const tabLabels: Record<"profile" | "security", string> = {
     profile: "Profilo",
     security: "Sicurezza",
@@ -106,7 +108,7 @@ const SettingsPage: React.FC = () => {
     setPwError(null);
     setPwSuccess(null);
 
-    // validation
+    // Validazione dei campi password
     if (!passwordData.currentPassword) {
       setPwError("Inserisci la password attuale");
       return;
@@ -130,19 +132,18 @@ const SettingsPage: React.FC = () => {
         return;
       }
 
-      // success
       setPwSuccess("Password aggiornata con successo");
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      // opzionale: se il backend ritorna nuovo token o forza logout, gestirlo qui
     } catch (err) {
       setPwError(err instanceof Error ? err.message : "Errore di rete");
     } finally {
       setPwLoading(false);
-      // rimuovi messaggio di successo dopo breve pausa
       if (pwSuccess) setTimeout(() => setPwSuccess(null), 2500);
     }
   };
 
+  // useMemo per ottimizzare il rendering del contenuto della scheda attiva.
+  // Il contenuto viene ricalcolato solo se una delle sue dipendenze cambia.
   const tabContent = useMemo(() => {
     switch (activeTab) {
       case "profile":
@@ -150,6 +151,7 @@ const SettingsPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-6">
               <div className="relative">
+                {/* Avatar dell'utente con le iniziali di nome e cognome */}
                 <Avatar className="w-32 h-32 border-4 border-card shadow-lg text-4xl">
                         <AvatarFallback>
                           {profileData.nome.charAt(0)}
@@ -157,6 +159,7 @@ const SettingsPage: React.FC = () => {
                         </AvatarFallback>
                       </Avatar>
               </div>
+              {/* Campi di input per nome, cognome ed email */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
@@ -184,8 +187,10 @@ const SettingsPage: React.FC = () => {
                 />
               </div>
             </div>
+            {/* Visualizzazione dei messaggi di errore o successo */}
             {submitError && <p className="text-sm text-[color:var(--color-destructive)]">{submitError}</p>}
             {submitSuccess && <p className="text-sm text-[color:var(--color-success)]">{submitSuccess}</p>}
+            {/* Pulsante di salvataggio con stato di caricamento */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -199,6 +204,7 @@ const SettingsPage: React.FC = () => {
 
       case "security":
         return (
+          // Form per l'aggiornamento della password
           <form onSubmit={handlePasswordUpdate} className="space-y-6">
             <div>
               <label className="block mb-2 text-sm font-medium text-[color:var(--color-muted-foreground)]">Password attuale</label>
@@ -233,8 +239,10 @@ const SettingsPage: React.FC = () => {
                 className="w-full px-4 py-2 border border-[color:var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-ring)] bg-[color:var(--color-input)] text-[color:var(--color-foreground)]"
               />
             </div>
+            {/* Visualizzazione dei messaggi di errore o successo per il cambio password */}
             {pwError && <p className="text-sm text-[color:var(--color-destructive)]">{pwError}</p>}
             {pwSuccess && <p className="text-sm text-[color:var(--color-success)]">{pwSuccess}</p>}
+            {/* Pulsante di aggiornamento password con stato di caricamento */}
             <button
               type="submit"
               disabled={pwLoading}
@@ -249,6 +257,7 @@ const SettingsPage: React.FC = () => {
       default:
         return null;
     }
+    // Array di dipendenze per useMemo: il contenuto si aggiorna solo se uno di questi valori cambia
   }, [activeTab, profileData, passwordData, handleChange, handleSubmit, handlePasswordUpdate, isSubmitting, submitError, submitSuccess, pwLoading, pwError, pwSuccess]);
 
   return (
@@ -274,7 +283,9 @@ const SettingsPage: React.FC = () => {
             </nav>
           </div>
           <div className="flex-1 p-8">
+            {/* Titolo dinamico basato sulla scheda attiva */}
             <h2 className="text-2xl font-bold mb-6 capitalize text-[color:var(--color-foreground)]">{tabLabels[activeTab]} impostazioni</h2>
+            {/* Renderizza il contenuto della scheda attiva (memoizzato) */}
             {tabContent}
           </div>
         </div>
