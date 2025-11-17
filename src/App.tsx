@@ -35,8 +35,6 @@ function App() {
             <Route path="/profilo-paziente" element={<ProfiloPazientePage />} />
             <Route path="/nuova-scheda/:pazienteId" element={<NuovaSchedaForm />} />
             <Route path="/modifica-scheda/:pazienteId/:schedaId" element={<ModificaScheda />} />
-            
-
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

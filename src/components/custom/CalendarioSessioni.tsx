@@ -76,6 +76,9 @@ export function CalendarioSessioni({
 
     const giorniConSessione = sessioni.map((s) => new Date(s.data_sessione));
 
+    // useCallback salva la dichiarazione della funzione in modo che non venga ricreata ad ogni render.
+    // Questo permette all'useEffect che la usa di eseguire il fetch della sessione solo quando
+    // cambia effettivamente la data selezionata o le sessioni, evitando chiamate API inutili.
     const fetchSessioneSelezionata = useCallback(
         async (nuovaData: Date | undefined) => {
             if (!nuovaData || sessioni.length === 0) {
